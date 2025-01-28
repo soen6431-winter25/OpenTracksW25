@@ -2,7 +2,7 @@
 name: Bug report
 about: Report issues of OpenTracks features
 title: ''
-labels: potential bug
+labels: ''
 assignees: ''
 
 ---
