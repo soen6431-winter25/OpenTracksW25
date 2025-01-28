@@ -1,8 +1,8 @@
 ---
-name: Data not recorded 
-about: Somehow OpenTracks did not record GPS data 
+name: Data not recorded
+about: Somehow OpenTracks did not record GPS data
 title: ''
-labels: potential bug 
+labels: ''
 assignees: ''
 
 ---
