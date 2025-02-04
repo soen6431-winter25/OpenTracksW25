@@ -5,7 +5,8 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.8.0'
+        classpath "com.android.tools.build:gradle:8.8.0"
+        classpath "org.bouncycastle:bcutil-jdk18on:1.79"
     }
 }
 
