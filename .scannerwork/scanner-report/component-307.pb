@@ -1,1 +1,0 @@
-³ 2xmlX¤hr4src/main/res/drawable/ic_activity_motorbike_24dp.xml

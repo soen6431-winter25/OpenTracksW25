@@ -1,1 +1,0 @@
-Ë 2xmlXhr-src/main/res/drawable/ic_baseline_info_24.xml

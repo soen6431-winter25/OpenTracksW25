@@ -1,1 +1,0 @@
-ê 2xmlXßhr&src/main/res/values-zh-rTW/strings.xml

@@ -1,1 +1,0 @@
-+ 2javaXçhrasrc/androidTest/java/de/dennisguse/opentracks/services/TrackRecordingServiceStateMachineTest.java

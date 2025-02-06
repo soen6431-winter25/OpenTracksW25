@@ -1,1 +1,0 @@
-  2javaXhresrc/androidTest/java/de/dennisguse/opentracks/sensors/BluetoothHandlerRunningSpeedAndCadenceTest.java

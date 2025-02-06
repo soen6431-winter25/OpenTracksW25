@@ -1,1 +1,0 @@
-% 2javaXWhresrc/androidTest/java/de/dennisguse/opentracks/services/announcement/VoiceAnnouncementManagerTest.java

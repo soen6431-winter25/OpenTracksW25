@@ -1,1 +1,0 @@
-i 2javaXfhr=src/main/java/de/dennisguse/opentracks/data/models/Speed.java

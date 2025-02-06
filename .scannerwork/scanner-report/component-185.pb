@@ -1,1 +1,0 @@
-¹ 2javaXµhrLsrc/main/java/de/dennisguse/opentracks/services/announcement/TTSManager.java

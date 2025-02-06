@@ -1,1 +1,0 @@
-. 2javaXÛhrPsrc/androidTest/java/de/dennisguse/opentracks/settings/PreferencesUtilsTest.java

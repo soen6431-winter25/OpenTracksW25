@@ -1,1 +1,0 @@
-¯ 2xmlX¹hrsrc/main/res/values/strings.xml

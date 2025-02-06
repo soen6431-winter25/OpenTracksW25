@@ -1,1 +1,0 @@
-§ 2javaXNhr?src/main/java/de/dennisguse/opentracks/sensors/GainManager.java

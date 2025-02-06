@@ -1,1 +1,0 @@
- 2javaX&hr_src/androidTest/java/de/dennisguse/opentracks/sensors/BluetoothHandlerManagerHeartRateTest.java

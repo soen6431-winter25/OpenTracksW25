@@ -1,1 +1,0 @@
-g 2javaXYhr@src/main/java/de/dennisguse/opentracks/data/models/Position.java

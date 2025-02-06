@@ -1,1 +1,0 @@
-} 2javaX%hrHsrc/main/java/de/dennisguse/opentracks/introduction/WelcomeFragment.java

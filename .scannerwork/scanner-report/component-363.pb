@@ -1,1 +1,0 @@
-ë 2xmlXhr,src/main/res/drawable/ic_select_all_24dp.xml

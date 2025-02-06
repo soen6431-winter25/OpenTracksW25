@@ -1,1 +1,0 @@
-› 2javaX5hr>src/main/java/de/dennisguse/opentracks/util/LocationUtils.java

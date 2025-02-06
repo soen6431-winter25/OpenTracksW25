@@ -1,1 +1,0 @@
-Ï 2xmlXhr-src/main/res/drawable/ic_baseline_stop_24.xml

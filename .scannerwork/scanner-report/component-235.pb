@@ -1,1 +1,0 @@
-ë 2javaXÔhrHsrc/main/java/de/dennisguse/opentracks/stats/TrackStatisticsUpdater.java

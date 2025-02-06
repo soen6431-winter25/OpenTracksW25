@@ -1,1 +1,0 @@
-O 2javaX+hr9src/main/java/de/dennisguse/opentracks/AboutActivity.java

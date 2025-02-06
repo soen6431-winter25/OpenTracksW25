@@ -1,1 +1,0 @@
-ž 2javaX:hrRsrc/main/java/de/dennisguse/opentracks/sensors/BluetoothHandlerCyclingCadence.java

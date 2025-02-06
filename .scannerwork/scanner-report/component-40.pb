@@ -1,1 +1,0 @@
-( 2javaX’hrRsrc/androidTest/java/de/dennisguse/opentracks/services/handlers/GpsStatusTest.java

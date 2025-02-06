@@ -1,1 +1,0 @@
-Æ 2javaX©hrJsrc/main/java/de/dennisguse/opentracks/services/TrackRecordingManager.java

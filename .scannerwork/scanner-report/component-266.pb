@@ -1,1 +1,0 @@
-Š 2javaXŸhr?src/main/java/de/dennisguse/opentracks/ui/TrackListAdapter.java

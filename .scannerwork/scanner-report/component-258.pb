@@ -1,1 +1,0 @@
-‚ 2javaX_hrQsrc/main/java/de/dennisguse/opentracks/ui/markers/DeleteMarkerDialogFragment.java

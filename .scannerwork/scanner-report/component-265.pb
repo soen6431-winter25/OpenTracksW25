@@ -1,1 +1,0 @@
-‰ 2javaXuhrBsrc/main/java/de/dennisguse/opentracks/ui/markers/MarkerUtils.java

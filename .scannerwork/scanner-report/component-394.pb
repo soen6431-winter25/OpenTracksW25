@@ -1,1 +1,0 @@
-Š 2xmlX1hr.src/main/res/layout/marker_detail_activity.xml

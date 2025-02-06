@@ -1,1 +1,0 @@
-ñ 2xmlX&hr&src/main/res/xml/settings_defaults.xml

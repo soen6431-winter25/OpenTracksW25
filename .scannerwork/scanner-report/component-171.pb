@@ -1,1 +1,0 @@
-« 2javaX/hrRsrc/main/java/de/dennisguse/opentracks/sensors/sensorData/AggregatorBarometer.java

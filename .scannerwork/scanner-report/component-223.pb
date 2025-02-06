@@ -1,1 +1,0 @@
-ß 2javaXvhrEsrc/main/java/de/dennisguse/opentracks/settings/SettingsActivity.java

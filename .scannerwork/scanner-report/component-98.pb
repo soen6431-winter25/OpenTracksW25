@@ -1,1 +1,0 @@
-b 2javaX“hr@src/main/java/de/dennisguse/opentracks/data/models/Distance.java

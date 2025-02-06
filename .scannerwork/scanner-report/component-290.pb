@@ -1,1 +1,0 @@
-¢ 2javaXhrFsrc/main/java/de/dennisguse/opentracks/viewmodels/ClockViewHolder.java

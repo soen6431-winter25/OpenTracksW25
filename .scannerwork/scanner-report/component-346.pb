@@ -1,1 +1,0 @@
-Ú 2xmlXhr0src/main/res/drawable/ic_dialog_success_24dp.xml

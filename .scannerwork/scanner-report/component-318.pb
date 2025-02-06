@@ -1,1 +1,0 @@
-¾ 2xmlXnhr2src/main/res/drawable/ic_activity_workout_24dp.xml

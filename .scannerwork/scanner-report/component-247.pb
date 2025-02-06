@@ -1,1 +1,0 @@
-÷ 2javaXKhrSsrc/main/java/de/dennisguse/opentracks/ui/customRecordingLayout/CsvLayoutUtils.java

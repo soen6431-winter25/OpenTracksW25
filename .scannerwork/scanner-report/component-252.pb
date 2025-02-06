@@ -1,1 +1,0 @@
-ü 2javaXhrdsrc/main/java/de/dennisguse/opentracks/ui/customRecordingLayout/SettingsCustomLayoutEditAdapter.java

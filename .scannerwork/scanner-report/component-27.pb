@@ -1,1 +1,0 @@
- 2javaXChrJsrc/androidTest/java/de/dennisguse/opentracks/publicapi/PublicApiTest.java

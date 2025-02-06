@@ -1,1 +1,0 @@
-¬ 2javaX5hrWsrc/main/java/de/dennisguse/opentracks/sensors/sensorData/AggregatorCyclingCadence.java

@@ -1,1 +1,0 @@
-× 2xmlXhr*src/main/res/drawable/ic_button_resume.xml

@@ -1,1 +1,0 @@
-ä 2xmlX"hr4src/main/res/drawable/ic_logo_color_splashscreen.xml

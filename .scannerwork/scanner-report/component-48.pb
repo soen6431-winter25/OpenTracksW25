@@ -1,1 +1,0 @@
-0 2javaXhrLsrc/androidTest/java/de/dennisguse/opentracks/stats/TrackStatisticsTest.java

@@ -1,1 +1,0 @@
-è 2xmlXhr%src/main/res/layout/osm_dashboard.xml

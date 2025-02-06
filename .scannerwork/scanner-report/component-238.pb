@@ -1,1 +1,0 @@
-î 2javaX¬hrAsrc/main/java/de/dennisguse/opentracks/TrackRecordedActivity.java

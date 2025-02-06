@@ -1,1 +1,0 @@
- 2javaX)hrPsrc/androidTest/java/de/dennisguse/opentracks/data/ShareContentProviderTest.java

@@ -1,1 +1,0 @@
-Þ 2xmlXïhr"src/main/res/values-sk/strings.xml

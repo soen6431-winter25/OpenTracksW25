@@ -1,1 +1,0 @@
-Ä 2xmlX†hr&src/main/res/values-fr-rCH/strings.xml

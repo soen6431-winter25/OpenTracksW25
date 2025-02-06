@@ -1,1 +1,0 @@
-ƒ 2javaX˜hrKsrc/main/java/de/dennisguse/opentracks/ui/markers/MarkerDetailActivity.java

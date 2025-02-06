@@ -1,1 +1,0 @@
-Y 2javaX—hrFsrc/main/java/de/dennisguse/opentracks/data/CustomContentProvider.java

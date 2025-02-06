@@ -1,1 +1,0 @@
-T 2javaXğhrBsrc/main/java/de/dennisguse/opentracks/chart/ChartValueSeries.java

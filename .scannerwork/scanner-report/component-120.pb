@@ -1,1 +1,0 @@
-x 2javaX™hrPsrc/main/java/de/dennisguse/opentracks/fragments/StatisticsRecordedFragment.java

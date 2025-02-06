@@ -1,1 +1,0 @@
-ú 2javaXˆhrTsrc/main/java/de/dennisguse/opentracks/ui/customRecordingLayout/RecordingLayout.java

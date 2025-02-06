@@ -1,1 +1,0 @@
-§ 2xmlXhr0src/main/res/anim/bluetooth_searching_bigdot.xml

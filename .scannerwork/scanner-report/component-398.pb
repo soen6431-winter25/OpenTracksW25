@@ -1,1 +1,0 @@
-Ž 2xmlXahr(src/main/res/layout/marker_list_item.xml

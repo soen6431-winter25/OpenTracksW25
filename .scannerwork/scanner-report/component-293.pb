@@ -1,1 +1,0 @@
-¥ 2javaXohrQsrc/main/java/de/dennisguse/opentracks/viewmodels/SensorStatisticsViewHolder.java

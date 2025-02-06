@@ -1,1 +1,0 @@
-à 2xmlXhr&src/main/res/drawable/ic_help_24dp.xml

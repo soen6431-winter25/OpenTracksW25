@@ -1,1 +1,0 @@
-X 2javaXŠhrEsrc/main/java/de/dennisguse/opentracks/data/ContentProviderUtils.java

@@ -1,1 +1,0 @@
-• 2xmlX7hr*src/main/res/layout/stats_generic_item.xml

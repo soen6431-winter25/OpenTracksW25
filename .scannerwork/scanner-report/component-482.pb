@@ -1,1 +1,0 @@
-â 2xmlX´hr"src/main/res/values-th/strings.xml

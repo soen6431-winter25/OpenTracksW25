@@ -1,1 +1,0 @@
-ê 2xmlXhr.src/main/res/drawable/ic_report_problem_24.xml

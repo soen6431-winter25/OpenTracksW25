@@ -1,1 +1,0 @@
-á 2javaX–hrUsrc/main/java/de/dennisguse/opentracks/settings/SettingsCustomLayoutListActivity.java

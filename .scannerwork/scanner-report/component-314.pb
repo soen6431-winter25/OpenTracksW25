@@ -1,1 +1,0 @@
-º 2xmlXÛhr7src/main/res/drawable/ic_activity_snowboarding_24dp.xml

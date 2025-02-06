@@ -1,1 +1,0 @@
-/ 2javaXÂhrQsrc/androidTest/java/de/dennisguse/opentracks/share/DescriptionGeneratorTest.java

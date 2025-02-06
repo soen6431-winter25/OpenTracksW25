@@ -1,1 +1,0 @@
-Þ 2javaXkhrLsrc/main/java/de/dennisguse/opentracks/settings/SensorsSettingsFragment.java

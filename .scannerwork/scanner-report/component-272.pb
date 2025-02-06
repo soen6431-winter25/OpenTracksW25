@@ -1,1 +1,0 @@
- 2javaX€hrAsrc/main/java/de/dennisguse/opentracks/ui/util/ListItemUtils.java

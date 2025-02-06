@@ -1,1 +1,0 @@
-þ 2xmlX"hr,src/main/res/layout/choose_activity_type.xml

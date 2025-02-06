@@ -1,1 +1,0 @@
-£ 2javaX{hrPsrc/main/java/de/dennisguse/opentracks/sensors/BluetoothRemoteSensorManager.java

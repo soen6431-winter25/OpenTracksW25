@@ -1,1 +1,0 @@
-ª 2xmlXhr.src/main/res/drawable/activated_background.xml

@@ -1,1 +1,0 @@
-æ 2javaXUhr=src/main/java/de/dennisguse/opentracks/ShowErrorActivity.java

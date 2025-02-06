@@ -1,1 +1,0 @@
-œ 2javaXthrDsrc/main/java/de/dennisguse/opentracks/util/PermissionRequester.java

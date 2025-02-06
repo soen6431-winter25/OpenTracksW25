@@ -1,1 +1,0 @@
- 2javaXfhrTsrc/androidTest/java/de/dennisguse/opentracks/io/file/importer/TrackPointAssert.java

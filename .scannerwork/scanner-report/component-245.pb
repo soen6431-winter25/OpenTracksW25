@@ -1,1 +1,0 @@
-õ 2javaX[hr_src/main/java/de/dennisguse/opentracks/ui/aggregatedStatistics/ConfirmDeleteDialogFragment.java

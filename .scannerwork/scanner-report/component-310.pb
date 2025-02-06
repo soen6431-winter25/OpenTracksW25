@@ -1,1 +1,0 @@
-¶ 2xmlXñhr2src/main/res/drawable/ic_activity_sailing_24dp.xml

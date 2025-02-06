@@ -1,1 +1,0 @@
-Ë 2javaX"hrRsrc/main/java/de/dennisguse/opentracks/settings/AnnouncementsSettingsFragment.java

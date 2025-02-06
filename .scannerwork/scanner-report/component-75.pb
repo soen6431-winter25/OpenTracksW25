@@ -1,1 +1,0 @@
-K 2xmlXhr src/debug/res/values/strings.xml

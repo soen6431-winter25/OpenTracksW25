@@ -1,1 +1,0 @@
-ö 2xmlXˆhrsrc/main/res/layout/about.xml

@@ -1,1 +1,0 @@
-° 2xmlXhr1src/main/res/drawable/ic_activity_flight_24dp.xml

@@ -1,1 +1,0 @@
-© 2javaXhrCsrc/main/java/de/dennisguse/opentracks/sensors/SensorConnector.java

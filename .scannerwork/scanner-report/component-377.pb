@@ -1,1 +1,0 @@
-ù 2xmlX)hr+src/main/res/layout/activity_show_error.xml

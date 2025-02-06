@@ -1,1 +1,0 @@
- 2javaXhrEsrc/androidTest/java/de/dennisguse/opentracks/data/UUIDUtilsTest.java

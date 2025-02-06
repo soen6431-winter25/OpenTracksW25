@@ -1,1 +1,0 @@
-u 2javaX'hr:src/main/java/de/dennisguse/opentracks/data/UUIDUtils.java

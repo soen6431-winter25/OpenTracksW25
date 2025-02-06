@@ -1,1 +1,0 @@
-£ 2xmlX&hr#src/main/res/menu/marker_detail.xml

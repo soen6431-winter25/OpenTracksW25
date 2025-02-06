@@ -1,1 +1,0 @@
-Ò 2javaX#hrjsrc/main/java/de/dennisguse/opentracks/settings/bluetooth/BluetoothLeRunningSpeedAndCadencePreference.java

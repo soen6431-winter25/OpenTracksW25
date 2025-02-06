@@ -1,3 +1,0 @@
-f
-javaS1301KReplace this "switch" statement by "if" statements to increase readability.2
-‹‹ 

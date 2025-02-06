@@ -1,1 +1,0 @@
-8 2javaX]hrgsrc/androidTest/java/de/dennisguse/opentracks/ui/customRecordingLayout/CsvRecordingLayoutUtilsTest.java

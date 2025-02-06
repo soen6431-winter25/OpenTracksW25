@@ -1,1 +1,0 @@
-) 2javaX@hrhsrc/androidTest/java/de/dennisguse/opentracks/services/TrackRecordingServiceNotificationManagerTest.java

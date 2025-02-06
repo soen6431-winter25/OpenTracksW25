@@ -1,1 +1,0 @@
-ã 2xmlXhr,src/main/res/drawable/ic_logo_color_24dp.xml

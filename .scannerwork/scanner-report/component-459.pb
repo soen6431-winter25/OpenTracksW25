@@ -1,1 +1,0 @@
-Ë 2xmlXÅhr"src/main/res/values-in/strings.xml

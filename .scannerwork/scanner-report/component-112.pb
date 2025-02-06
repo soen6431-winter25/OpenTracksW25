@@ -1,1 +1,0 @@
-p 2javaXZhrJsrc/main/java/de/dennisguse/opentracks/data/tables/TrackPointsColumns.java

@@ -1,1 +1,0 @@
-ï 2javaX‘hrBsrc/main/java/de/dennisguse/opentracks/TrackRecordingActivity.java

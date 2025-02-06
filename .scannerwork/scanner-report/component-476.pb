@@ -1,1 +1,0 @@
-Ü 2xmlX×hr"src/main/res/values-ro/strings.xml

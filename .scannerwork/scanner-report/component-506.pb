@@ -1,1 +1,0 @@
-ú 2xmlXhr!src/nightly/res/xml/shortcuts.xml

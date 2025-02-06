@@ -1,1 +1,0 @@
-² 2javaXhrBsrc/main/java/de/dennisguse/opentracks/sensors/sensorData/Raw.java

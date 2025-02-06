@@ -1,1 +1,0 @@
-÷ 2xmlXJhr7src/main/res/layout/activity_settings_custom_layout.xml

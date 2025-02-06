@@ -1,1 +1,0 @@
-s 2javaXHhrCsrc/main/java/de/dennisguse/opentracks/data/TrackPointIterator.java

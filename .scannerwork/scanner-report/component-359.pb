@@ -1,1 +1,0 @@
-ç 2xmlX<hr>src/main/res/drawable/ic_marker_orange_pushpin_with_shadow.xml

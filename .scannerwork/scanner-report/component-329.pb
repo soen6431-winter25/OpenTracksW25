@@ -1,1 +1,0 @@
-É 2xmlXhr3src/main/res/drawable/ic_baseline_filter_alt_24.xml

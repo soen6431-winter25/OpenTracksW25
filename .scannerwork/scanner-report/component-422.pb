@@ -1,1 +1,0 @@
-¦ 2xmlXhr src/main/res/menu/show_error.xml

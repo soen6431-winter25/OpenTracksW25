@@ -1,1 +1,0 @@
- 2javaXchrGsrc/androidTest/java/de/dennisguse/opentracks/chart/ChartPointTest.java

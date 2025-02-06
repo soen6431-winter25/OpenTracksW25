@@ -1,1 +1,0 @@
-µ 2xmlXähr(src/main/res/values-b+es+419/strings.xml

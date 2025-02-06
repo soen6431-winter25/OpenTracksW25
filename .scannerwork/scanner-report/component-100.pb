@@ -1,1 +1,0 @@
-d 2javaXhrAsrc/main/java/de/dennisguse/opentracks/data/models/HeartRate.java

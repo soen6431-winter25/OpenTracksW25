@@ -1,1 +1,0 @@
-{ 2javaX^hrMsrc/main/java/de/dennisguse/opentracks/introduction/IntroductionActivity.java

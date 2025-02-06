@@ -1,1 +1,0 @@
-; 2javaX_hrEsrc/androidTest/java/de/dennisguse/opentracks/util/EspressoUtils.java

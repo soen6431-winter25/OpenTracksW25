@@ -1,1 +1,0 @@
-l 2javaXðhrBsrc/main/java/de/dennisguse/opentracks/data/models/TrackPoint.java

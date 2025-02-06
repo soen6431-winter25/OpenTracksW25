@@ -1,1 +1,0 @@
- 2javaX3hrcsrc/androidTest/java/de/dennisguse/opentracks/sensors/BluetoothHandlerCyclingDistanceSpeedTest.java

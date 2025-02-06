@@ -1,1 +1,0 @@
-· 2xmlXÇhr"src/main/res/values-ca/strings.xml

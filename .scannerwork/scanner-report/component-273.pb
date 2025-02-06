@@ -1,1 +1,0 @@
-‘ 2javaXYhrSsrc/main/java/de/dennisguse/opentracks/ui/util/RecyclerViewSwipeDeleteCallback.java

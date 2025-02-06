@@ -1,1 +1,0 @@
-Õ 2xmlXhr,src/main/res/drawable/ic_bug_report_24dp.xml

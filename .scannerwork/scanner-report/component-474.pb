@@ -1,1 +1,0 @@
-Ú 2xmlXühr&src/main/res/values-pt-rBR/strings.xml

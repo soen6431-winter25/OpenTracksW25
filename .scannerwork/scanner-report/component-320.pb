@@ -1,1 +1,0 @@
-À 2xmlXhr5src/main/res/drawable/ic_add_photo_alternate_24dp.xml

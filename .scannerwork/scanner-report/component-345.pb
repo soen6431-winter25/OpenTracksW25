@@ -1,1 +1,0 @@
-Ù 2xmlXhr0src/main/res/drawable/ic_delete_forever_24dp.xml

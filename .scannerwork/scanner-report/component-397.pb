@@ -1,1 +1,0 @@
-ç 2xmlXFhr#src/main/res/layout/marker_list.xml

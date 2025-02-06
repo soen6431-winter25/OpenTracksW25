@@ -1,1 +1,0 @@
-Æ 2xmlXÖhr"src/main/res/values-gl/strings.xml

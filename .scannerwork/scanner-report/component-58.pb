@@ -1,1 +1,0 @@
-: 2javaXÉhrVsrc/androidTest/java/de/dennisguse/opentracks/ui/intervals/IntervalStatisticsTest.java

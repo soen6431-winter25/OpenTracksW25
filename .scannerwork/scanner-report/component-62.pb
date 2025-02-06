@@ -1,1 +1,0 @@
-> 2javaX¬hrGsrc/androidTest/java/de/dennisguse/opentracks/util/StringUtilsTest.java

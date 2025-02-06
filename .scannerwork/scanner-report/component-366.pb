@@ -1,1 +1,0 @@
-î 2xmlXhr,src/main/res/drawable/ic_statistics_24dp.xml

@@ -1,1 +1,0 @@
-L 2xmlXhr3src/debug/res/values-v26/ic_launcher_background.xml

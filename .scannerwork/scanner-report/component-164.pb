@@ -1,1 +1,0 @@
-¤ 2javaXFhrBsrc/main/java/de/dennisguse/opentracks/sensors/BluetoothUtils.java

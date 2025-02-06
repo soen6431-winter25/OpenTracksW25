@@ -1,1 +1,0 @@
-W 2javaX/hrIsrc/main/java/de/dennisguse/opentracks/data/CachedTrackPointsIndexes.java

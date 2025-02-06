@@ -1,1 +1,0 @@
- 2javaX;hrTsrc/androidTest/java/de/dennisguse/opentracks/data/models/DistanceFormatterTest.java

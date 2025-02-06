@@ -1,1 +1,0 @@
-ä 2javaXíhrFsrc/main/java/de/dennisguse/opentracks/share/DescriptionGenerator.java

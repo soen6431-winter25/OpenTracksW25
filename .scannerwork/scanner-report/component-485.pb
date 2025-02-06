@@ -1,1 +1,0 @@
-å 2xmlX»hr"src/main/res/values-uk/strings.xml

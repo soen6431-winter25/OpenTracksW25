@@ -1,1 +1,0 @@
-ò 2javaX‡hr`src/main/java/de/dennisguse/opentracks/ui/aggregatedStatistics/AggregatedStatisticsActivity.java

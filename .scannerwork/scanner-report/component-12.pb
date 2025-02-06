@@ -1,1 +1,0 @@
- 2javaXihrQsrc/androidTest/java/de/dennisguse/opentracks/data/models/SpeedFormatterTest.java

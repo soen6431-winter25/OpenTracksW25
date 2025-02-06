@@ -1,1 +1,0 @@
-¾ 2javaX¶hrNsrc/main/java/de/dennisguse/opentracks/services/handlers/GpsStatusManager.java

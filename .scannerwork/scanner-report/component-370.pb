@@ -1,1 +1,0 @@
-ò 2xmlX(hr9src/main/res/drawable/osmdashboard_ic_logo_color_24dp.xml

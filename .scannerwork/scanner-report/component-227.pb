@@ -1,1 +1,0 @@
-ã 2javaXLhrRsrc/main/java/de/dennisguse/opentracks/settings/UserInterfaceSettingsFragment.java

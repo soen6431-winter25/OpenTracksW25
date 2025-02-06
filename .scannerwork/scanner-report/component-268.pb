@@ -1,1 +1,0 @@
-Œ 2javaX$hrNsrc/main/java/de/dennisguse/opentracks/ui/util/ArrayAdapterFilterDisabled.java

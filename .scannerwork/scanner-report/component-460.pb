@@ -1,1 +1,0 @@
-Ì 2xmlXèhr"src/main/res/values-it/strings.xml

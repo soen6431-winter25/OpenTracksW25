@@ -1,1 +1,0 @@
-† 2xmlXMhr*src/main/res/layout/interval_list_view.xml

@@ -1,1 +1,0 @@
-N 2xmlX®hrsrc/main/AndroidManifest.xml
