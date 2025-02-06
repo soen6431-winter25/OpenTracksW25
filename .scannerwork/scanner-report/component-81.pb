@@ -1,0 +1,1 @@
+Q 2javaX@hrGsrc/main/java/de/dennisguse/opentracks/AbstractTrackDeleteActivity.java

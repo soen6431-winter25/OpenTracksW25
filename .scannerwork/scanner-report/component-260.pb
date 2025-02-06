@@ -1,0 +1,1 @@
+„ 2javaX‡hrKsrc/main/java/de/dennisguse/opentracks/ui/markers/MarkerDetailFragment.java

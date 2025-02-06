@@ -1,0 +1,1 @@
+Ì 2javaXyhrQsrc/main/java/de/dennisguse/opentracks/settings/bluetooth/BluetoothLeAdapter.java

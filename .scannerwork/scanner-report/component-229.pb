@@ -1,0 +1,1 @@
+å 2javaX}hr<src/main/java/de/dennisguse/opentracks/share/ShareUtils.java

@@ -1,0 +1,1 @@
+½ 2javaX¹hrHsrc/main/java/de/dennisguse/opentracks/services/handlers/GPSManager.java

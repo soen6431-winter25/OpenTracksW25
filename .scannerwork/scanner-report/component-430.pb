@@ -1,0 +1,1 @@
+® 2xmlXÅhr src/main/res/values/settings.xml

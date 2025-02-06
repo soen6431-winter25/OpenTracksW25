@@ -1,0 +1,1 @@
+¿ 2javaXhrLsrc/main/java/de/dennisguse/opentracks/services/handlers/GpsStatusValue.java

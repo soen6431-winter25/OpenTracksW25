@@ -1,0 +1,1 @@
+Æ 2xmlXhr2src/main/res/drawable/ic_baseline_autorenew_24.xml

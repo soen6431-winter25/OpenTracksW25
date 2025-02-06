@@ -1,0 +1,1 @@
+6 2javaXûhrcsrc/androidTest/java/de/dennisguse/opentracks/ui/aggregatedStatistics/AggregatedStatisticsTest.java

@@ -1,0 +1,1 @@
+ß 2xmlX%hr0src/main/res/drawable/ic_gps_ready_animation.xml

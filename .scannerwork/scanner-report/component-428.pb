@@ -1,0 +1,1 @@
+¬ 2xmlX7hrsrc/main/res/values/colors.xml

@@ -1,0 +1,1 @@
+¹ 2xmlXÖhr"src/main/res/values-cs/strings.xml

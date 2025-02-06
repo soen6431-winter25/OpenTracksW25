@@ -1,0 +1,1 @@
+y 2javaXºhrQsrc/main/java/de/dennisguse/opentracks/fragments/StatisticsRecordingFragment.java

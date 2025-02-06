@@ -1,0 +1,1 @@
+9 2javaX–hr_src/androidTest/java/de/dennisguse/opentracks/ui/customRecordingLayout/RecordingLayoutTest.java

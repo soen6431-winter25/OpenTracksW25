@@ -1,0 +1,1 @@
+ 2javaX8hr=src/androidTest/java/de/dennisguse/opentracks/LocaleRule.java

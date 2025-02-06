@@ -1,0 +1,1 @@
+e 2javaX'hrFsrc/main/java/de/dennisguse/opentracks/data/models/HeartRateZones.java

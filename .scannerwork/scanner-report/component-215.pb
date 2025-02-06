@@ -1,0 +1,1 @@
+× 2javaX–hrEsrc/main/java/de/dennisguse/opentracks/settings/LocalePreference.java

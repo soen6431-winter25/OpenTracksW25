@@ -1,0 +1,1 @@
+c 2javaXƒhrIsrc/main/java/de/dennisguse/opentracks/data/models/DistanceFormatter.java

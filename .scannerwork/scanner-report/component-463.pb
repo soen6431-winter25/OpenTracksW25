@@ -1,0 +1,1 @@
+Ï 2xmlX hr"src/main/res/values-kn/strings.xml

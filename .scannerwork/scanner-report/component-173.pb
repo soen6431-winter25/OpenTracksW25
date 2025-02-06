@@ -1,0 +1,1 @@
+­ 2javaXNhr]src/main/java/de/dennisguse/opentracks/sensors/sensorData/AggregatorCyclingDistanceSpeed.java

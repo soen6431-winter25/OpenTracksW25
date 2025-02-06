@@ -1,0 +1,1 @@
+P 2javaX6hr<src/main/java/de/dennisguse/opentracks/AbstractActivity.java

@@ -1,0 +1,1 @@
+­ 2xmlXghr(src/main/res/values/do_not_translate.xml

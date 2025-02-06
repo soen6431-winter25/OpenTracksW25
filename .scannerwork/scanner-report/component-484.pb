@@ -1,0 +1,1 @@
+ä 2xmlXÓhr"src/main/res/values-tr/strings.xml

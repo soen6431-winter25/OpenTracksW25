@@ -1,0 +1,1 @@
+Á 2javaXŸhrOsrc/main/java/de/dennisguse/opentracks/services/handlers/TrackPointCreator.java

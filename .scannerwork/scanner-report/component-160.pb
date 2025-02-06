@@ -1,0 +1,1 @@
+  2javaXXhrWsrc/main/java/de/dennisguse/opentracks/sensors/BluetoothHandlerManagerCyclingPower.java

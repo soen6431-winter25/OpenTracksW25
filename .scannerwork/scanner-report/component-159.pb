@@ -1,0 +1,1 @@
+Ÿ 2javaXShrXsrc/main/java/de/dennisguse/opentracks/sensors/BluetoothHandlerCyclingDistanceSpeed.java

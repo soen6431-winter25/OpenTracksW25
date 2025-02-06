@@ -1,0 +1,1 @@
+€ 2javaXihrRsrc/main/java/de/dennisguse/opentracks/ui/intervals/IntervalStatisticsAdapter.java

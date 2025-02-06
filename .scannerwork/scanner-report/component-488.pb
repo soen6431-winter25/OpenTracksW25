@@ -1,0 +1,1 @@
+è 2xmlXúhr"src/main/res/values-zh/strings.xml

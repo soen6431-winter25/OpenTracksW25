@@ -1,0 +1,1 @@
+7 2javaXVhrgsrc/androidTest/java/de/dennisguse/opentracks/ui/aggregatedStatistics/EspressoAggregatedFilterTest.java

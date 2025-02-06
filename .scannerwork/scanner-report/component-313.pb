@@ -1,0 +1,1 @@
+¹ 2xmlXãhr1src/main/res/drawable/ic_activity_skiing_24dp.xml

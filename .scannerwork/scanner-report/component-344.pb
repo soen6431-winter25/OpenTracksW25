@@ -1,0 +1,1 @@
+Ø 2xmlXhr.src/main/res/drawable/ic_clear_filter_24dp.xml

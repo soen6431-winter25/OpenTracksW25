@@ -1,0 +1,1 @@
+È 2xmlXhr7src/main/res/drawable/ic_baseline_drag_indicator_24.xml

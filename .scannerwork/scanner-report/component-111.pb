@@ -1,0 +1,1 @@
+o 2javaXHhrEsrc/main/java/de/dennisguse/opentracks/data/tables/MarkerColumns.java

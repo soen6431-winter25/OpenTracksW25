@@ -1,0 +1,1 @@
+ª 2javaXNhrIsrc/main/java/de/dennisguse/opentracks/sensors/sensorData/Aggregator.java

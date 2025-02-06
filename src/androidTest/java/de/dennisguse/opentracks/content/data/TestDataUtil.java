@@ -83,10 +83,10 @@ public class TestDataUtil {
                 createTrackPoint(i, TrackPoint.Type.SEGMENT_END_MANUAL)
         );
 
-        //TODO Use TrackStatisticsUpdater
-        TrackStatistics stats = new TrackStatistics();
-        stats.setTotalDistance(Distance.of(0));
-        stats.setTotalTime(Duration.ofMillis(0));
+        TrackStatisticsUpdater trackStatisticsUpdater = new TrackStatisticsUpdater();  //Removed TODO and added TrackStatisticsUpdater to automate the process.
+        trackStatisticsUpdater.addTrackPoints(trackPoints);
+        TrackStatistics stats = trackStatisticsUpdater.getTrackStatistics(); // Retrieve the updated statistics from TrackStatisticsUpdater rather than manually setting them to zero.
+
         List<Marker> markers = List.of(
                 new Marker("Marker 1", "Marker description 1", "Marker category 3", "", trackId, trackPoints.get(1), null),
                 new Marker("Marker 2", "Marker description 2", "Marker category 3", "", trackId, trackPoints.get(4), null),

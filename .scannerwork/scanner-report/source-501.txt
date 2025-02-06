@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:title="@string/settings_sensors_title">
+
+    <PreferenceCategory android:title="@string/settings_gps_sensor">
+        <ListPreference
+            android:defaultValue="@string/min_sampling_interval_default"
+            android:entryValues="@array/min_sampling_interval_values"
+            android:key="@string/min_sampling_interval_key"
+            android:title="@string/settings_recording_min_sampling_interval_title" />
+
+        <ListPreference
+            android:defaultValue="@string/recording_gps_accuracy_default"
+            android:entryValues="@array/recording_gps_accuracy_values"
+            android:key="@string/recording_gps_accuracy_key"
+            android:title="@string/settings_recording_min_required_accuracy_title" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/settings_generic_sensor">
+        <de.dennisguse.opentracks.settings.bluetooth.BluetoothLeHeartRatePreference
+            android:defaultValue="@string/sensor_type_value_none"
+            android:key="@string/settings_sensor_bluetooth_heart_rate_key"
+            android:title="@string/sensor_state_heart_rate" />
+        <EditTextPreference
+            android:defaultValue="@string/settings_sensor_heart_rate_max_default"
+            android:inputType="number"
+            android:key="@string/settings_sensor_heart_rate_max_key"
+            android:title="@string/settings_sensor_heart_rate_max"
+            app:useSimpleSummaryProvider="true" />
+        <de.dennisguse.opentracks.settings.bluetooth.BluetoothLePressurePreference
+            android:defaultValue="@string/sensor_type_value_none"
+            android:key="@string/settings_sensor_bluetooth_pressure_key"
+            android:title="@string/sensor_state_pressure" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/settings_cycling_sensor">
+        <de.dennisguse.opentracks.settings.bluetooth.BluetoothLeCyclingCadencePreference
+            android:defaultValue="@string/sensor_type_value_none"
+            android:key="@string/settings_sensor_bluetooth_cycling_cadence_key"
+            android:title="@string/settings_sensor_cycling_cadence" />
+        <de.dennisguse.opentracks.settings.bluetooth.BluetoothLeCyclingPowerPreference
+            android:defaultValue="@string/sensor_type_value_none"
+            android:key="@string/settings_sensor_bluetooth_cycling_power_key"
+            android:title="@string/sensor_state_power" />
+        <de.dennisguse.opentracks.settings.bluetooth.BluetoothLeCyclingSpeedPreference
+            android:defaultValue="@string/sensor_type_value_none"
+            android:key="@string/settings_sensor_bluetooth_cycling_speed_key"
+            android:title="@string/settings_sensor_cycling_distance_speed" />
+        <EditTextPreference
+            android:defaultValue="@string/settings_sensor_bluetooth_cycling_speed_wheel_circumference_default"
+            android:inputType="number"
+            android:key="@string/settings_sensor_bluetooth_cycling_speed_wheel_circumference_key"
+            android:title="@string/settings_sensor_wheel_circumference"
+            app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/settings_running_sensor">
+        <de.dennisguse.opentracks.settings.bluetooth.BluetoothLeRunningSpeedAndCadencePreference
+            android:defaultValue="@string/sensor_type_value_none"
+            android:key="@string/settings_sensor_bluetooth_running_speed_and_cadence_key"
+            android:title="@string/settings_sensor_running_speed_and_cadence" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/settings_advanced">
+        <SwitchPreferenceCompat
+            android:defaultValue="@bool/settings_sensor_bluetooth_service_filter_enabled_default"
+            android:key="@string/settings_sensor_bluetooth_service_filter_enabled_key"
+            android:title="@string/settings_sensor_bluetooth_service_filter_title"
+            android:summaryOn="@string/settings_sensor_bluetooth_service_filter_on"
+            android:summaryOff="@string/settings_sensor_bluetooth_service_filter_off" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

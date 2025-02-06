@@ -1,0 +1,1 @@
+´ 2javaXhrUsrc/main/java/de/dennisguse/opentracks/sensors/sensorData/SensorHandlerInterface.java

@@ -1,0 +1,1 @@
+œ 2javaXÚhrNsrc/main/java/de/dennisguse/opentracks/sensors/BluetoothConnectionManager.java

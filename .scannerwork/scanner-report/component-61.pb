@@ -1,0 +1,1 @@
+= 2javaXEhrKsrc/androidTest/java/de/dennisguse/opentracks/util/StatisticsUtilsTest.java

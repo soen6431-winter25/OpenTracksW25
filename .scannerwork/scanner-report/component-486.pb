@@ -1,0 +1,1 @@
+æ 2xmlXhr2src/main/res/values-v26/ic_launcher_background.xml

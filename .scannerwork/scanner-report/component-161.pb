@@ -1,0 +1,1 @@
+¡ 2javaXGhrTsrc/main/java/de/dennisguse/opentracks/sensors/BluetoothHandlerManagerHeartRate.java

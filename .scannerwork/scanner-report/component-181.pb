@@ -1,0 +1,1 @@
+µ 2javaX™hrAsrc/main/java/de/dennisguse/opentracks/sensors/SensorManager.java

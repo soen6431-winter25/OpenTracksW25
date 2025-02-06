@@ -1,0 +1,1 @@
+n 2javaXáhrEsrc/main/java/de/dennisguse/opentracks/data/ShareContentProvider.java

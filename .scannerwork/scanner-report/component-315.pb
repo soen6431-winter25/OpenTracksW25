@@ -1,0 +1,1 @@
+» 2xmlXhr3src/main/res/drawable/ic_activity_swimming_24dp.xml

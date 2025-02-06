@@ -1,0 +1,1 @@
+ô 2xmlXhr'src/main/res/drawable/text_gradient.xml

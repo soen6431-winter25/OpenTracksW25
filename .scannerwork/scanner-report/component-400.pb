@@ -1,0 +1,1 @@
+ê 2xmlX:hr0src/main/res/layout/preference_activity_type.xml

@@ -1,0 +1,1 @@
+S 2javaX3hr<src/main/java/de/dennisguse/opentracks/chart/ChartPoint.java

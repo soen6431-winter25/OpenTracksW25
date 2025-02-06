@@ -1,0 +1,1 @@
+Å 2xmlX¥hr"src/main/res/values-ga/strings.xml

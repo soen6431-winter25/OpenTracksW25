@@ -1,0 +1,1 @@
+´ 2xmlX…hr(src/main/res/values-b+en+001/strings.xml

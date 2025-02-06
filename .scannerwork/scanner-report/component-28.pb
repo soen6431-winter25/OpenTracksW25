@@ -1,0 +1,1 @@
+ 2javaXhrasrc/androidTest/java/de/dennisguse/opentracks/sensors/BluetoothHandlerBarometricPressureTest.java

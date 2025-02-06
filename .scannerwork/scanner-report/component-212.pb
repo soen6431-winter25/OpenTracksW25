@@ -1,0 +1,1 @@
+Ô 2javaX]hrMsrc/main/java/de/dennisguse/opentracks/settings/DefaultsSettingsFragment.java

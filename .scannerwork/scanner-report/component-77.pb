@@ -1,0 +1,1 @@
+M 2xmlXhrsrc/debug/res/xml/shortcuts.xml

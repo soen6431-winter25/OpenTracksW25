@@ -1,0 +1,1 @@
+­ 2xmlXãhr3src/main/res/drawable/ic_activity_climbing_24dp.xml

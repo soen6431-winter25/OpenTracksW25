@@ -1,0 +1,1 @@
+¼ 2xmlXhr8src/main/res/drawable/ic_activity_swimming_open_24dp.xml

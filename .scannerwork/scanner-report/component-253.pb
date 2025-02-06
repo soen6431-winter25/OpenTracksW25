@@ -1,0 +1,1 @@
+ý 2javaX_hrdsrc/main/java/de/dennisguse/opentracks/ui/customRecordingLayout/SettingsCustomLayoutListAdapter.java

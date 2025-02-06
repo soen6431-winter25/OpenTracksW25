@@ -1,0 +1,1 @@
+$ 2javaX7hrHsrc/androidTest/java/de/dennisguse/opentracks/sensors/UintUtilsTest.java

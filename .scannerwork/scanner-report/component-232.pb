@@ -1,0 +1,1 @@
+è 2javaXyhrBsrc/main/java/de/dennisguse/opentracks/stats/ExtremityMonitor.java

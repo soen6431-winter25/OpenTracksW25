@@ -1,0 +1,1 @@
+´ 2xmlXÚhr.src/main/res/drawable/ic_activity_mtb_24dp.xml

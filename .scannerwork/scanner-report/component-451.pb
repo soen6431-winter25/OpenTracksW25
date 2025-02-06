@@ -1,0 +1,1 @@
+Ã 2xmlX„hr&src/main/res/values-fr-rCA/strings.xml

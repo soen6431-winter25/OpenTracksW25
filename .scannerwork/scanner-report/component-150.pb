@@ -1,0 +1,1 @@
+– 2javaX<hrIsrc/main/java/de/dennisguse/opentracks/publicapi/AbstractAPIActivity.java

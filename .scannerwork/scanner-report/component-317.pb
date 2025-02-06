@@ -1,0 +1,1 @@
+½ 2xmlXhr/src/main/res/drawable/ic_activity_walk_24dp.xml

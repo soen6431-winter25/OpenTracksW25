@@ -1,0 +1,1 @@
+ù 2javaXehrNsrc/main/java/de/dennisguse/opentracks/ui/customRecordingLayout/DataField.java

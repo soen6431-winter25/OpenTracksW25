@@ -1,0 +1,1 @@
+ 2javaX=hrUsrc/androidTest/java/de/dennisguse/opentracks/io/file/TrackFilenameGeneratorTest.java

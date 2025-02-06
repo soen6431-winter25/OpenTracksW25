@@ -1,0 +1,1 @@
+Í 2xmlXhr6src/main/res/drawable/ic_baseline_satellite_alt_24.xml

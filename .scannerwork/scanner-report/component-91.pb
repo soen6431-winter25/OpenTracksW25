@@ -1,0 +1,2 @@
+[ 2javaX
+hrDsrc/main/java/de/dennisguse/opentracks/data/models/ActivityIcon.java

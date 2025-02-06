@@ -1,0 +1,1 @@
+Í 2xmlX„hr"src/main/res/values-iw/strings.xml

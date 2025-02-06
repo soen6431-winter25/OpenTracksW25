@@ -1,0 +1,1 @@
+- 2javaXxhrUsrc/androidTest/java/de/dennisguse/opentracks/settings/PreferencesOpenHelperTest.java

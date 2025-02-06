@@ -1,0 +1,1 @@
+ˆ 2javaXhrHsrc/main/java/de/dennisguse/opentracks/ui/markers/MarkerListAdapter.java

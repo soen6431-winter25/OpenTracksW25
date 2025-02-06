@@ -1,0 +1,1 @@
+ó 2xmlXhr/src/main/res/drawable/shape_circle_darkgray.xml

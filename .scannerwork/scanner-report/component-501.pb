@@ -1,0 +1,1 @@
+õ 2xmlXKhr%src/main/res/xml/settings_sensors.xml

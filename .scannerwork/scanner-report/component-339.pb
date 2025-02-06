@@ -1,0 +1,1 @@
+Ó 2xmlXhr5src/main/res/drawable/ic_bluetooth_searching_24dp.xml

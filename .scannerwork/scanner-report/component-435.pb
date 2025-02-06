@@ -1,0 +1,1 @@
+³ 2xmlX¶hr"src/main/res/values-ar/strings.xml

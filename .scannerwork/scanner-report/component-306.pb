@@ -1,0 +1,1 @@
+² 2xmlXhr3src/main/res/drawable/ic_activity_kayaking_24dp.xml

@@ -1,0 +1,1 @@
+Õ 2xmlXÆhr"src/main/res/values-nb/strings.xml

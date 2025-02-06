@@ -1,0 +1,1 @@
+	 2javaXœhrRsrc/androidTest/java/de/dennisguse/opentracks/data/CustomSQLiteOpenHelperTest.java

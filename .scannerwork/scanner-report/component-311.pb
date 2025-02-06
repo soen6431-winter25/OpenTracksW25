@@ -1,0 +1,1 @@
+· 2xmlXñhr2src/main/res/drawable/ic_activity_scooter_24dp.xml

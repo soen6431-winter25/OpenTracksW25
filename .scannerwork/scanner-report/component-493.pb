@@ -1,0 +1,1 @@
+í 2xmlXhrsrc/main/res/xml/file_paths.xml

@@ -1,0 +1,1 @@
+Í 2javaX!hrbsrc/main/java/de/dennisguse/opentracks/settings/bluetooth/BluetoothLeCyclingCadencePreference.java

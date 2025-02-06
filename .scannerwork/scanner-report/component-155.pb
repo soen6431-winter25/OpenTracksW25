@@ -1,0 +1,1 @@
+› 2javaXhrCsrc/main/java/de/dennisguse/opentracks/publicapi/StopRecording.java

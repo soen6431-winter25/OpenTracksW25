@@ -1,0 +1,1 @@
+ù 2xmlXhr5src/nightly/res/values-v26/ic_launcher_background.xml

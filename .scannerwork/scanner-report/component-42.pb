@@ -1,0 +1,1 @@
+* 2javaXâhr^src/androidTest/java/de/dennisguse/opentracks/services/TrackRecordingServiceRecordingTest.java

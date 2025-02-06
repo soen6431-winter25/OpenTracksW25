@@ -1,0 +1,1 @@
+Ê 2javaX‚hrKsrc/main/java/de/dennisguse/opentracks/settings/ActivityTypePreference.java

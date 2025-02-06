@@ -1,0 +1,1 @@
+Á 2xmlXhr/src/main/res/drawable/ic_arrow_drop_down_24.xml

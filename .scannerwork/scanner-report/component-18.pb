@@ -1,0 +1,1 @@
+ 2javaXehrAsrc/androidTest/java/de/dennisguse/opentracks/EspressoUITest.java

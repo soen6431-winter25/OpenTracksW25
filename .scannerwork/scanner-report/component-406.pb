@@ -1,0 +1,1 @@
+– 2xmlX4hr)src/main/res/layout/stats_sensor_item.xml

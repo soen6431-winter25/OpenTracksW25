@@ -1,0 +1,1 @@
+ì 2xmlXhr*src/main/res/drawable/ic_settings_24dp.xml

@@ -1,0 +1,1 @@
+ş 2javaXàhrJsrc/main/java/de/dennisguse/opentracks/ui/intervals/IntervalsFragment.java

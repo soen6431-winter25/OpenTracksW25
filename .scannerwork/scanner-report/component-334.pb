@@ -1,0 +1,1 @@
+Î 2xmlXhr0src/main/res/drawable/ic_baseline_sensors_24.xml

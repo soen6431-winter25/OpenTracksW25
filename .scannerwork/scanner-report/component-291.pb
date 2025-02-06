@@ -1,0 +1,1 @@
+£ 2javaX–hrRsrc/main/java/de/dennisguse/opentracks/viewmodels/GenericStatisticsViewHolder.java

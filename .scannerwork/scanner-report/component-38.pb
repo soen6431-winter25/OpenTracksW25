@@ -1,0 +1,1 @@
+& 2javaXèhrcsrc/androidTest/java/de/dennisguse/opentracks/services/announcement/VoiceAnnouncementUtilsTest.java

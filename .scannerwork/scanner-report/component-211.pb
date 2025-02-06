@@ -1,0 +1,1 @@
+Ó 2javaX•hrZsrc/main/java/de/dennisguse/opentracks/settings/bluetooth/BluetoothLeSensorPreference.java

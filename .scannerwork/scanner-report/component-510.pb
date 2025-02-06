@@ -1,0 +1,1 @@
+þ 2xmlXhr&src/reproducible/res/xml/shortcuts.xml

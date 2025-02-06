@@ -1,0 +1,1 @@
+ 2javaX†hrMsrc/androidTest/java/de/dennisguse/opentracks/chart/ChartValueSeriesTest.java

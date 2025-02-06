@@ -1,0 +1,1 @@
+' 2javaX•hrbsrc/androidTest/java/de/dennisguse/opentracks/services/handlers/AltitudeCorrectionManagerTest.java

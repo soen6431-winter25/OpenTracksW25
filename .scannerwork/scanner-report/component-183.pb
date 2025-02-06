@@ -1,0 +1,1 @@
+· 2javaXhrJsrc/main/java/de/dennisguse/opentracks/sensors/ServiceMeasurementUUID.java

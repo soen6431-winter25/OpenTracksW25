@@ -1,0 +1,1 @@
+ 2javaXhrPsrc/main/java/de/dennisguse/opentracks/ui/intervals/IntervalStatisticsModel.java

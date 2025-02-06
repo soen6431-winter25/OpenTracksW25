@@ -1,0 +1,1 @@
+w 2javaXZhrTsrc/main/java/de/dennisguse/opentracks/fragments/ChooseActivityTypeImageAdapter.java

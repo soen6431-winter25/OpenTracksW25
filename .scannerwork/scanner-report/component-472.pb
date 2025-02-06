@@ -1,0 +1,1 @@
+Ø 2xmlX€hr"src/main/res/values-pl/strings.xml

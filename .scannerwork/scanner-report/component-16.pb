@@ -1,0 +1,1 @@
+ 2javaXJhrJsrc/androidTest/java/de/dennisguse/opentracks/EspressoDeleteTrackTest.java

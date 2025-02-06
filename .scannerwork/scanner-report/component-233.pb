@@ -1,0 +1,1 @@
+é 2javaXhrBsrc/main/java/de/dennisguse/opentracks/stats/SensorStatistics.java

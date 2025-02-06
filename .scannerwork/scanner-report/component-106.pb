@@ -1,0 +1,1 @@
+j 2javaXmhrFsrc/main/java/de/dennisguse/opentracks/data/models/SpeedFormatter.java

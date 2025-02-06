@@ -1,0 +1,1 @@
+ö 2javaX¶hrXsrc/main/java/de/dennisguse/opentracks/ui/aggregatedStatistics/FilterDialogFragment.java

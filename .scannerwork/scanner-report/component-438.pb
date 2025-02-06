@@ -1,0 +1,1 @@
+¶ 2xmlX·hr"src/main/res/values-bg/strings.xml

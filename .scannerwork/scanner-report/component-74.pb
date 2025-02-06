@@ -1,0 +1,1 @@
+J 2xmlXhrsrc/debug/AndroidManifest.xml

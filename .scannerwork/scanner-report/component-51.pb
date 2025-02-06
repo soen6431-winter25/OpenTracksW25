@@ -1,0 +1,1 @@
+3 2javaXhr=src/androidTest/java/de/dennisguse/opentracks/TestRunner.java

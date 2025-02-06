@@ -1,0 +1,1 @@
+¢ 2javaXYhrZsrc/main/java/de/dennisguse/opentracks/sensors/BluetoothHandlerRunningSpeedAndCadence.java

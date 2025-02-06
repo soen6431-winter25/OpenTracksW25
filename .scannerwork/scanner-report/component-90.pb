@@ -1,0 +1,1 @@
+Z 2javaX¢hrGsrc/main/java/de/dennisguse/opentracks/data/CustomSQLiteOpenHelper.java

@@ -1,0 +1,1 @@
+ 2javaXfhrRsrc/androidTest/java/de/dennisguse/opentracks/content/data/TestSensorDataUtil.java

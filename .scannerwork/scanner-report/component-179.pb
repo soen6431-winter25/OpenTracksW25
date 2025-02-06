@@ -1,0 +1,1 @@
+³ 2javaXðhrLsrc/main/java/de/dennisguse/opentracks/sensors/sensorData/SensorDataSet.java

@@ -1,0 +1,1 @@
+¥ 2javaXShrLsrc/main/java/de/dennisguse/opentracks/sensors/driver/BarometerInternal.java

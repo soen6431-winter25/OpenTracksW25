@@ -1,0 +1,1 @@
+¼ 2javaX.hrWsrc/main/java/de/dennisguse/opentracks/services/handlers/AltitudeCorrectionManager.java

@@ -1,0 +1,1 @@
+Ü 2javaX>hrNsrc/main/java/de/dennisguse/opentracks/settings/RecordingSettingsFragment.java
