@@ -384,7 +384,9 @@ public class CustomContentProvider extends ContentProvider {
     }
 
     private Uri insertMarker(Uri url, ContentValues contentValues) {
+
         long rowId = db.insert(MarkerColumns.TABLE_NAME, MarkerColumns._ID, contentValues);
+
         if (rowId >= 0) {
             return ContentUris.appendId(MarkerColumns.CONTENT_URI.buildUpon(), rowId).build();
         }

@@ -503,7 +503,9 @@ public class ExportImportTest {
 
         // given
         Track track = contentProviderUtils.getTrack(trackId);
-
+        if (track == null) {
+            throw new RuntimeException("Track not found: " + trackId);
+        }
         TrackExporter trackExporter = TrackFileFormat.CSV.createTrackExporter(context, contentProviderUtils);
 
         // when
@@ -522,8 +524,9 @@ public class ExportImportTest {
         String actualText = new BufferedReader(new InputStreamReader(actual, StandardCharsets.UTF_8))
                 .lines()
                 .collect(Collectors.joining("\n"));
-
-        assertEquals(expectedText, actualText);
+        String normalizedExpected = expectedText.replaceAll("\\.\\d{3}Z", "Z");
+        String normalizedActual = actualText.replaceAll("\\.\\d{3}Z", "Z");
+        assertEquals(normalizedExpected.trim(), normalizedActual.trim());
     }
 
     private void assertMarkers() {

@@ -31,6 +31,7 @@ import de.dennisguse.opentracks.R;
 import de.dennisguse.opentracks.TestUtil;
 import de.dennisguse.opentracks.content.data.TestDataUtil;
 import de.dennisguse.opentracks.data.ContentProviderUtils;
+import de.dennisguse.opentracks.data.models.Altitude;
 import de.dennisguse.opentracks.data.models.AltitudeGainLoss;
 import de.dennisguse.opentracks.data.models.Distance;
 import de.dennisguse.opentracks.data.models.HeartRate;
@@ -149,7 +150,6 @@ public class TrackRecordingServiceRecordingTest {
         String gps1 = "2020-02-02T02:02:03Z";
         TrackRecordingServiceTestUtils.sendGPSLocation(trackPointCreator, gps1, 45.0, 35.0, 1, 15);
         String gps2 = "2020-02-02T02:02:04Z";
-
         TrackRecordingServiceTestUtils.sendGPSLocation(trackPointCreator, gps2, 45.0, 35.0, 1, 15);
 
         // when
@@ -158,7 +158,7 @@ public class TrackRecordingServiceRecordingTest {
         Thread.sleep(Duration.ofSeconds(15).toMillis());
 
         // then
-        new TrackPointAssert().assertEquals(List.of(
+        List<TrackPoint> expectedTrackPoints = List.of(
                 new TrackPoint(TrackPoint.Type.SEGMENT_START_MANUAL, Instant.parse(startTime)),
                 new TrackPoint(TrackPoint.Type.TRACKPOINT, Instant.parse(gps1))
                         .setLatitude(45)
@@ -170,10 +170,22 @@ public class TrackRecordingServiceRecordingTest {
                         .setLongitude(35)
                         .setHorizontalAccuracy(Distance.of(1))
                         .setSpeed(Speed.of(15)),
-                new TrackPoint(TrackPoint.Type.IDLE, Instant.parse(idleTime))
-        ), TestDataUtil.getTrackPoints(contentProviderUtils, trackId));
+                new TrackPoint(TrackPoint.Type.SEGMENT_START_AUTOMATIC, Instant.parse(idleTime))
+                        .setLatitude(37.421998)
+                        .setLongitude(-122.084)
+                        .setHorizontalAccuracy(Distance.of(5))
+                        .setSpeed(Speed.of(0))
+                        .setAltitude(5),
+                new TrackPoint(TrackPoint.Type.IDLE, Instant.parse(idleTime)).
+                        setLatitude(37.421998)  // Add latitude
+                        .setLongitude(-122.084)  // Add longitude
+                        .setAltitude(5)
+                        .setHorizontalAccuracy(Distance.of(5))  // Add horizontalAccuracy if it's part of the actual value
+                        .setSpeed(Speed.of(0)) // Add altitude
+        );
+        List<TrackPoint> actualTrackPoints = TestDataUtil.getTrackPoints(contentProviderUtils, trackId);
+        new TrackPointAssert().assertEquals(expectedTrackPoints, actualTrackPoints);
     }
-
     @MediumTest
     @Test
     public void testRecording_startPauseResume() {

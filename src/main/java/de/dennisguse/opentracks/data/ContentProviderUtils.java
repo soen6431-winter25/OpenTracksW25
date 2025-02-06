@@ -24,6 +24,7 @@ import android.database.Cursor;
 import android.location.Location;
 import android.net.Uri;
 import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -259,7 +260,11 @@ public class ContentProviderUtils {
         return contentResolver.query(TracksColumns.CONTENT_URI, PROJECTION, selection, selectionArgs, sortOrder);
     }
 
-    public Track getTrack(@NonNull Track.Id trackId) {
+    public Track getTrack(Track.Id trackId) {
+        if (trackId == null) {
+            Log.e(TAG, "Track ID is null");
+            return null;
+        }
         try (Cursor cursor = getTrackCursor(TracksColumns._ID + "=?", new String[]{Long.toString(trackId.id())}, null)) {
             if (cursor != null && cursor.moveToNext()) {
                 return createTrack(cursor);
@@ -531,7 +536,9 @@ public class ContentProviderUtils {
         values.put(MarkerColumns.DESCRIPTION, marker.getDescription());
         values.put(MarkerColumns.CATEGORY, marker.getCategory());
         values.put(MarkerColumns.ICON, marker.getIcon());
-        values.put(MarkerColumns.TRACKID, marker.getTrackId().id());
+        if (marker.getTrackId() != null) {
+            values.put(MarkerColumns.TRACKID, marker.getTrackId().id());
+        }
         values.put(MarkerColumns.LONGITUDE, (int) (marker.getLongitude() * 1E6));
         values.put(MarkerColumns.LATITUDE, (int) (marker.getLatitude() * 1E6));
         values.put(MarkerColumns.TIME, marker.getTime().toEpochMilli());
