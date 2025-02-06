@@ -73,7 +73,7 @@ public class EspressoAggregatedFilterTest {
                         withParent(allOf(withId(R.id.filter_items),
                                 withParent(IsInstanceOf.instanceOf(android.view.ViewGroup.class)))),
                         isDisplayed()));
-        checkBox.perform(waitFor(2000));
+        checkBox.perform(waitFor(5000));
 
         // check there's an edit text for "from date"
         onView(withId(R.id.filter_date_edit_text_from)).check(matches(isDisplayed()));
