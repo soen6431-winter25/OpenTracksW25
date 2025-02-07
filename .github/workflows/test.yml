@@ -18,7 +18,7 @@ jobs:
       - name: Setup JDK
         uses: actions/setup-java@v4
         with:
-          distribution: 'adoptium'  # Use Adoptium distribution instead of adoptopenjdk
+          distribution: 'temurin'  # Use Temurin instead of Adoptium
           java-version: '17'
 
       - name: Enable KVM (for emulator)
