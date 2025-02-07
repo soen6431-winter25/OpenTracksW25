@@ -62,7 +62,9 @@ public class EspressoDeleteTrackTest {
 
         onView(withText("Delete")).perform(click());
 
-        onView(withText("OK")).perform(click());
+        onView(withText("Delete"))
+                .perform(waitFor(5000)) // wait for menu item to be available
+                .perform(click());
 
         // tracklist is empty now
         onView(allOf(withText("Start recording your next adventure here"), isDisplayed()));
