@@ -364,10 +364,15 @@ public class TrackListActivity extends AbstractTrackDeleteActivity implements Co
         }
 
         if (itemId == R.id.list_context_menu_edit) {
-            Intent intent = IntentUtils.newIntent(this, TrackEditActivity.class)
-                    .putExtra(TrackEditActivity.EXTRA_TRACK_ID, trackIds[0]);
-            startActivity(intent);
-            return true;
+            if (trackIds.length > 0) {
+                Intent intent = IntentUtils.newIntent(this, TrackEditActivity.class)
+                        .putExtra(TrackEditActivity.EXTRA_TRACK_ID, trackIds[0]);
+                startActivity(intent);
+                return true;
+            }
+            else {
+                return false;
+            }
         }
 
         if (itemId == R.id.list_context_menu_delete) {
