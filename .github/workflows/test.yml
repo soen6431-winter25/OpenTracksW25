@@ -1,5 +1,5 @@
-#https://github.com/marketplace/actions/android-emulator-runner
 name: Test
+
 on:
   push:
   pull_request:
@@ -9,35 +9,47 @@ jobs:
     timeout-minutes: 45
     runs-on: ubuntu-latest
     steps:
-      - name: checkout
+      - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-tags: true
-          fetch-depth: 0 #TODO See https://github.com/actions/checkout/issues/1471
+          fetch-depth: 0  # This fetches all history for all branches, necessary for some actions.
 
-      - uses: actions/setup-java@v4
+      - name: Setup JDK
+        uses: actions/setup-java@v4
         with:
-          distribution: 'adopt'
+          distribution: 'adoptopenjdk'
           java-version: '17'
 
-      - name: Enable KVM
+      - name: Enable KVM (for emulator)
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
-      - name: run tests
+      - name: Setup Android Emulator
         uses: reactivecircus/android-emulator-runner@v2.33.0
         with:
           arch: x86_64
           api-level: 34
-          script: ./gradlew connectedCheck
+          script: |
+            # Accept licenses (important for CI)
+            yes | sdkmanager --licenses
+            # Install additional required SDK components
+            sdkmanager "platform-tools" "platforms;android-34" "system-images;android-34;google_apis;x86_64"
+            # Start the emulator
+            $ANDROID_HOME/emulator/emulator -avd test -no-window -noaudio -accel on -gpu swiftshader_indirect &
+            # Wait until the emulator is ready
+            adb wait-for-device
+            adb shell input keyevent 82  # Unlock the emulator screen if needed
 
-      - name: Archive
+            # Run the tests
+            ./gradlew connectedCheck
+
+      - name: Archive test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: code-coverage-report
           path: build/reports/androidTests/
           retention-days: 7
-
