@@ -10,13 +10,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: checkout
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-tags: true
-          fetch-depth: 0 #TODO See https://github.com/actions/checkout/issues/1471
+          fetch-depth: 0
 
-      - uses: actions/setup-java@v4
+      - name: Set up JDK
+        uses: actions/setup-java@v4
         with:
           distribution: 'adopt'
           java-version: '17'
@@ -27,15 +28,27 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
-      - name: run tests
+      - name: Run Tests
         uses: reactivecircus/android-emulator-runner@v2.33.0
         with:
           arch: x86_64
-          api-level: 35  # Changed to Android API level 35
-          emulator-options: "-gpu swiftshader_indirect"
-          script: ./gradlew connectedCheck
+          api-level: 35
+          force-avd-creation: true
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          script: |
+            adb logcat > logcat.txt &
+            ./gradlew connectedCheck
 
-      - name: Archive
+      - name: Upload Logcat
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: logcat
+          path: logcat.txt
+          retention-days: 7
+
+      - name: Archive Test Results
         if: always()
         uses: actions/upload-artifact@v4
         with:
