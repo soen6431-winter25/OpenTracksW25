@@ -7,10 +7,15 @@ import java.util.UUID;
 
 public class UUIDUtils {
 
+    // Private constructor to prevent instantiation
+    private UUIDUtils() {
+        throw new IllegalStateException("Utility class. Should not be instantiated!");
+    }
+
     public static UUID fromBytes(byte[] bytes) {
         ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
         long mostSignificant = byteBuffer.getLong();
-        long lestSignificant = byteBuffer.getLong();
+        long leastSignificant = byteBuffer.getLong();
         return new UUID(mostSignificant, lestSignificant);
     }
 
