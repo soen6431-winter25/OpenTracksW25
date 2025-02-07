@@ -33,11 +33,14 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
-      - name: Create and configure AVD
+      - name: Install system image and create AVD
         run: |
-          echo "Creating AVD..."
+          echo "Installing system image..."
           yes | sdkmanager --install "system-images;android-35;default;x86_64"
+          echo "Creating AVD..."
           echo "no" | avdmanager create avd -n test -k "system-images;android-35;default;x86_64" -d "Nexus 6"
+          echo "Configuring AVD..."
+          mkdir -p /home/runner/.android/avd/test.avd
           echo "hw.ramSize=4096" >> /home/runner/.android/avd/test.avd/config.ini
           echo "disk.dataPartition.size=2G" >> /home/runner/.android/avd/test.avd/config.ini
           echo "hw.gpu.mode=host" >> /home/runner/.android/avd/test.avd/config.ini
