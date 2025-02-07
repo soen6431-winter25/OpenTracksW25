@@ -258,9 +258,9 @@ public class TrackRecordedActivity extends AbstractTrackDeleteActivity implement
             super(fa);
         }
 
-        public class InvalidFragmentPositionException extends IllegalArgumentException {
+        private static class InvalidFragmentPositionException extends IllegalArgumentException {
             public InvalidFragmentPositionException(int position) {
-                super("There isn't a Fragment associated with the position: " + position);
+                super("There isn't a Fragment associated with the position: " + position + ". Expected between 0 and 3.");
             }
         }
 
