@@ -258,6 +258,12 @@ public class TrackRecordedActivity extends AbstractTrackDeleteActivity implement
             super(fa);
         }
 
+        public class InvalidFragmentPositionException extends IllegalArgumentException {
+            public InvalidFragmentPositionException(int position) {
+                super("There isn't a Fragment associated with the position: " + position);
+            }
+        }
+
         @NonNull
         @Override
         public Fragment createFragment(int position) {
@@ -267,7 +273,7 @@ public class TrackRecordedActivity extends AbstractTrackDeleteActivity implement
                 case 2 -> ChartFragment.newInstance(false);
                 case 3 -> ChartFragment.newInstance(true);
                 default ->
-                        throw new RuntimeException("There isn't Fragment associated with the position: " + position);
+                        throw new InvalidFragmentPositionException(position);
             };
         }
 
@@ -283,7 +289,7 @@ public class TrackRecordedActivity extends AbstractTrackDeleteActivity implement
                 case 2 -> getString(R.string.settings_chart_by_time);
                 case 3 -> getString(R.string.settings_chart_by_distance);
                 default ->
-                        throw new RuntimeException("There isn't Fragment associated with the position: " + position);
+                        throw new InvalidFragmentPositionException(position);
             };
         }
     }
