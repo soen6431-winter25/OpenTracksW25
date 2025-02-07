@@ -183,8 +183,8 @@ public class VoiceAnnouncementManager implements SharedPreferences.OnSharedPrefe
 
             Distance distance = trackStatistics.getTotalDistance();
 
-            int index = (double) (distance.dividedBy(distanceFrequency));
-            nextTotalDistance = distanceFrequency.multipliedBy(index + 1);
+            int index = (int) (distance.dividedBy(distanceFrequency));
+            nextTotalDistance = distanceFrequency.multipliedBy( (double) index + 1);
         }
 
     }
