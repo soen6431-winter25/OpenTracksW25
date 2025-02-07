@@ -1,4 +1,4 @@
-name: Android CI
+name: Test
 
 on:
   push:
@@ -13,72 +13,47 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup JDK 17
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
+          distribution: 'adopt'
           java-version: '17'
 
-      - name: Setup Android SDK
+      - name: Set up Android SDK
         uses: android-actions/setup-android@v3
-        with:
-          android-sdk-file: commandlinetools-linux-9477386_latest.zip
 
-      - name: Configure KVM
+      - name: Install XCB dependencies
         run: |
-          sudo chmod a+rw /dev/kvm
-          sudo apt-get -qq update && sudo apt-get -qq install qemu-kvm
+          sudo apt-get update
+          sudo apt-get install -y libxcb-cursor0 libxcb-xinerama0 libxcb-icccm4 libxcb-keysyms1 libxcb-render-util0
+          sudo apt-get install -y libxcb-*
 
-      - name: Create Android 34 AVD
+      - name: Create and configure AVD
         run: |
           yes | sdkmanager --install "system-images;android-34;default;x86_64"
-          echo "no" | avdmanager create avd -n test -k "system-images;android-34;default;x86_64" -d "pixel_5"
-          
-          # Optimized AVD configuration
+          echo "no" | avdmanager create avd -n test -k "system-images;android-34;default;x86_64"
           mkdir -p ~/.android/avd/test.avd
-          cat <<EOT >> ~/.android/avd/test.avd/config.ini
-          hw.ramSize = 4096
-          hw.gpu.mode = swiftshader_indirect
-          hw.keyboard = yes
-          hw.camera.back = none
-          hw.camera.front = none
-          vm.heapSize = 512
-          hw.lcd.density = 440
-          hw.mainKeys = no
-          EOT
+          echo "hw.ramSize=4096" >> ~/.android/avd/test.avd/config.ini
+          echo "hw.gpu.mode=swiftshader_indirect" >> ~/.android/avd/test.avd/config.ini
 
-      - name: Run Emulator with Hardware Acceleration
+      - name: Set Qt environment variables
+        run: |
+          echo "QT_QPA_PLATFORM_PLUGIN_PATH=/usr/local/lib/android/sdk/emulator/lib64/qt/plugins" >> $GITHUB_ENV
+
+      - name: Run tests with Android Emulator
         uses: reactivecircus/android-emulator-runner@v2.33.0
         with:
           api-level: 34
           arch: x86_64
-          profile: pixel_5
           disable-animations: true
-          emulator-options: |
-            -no-audio 
-            -no-boot-anim 
-            -no-snapshot 
-            -gpu swiftshader_indirect 
-            -memory 4096 
-            -skip-adb-auth
-          pre-emulator-launch: |
-            adb start-server
+          emulator-options: -no-audio -no-boot-anim -no-snapshot -gpu swiftshader_indirect -memory 4096 -skip-adb-auth
           script: |
-            echo "Waiting for device..."
             adb wait-for-device
-            echo "Checking boot completion..."
-            while [[ "$(adb shell getprop sys.boot_completed | tr -d '\r')" != "1" ]]; do
-              sleep 5
-            done
-            echo "Waiting additional 30s for system services..."
-            sleep 30
+            while [[ "$(adb shell getprop sys.boot_completed | tr -d '\r')" != "1" ]]; do sleep 5; done
             ./gradlew connectedCheck
 
-      - name: Upload Test Results
-        if: always()
+      - name: Archive code coverage report
         uses: actions/upload-artifact@v4
         with:
-          name: test-reports
-          path: |
-            build/reports/**/*.html
-            build/outputs/androidTest-results/connected/
+          name: code-coverage-report
+          path: build/reports/androidTests/
