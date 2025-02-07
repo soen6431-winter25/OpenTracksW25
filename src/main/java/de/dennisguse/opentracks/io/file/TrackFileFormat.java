@@ -44,7 +44,7 @@ public enum TrackFileFormat {
     @Deprecated //TODO Check if we really need this
     KMZ_WITH_TRACKDETAIL_AND_SENSORDATA("KMZ_WITH_TRACKDETAIL_AND_SENSORDATA") {
 
-        private static final boolean exportPhotos = false;
+        private static final boolean EXPORT_PHOTOS = false;
 
         @Override
         public TrackExporter createTrackExporter(@NonNull Context context, @NonNull ContentProviderUtils contentProviderUtils) {
