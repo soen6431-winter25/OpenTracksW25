@@ -32,6 +32,7 @@ jobs:
         with:
           arch: x86_64
           api-level: 35  # Changed to Android API level 35
+          emulator-options: "-gpu swiftshader_indirect"
           script: ./gradlew connectedCheck
 
       - name: Archive
