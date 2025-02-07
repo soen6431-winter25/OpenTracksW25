@@ -22,6 +22,11 @@ jobs:
           distribution: 'adopt'
           java-version: '17'
 
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          android-sdk-file: commandlinetools-linux-9477386_latest.zip  # Replace with the latest version if needed
+
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -31,6 +36,7 @@ jobs:
       - name: Create and configure AVD
         run: |
           echo "Creating AVD..."
+          yes | sdkmanager --install "system-images;android-35;default;x86_64"
           echo "no" | avdmanager create avd -n test -k "system-images;android-35;default;x86_64" -d "Nexus 6"
           echo "hw.ramSize=4096" >> /home/runner/.android/avd/test.avd/config.ini
           echo "disk.dataPartition.size=2G" >> /home/runner/.android/avd/test.avd/config.ini
