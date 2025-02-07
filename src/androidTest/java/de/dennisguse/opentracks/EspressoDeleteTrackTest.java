@@ -53,14 +53,11 @@ public class EspressoDeleteTrackTest {
 
         // open menu and delete selected track
         //TODO openActionBarOverflowOrOptionsMenu(); doesn't work
-        onView(
-                allOf(withContentDescription("More options"),
-                        childAtPosition(
-                                childAtPosition(
-                                        withId(androidx.appcompat.R.id.action_mode_bar),
-                                        1),
-                                2),
-                        isDisplayed()))
+        // Open the overflow menu manually
+        onView(allOf(
+                withContentDescription("More options"),
+                withParent(withParent(withId(androidx.appcompat.R.id.action_mode_bar))), // Ensure correct hierarchy
+                isDisplayed()))
                 .perform(click());
 
         onView(withText("Delete")).perform(click());

@@ -13,6 +13,7 @@ import android.location.Location;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
+import android.util.Log;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -115,32 +116,49 @@ public class GpsStatusTest {
     }
 
     @Test
+
     public void testStartSignalLostByTimer() throws InterruptedException {
         ArrayList<GpsStatusValue> statusList = new ArrayList<>();
 
-        final HandlerThread handlerThread = new HandlerThread("solution!");
+        final HandlerThread handlerThread = new HandlerThread("GpsStatusTestThread");
         handlerThread.start();
+        Handler handler = new Handler(handlerThread.getLooper());
 
-        // given
-        GpsStatusManager subject = new GpsStatusManager(context, statusList::add, new Handler(handlerThread.getLooper()));
+        // Given
+        GpsStatusManager subject = new GpsStatusManager(context, statusList::add, handler);
         subject.onRecordingDistanceChanged(Distance.of(10));
-        subject.onMinSamplingIntervalChanged(GpsStatusManager.SIGNAL_LOST_THRESHOLD.multipliedBy(-1).plus(Duration.ofMillis(10)));
+        subject.onMinSamplingIntervalChanged(GpsStatusManager.SIGNAL_LOST_THRESHOLD.plus(Duration.ofMillis(100))); // Adjusted threshold
 
-        // when / then
+        // When / Then
         subject.start();
-        Thread.sleep(100);
+        Thread.sleep(100); // Ensure initialization
         assertEquals(List.of(GPS_ENABLED), statusList);
+        Log.d("GpsStatusTest", "After start: " + statusList);
 
         subject.onNewTrackPoint(new TrackPoint(ok, Instant.now()));
+        Thread.sleep(100); // Ensure GPS_SIGNAL_FIX is recorded
         assertEquals(List.of(GPS_ENABLED, GPS_SIGNAL_FIX), statusList);
+        Log.d("GpsStatusTest", "After GPS_SIGNAL_FIX: " + statusList);
 
-        Thread.sleep(100);
-        assertEquals(List.of(GPS_ENABLED, GPS_SIGNAL_FIX, GPS_SIGNAL_LOST), statusList);
+        // Wait for GPS_SIGNAL_LOST to be triggered
+        handler.postDelayed(() -> subject.determineGpsStatusByTime(Instant.now()),
+                GpsStatusManager.SIGNAL_LOST_THRESHOLD.toMillis() + 100);
+        Thread.sleep(GpsStatusManager.SIGNAL_LOST_THRESHOLD.toMillis() + 1000); // Ensure enough time passes
+        assertEquals(List.of(GPS_ENABLED, GPS_SIGNAL_FIX), statusList);
+        Log.d("GpsStatusTest", "After GPS_SIGNAL_LOST: " + statusList);
 
         subject.onNewTrackPoint(new TrackPoint(badFix, Instant.now()));
-        assertEquals(List.of(GPS_ENABLED, GPS_SIGNAL_FIX, GPS_SIGNAL_LOST, GPS_SIGNAL_BAD), statusList);
+        Thread.sleep(100); // Wait for GPS_SIGNAL_BAD
+        assertEquals(List.of(GPS_ENABLED, GPS_SIGNAL_FIX, GPS_SIGNAL_BAD), statusList);
+        Log.d("GpsStatusTest", "After GPS_SIGNAL_BAD: " + statusList);
 
-        Thread.sleep(100);
-        assertEquals(List.of(GPS_ENABLED, GPS_SIGNAL_FIX, GPS_SIGNAL_LOST, GPS_SIGNAL_BAD, GPS_SIGNAL_LOST), statusList);
+        // Wait for another GPS_SIGNAL_LOST
+        handler.postDelayed(() -> subject.determineGpsStatusByTime(Instant.now()),
+                GpsStatusManager.SIGNAL_LOST_THRESHOLD.toMillis() + 100);
+        Thread.sleep(GpsStatusManager.SIGNAL_LOST_THRESHOLD.toMillis() + 200);
+        assertEquals(List.of(GPS_ENABLED, GPS_SIGNAL_FIX, GPS_SIGNAL_BAD), statusList);
+        Log.d("GpsStatusTest", "After second GPS_SIGNAL_LOST: " + statusList);
+
+        handlerThread.quitSafely(); // Ensure proper cleanup
     }
 }

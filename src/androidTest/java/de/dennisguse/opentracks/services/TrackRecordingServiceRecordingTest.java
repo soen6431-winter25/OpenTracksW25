@@ -141,50 +141,59 @@ public class TrackRecordingServiceRecordingTest {
     @MediumTest
     @Test
     public void recording_startIdle() throws InterruptedException {
+            // Given
+            TrackPointCreator trackPointCreator = service.getTrackPointCreator();
+            String startTime = "2020-02-02T02:02:02Z";
+            trackPointCreator.setClock(startTime);
+            Track.Id trackId = service.startNewTrack();
 
-        // given
-        TrackPointCreator trackPointCreator = service.getTrackPointCreator();
-        String startTime = "2020-02-02T02:02:02Z";
-        trackPointCreator.setClock(startTime);
-        Track.Id trackId = service.startNewTrack();
-        String gps1 = "2020-02-02T02:02:03Z";
-        TrackRecordingServiceTestUtils.sendGPSLocation(trackPointCreator, gps1, 45.0, 35.0, 1, 15);
-        String gps2 = "2020-02-02T02:02:04Z";
-        TrackRecordingServiceTestUtils.sendGPSLocation(trackPointCreator, gps2, 45.0, 35.0, 1, 15);
+            String gps1 = "2020-02-02T02:02:03Z";
+            TrackRecordingServiceTestUtils.sendGPSLocation(trackPointCreator, gps1, 45.0, 35.0, 1, 15);
 
-        // when
-        String idleTime = "2020-02-02T02:02:17Z";
-        trackPointCreator.setClock("2020-02-02T02:02:17Z");
-        Thread.sleep(Duration.ofSeconds(15).toMillis());
+            String gps2 = "2020-02-02T02:02:04Z";
+            TrackRecordingServiceTestUtils.sendGPSLocation(trackPointCreator, gps2, 45.0, 35.0, 1, 15);
 
-        // then
-        List<TrackPoint> expectedTrackPoints = List.of(
-                new TrackPoint(TrackPoint.Type.SEGMENT_START_MANUAL, Instant.parse(startTime)),
-                new TrackPoint(TrackPoint.Type.TRACKPOINT, Instant.parse(gps1))
-                        .setLatitude(45)
-                        .setLongitude(35)
-                        .setHorizontalAccuracy(Distance.of(1))
-                        .setSpeed(Speed.of(15)),
-                new TrackPoint(TrackPoint.Type.TRACKPOINT, Instant.parse(gps2))
-                        .setLatitude(45)
-                        .setLongitude(35)
-                        .setHorizontalAccuracy(Distance.of(1))
-                        .setSpeed(Speed.of(15)),
-                new TrackPoint(TrackPoint.Type.SEGMENT_START_AUTOMATIC, Instant.parse(idleTime))
-                        .setLatitude(37.421998)
-                        .setLongitude(-122.084)
-                        .setHorizontalAccuracy(Distance.of(5))
-                        .setSpeed(Speed.of(0))
-                        .setAltitude(5),
-                new TrackPoint(TrackPoint.Type.IDLE, Instant.parse(idleTime)).
-                        setLatitude(37.421998)  // Add latitude
-                        .setLongitude(-122.084)  // Add longitude
-                        .setAltitude(5)
-                        .setHorizontalAccuracy(Distance.of(5))  // Add horizontalAccuracy if it's part of the actual value
-                        .setSpeed(Speed.of(0)) // Add altitude
-        );
-        List<TrackPoint> actualTrackPoints = TestDataUtil.getTrackPoints(contentProviderUtils, trackId);
-        new TrackPointAssert().assertEquals(expectedTrackPoints, actualTrackPoints);
+            // When (simulate idle time)
+            String idleTime = "2020-02-02T02:02:17Z";
+            trackPointCreator.setClock(idleTime);
+            Thread.sleep(Duration.ofSeconds(15).toMillis());
+
+            // Expected track points (Fix: Ensure IDLE event has required attributes)
+            List<TrackPoint> expectedTrackPoints = List.of(
+                    new TrackPoint(TrackPoint.Type.SEGMENT_START_MANUAL, Instant.parse(startTime)),
+                    new TrackPoint(TrackPoint.Type.TRACKPOINT, Instant.parse(gps1))
+                            .setLatitude(45)
+                            .setLongitude(35)
+                            .setHorizontalAccuracy(Distance.of(1))
+                            .setSpeed(Speed.of(15)),
+                    new TrackPoint(TrackPoint.Type.TRACKPOINT, Instant.parse(gps2))
+                            .setLatitude(45)
+                            .setLongitude(35)
+                            .setHorizontalAccuracy(Distance.of(1))
+                            .setSpeed(Speed.of(15)),
+                    new TrackPoint(TrackPoint.Type.SEGMENT_START_AUTOMATIC, Instant.parse(idleTime))
+                            .setLatitude(37.421998)
+                            .setLongitude(-122.084)
+                            .setHorizontalAccuracy(Distance.of(5))
+                            .setSpeed(Speed.of(0))
+                            .setAltitude(5),
+                    new TrackPoint(TrackPoint.Type.IDLE, Instant.parse(idleTime))
+                            .setLatitude(37.421998)
+                            .setLongitude(-122.084)
+                            .setAltitude(5)
+                            .setHorizontalAccuracy(Distance.of(5))
+                            .setSpeed(Speed.of(0))
+            );
+
+            // Actual track points
+            List<TrackPoint> actualTrackPoints = TestDataUtil.getTrackPoints(contentProviderUtils, trackId);
+
+            // Debugging log to check actual values
+            actualTrackPoints.forEach(trackPoint -> System.out.println("Actual TrackPoint: " + trackPoint));
+
+            // Assertion
+            new TrackPointAssert().assertEquals(expectedTrackPoints, actualTrackPoints);
+
     }
     @MediumTest
     @Test
