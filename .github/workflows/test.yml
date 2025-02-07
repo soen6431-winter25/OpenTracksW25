@@ -43,7 +43,7 @@ jobs:
           mkdir -p /home/runner/.android/avd/test.avd
           echo "hw.ramSize=4096" >> /home/runner/.android/avd/test.avd/config.ini
           echo "disk.dataPartition.size=2G" >> /home/runner/.android/avd/test.avd/config.ini
-          echo "hw.gpu.mode=host" >> /home/runner/.android/avd/test.avd/config.ini
+          echo "hw.gpu.mode=swiftshader_indirect" >> /home/runner/.android/avd/test.avd/config.ini
           echo "hw.keyboard=yes" >> /home/runner/.android/avd/test.avd/config.ini
           echo "hw.camera.back=none" >> /home/runner/.android/avd/test.avd/config.ini
           echo "hw.camera.front=none" >> /home/runner/.android/avd/test.avd/config.ini
@@ -57,7 +57,7 @@ jobs:
           api-level: 35  # Android API level 35
           profile: Nexus 6  # Optional: Specify a device profile
           disable-animations: true  # Disable animations for faster tests
-          emulator-options: -no-audio -no-boot-anim -no-snapshot -no-window -gpu host  # Use host GPU for better rendering
+          emulator-options: -no-audio -no-boot-anim -no-snapshot -no-window -gpu swiftshader_indirect  # Use software rendering
           script: ./gradlew connectedCheck  # Run all connected tests
 
       - name: Archive code coverage report
