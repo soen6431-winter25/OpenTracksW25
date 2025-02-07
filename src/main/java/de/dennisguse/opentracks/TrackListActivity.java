@@ -346,6 +346,9 @@ public class TrackListActivity extends AbstractTrackDeleteActivity implements Co
      * @return true if handled.
      */
     private boolean handleContextItem(int itemId, long... longTrackIds) {
+        if(longTrackIds == null || longTrackIds.length == 0 ) {
+            return false;
+        }
         Track.Id[] trackIds = new Track.Id[longTrackIds.length];
         for (int i = 0; i < longTrackIds.length; i++) {
             trackIds[i] = new Track.Id(longTrackIds[i]);
@@ -363,7 +366,7 @@ public class TrackListActivity extends AbstractTrackDeleteActivity implements Co
             return true;
         }
 
-        if (itemId == R.id.list_context_menu_edit) {
+        if (itemId == R.id.list_context_menu_edit && trackIds.length > 0) {
             Intent intent = IntentUtils.newIntent(this, TrackEditActivity.class)
                     .putExtra(TrackEditActivity.EXTRA_TRACK_ID, trackIds[0]);
             startActivity(intent);
