@@ -35,7 +35,7 @@ jobs:
           api-level: 35  # Android API level 35
           profile: Nexus 6  # Optional: Specify a device profile
           disable-animations: true  # Disable animations for faster tests
-          emulator-options: -gpu swiftshader_indirect -no-audio -no-boot-anim -no-snapshot -no-window  # Emulator options for headless mode
+          emulator-options: -gpu host -no-audio -no-boot-anim -no-snapshot -no-window -ram-size 4096  # Use host GPU for better rendering
           script: ./gradlew connectedCheck  # Run all connected tests
 
       - name: Archive code coverage report
