@@ -1,6 +1,0 @@
-projectKey=OpenTracksW25_Group5
-serverUrl=http://localhost:9000
-serverVersion=25.1.0.102122
-dashboardUrl=http://localhost:9000/dashboard?id=OpenTracksW25_Group5
-ceTaskId=f9086e57-020b-4cf7-8355-526de2dd9c6a
-ceTaskUrl=http://localhost:9000/api/ce/task?id=f9086e57-020b-4cf7-8355-526de2dd9c6a
