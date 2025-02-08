@@ -16,6 +16,10 @@
 
 package de.dennisguse.opentracks.stats;
 
+import static de.dennisguse.opentracks.io.file.ErrorListDialog.TAG;
+
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
@@ -217,11 +221,14 @@ public class TrackStatistics {
 
     public void setStopTime(Instant stopTime) {
         if (stopTime.isBefore(startTime)) {
-            // Time must be monotonically increasing, but we might have events at the same point in time (BLE and GPS)
-            throw new RuntimeException("stopTime cannot be less than startTime: " + startTime + " " + stopTime);
+            // Ensure stopTime is always after or equal to startTime
+            stopTime = startTime.plusSeconds(1);
+            Log.w(TAG, "Adjusted stopTime to be after startTime: " + stopTime);
         }
         this.stopTime = stopTime;
     }
+
+
 
     public Distance getTotalDistance() {
         return totalDistance;
