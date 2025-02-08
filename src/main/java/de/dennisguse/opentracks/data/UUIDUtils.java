@@ -15,7 +15,7 @@ public class UUIDUtils {
     public static UUID fromBytes(byte[] bytes) {
         ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
         long mostSignificant = byteBuffer.getLong();
-        long leastSignificant = byteBuffer.getLong();
+        long lestSignificant = byteBuffer.getLong();
         return new UUID(mostSignificant, lestSignificant);
     }
 
