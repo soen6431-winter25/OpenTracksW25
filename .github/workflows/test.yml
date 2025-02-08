@@ -6,10 +6,19 @@ on:
 
 jobs:
   test:
+    timeout-minutes: 45
     runs-on: ubuntu-latest
     steps:
       - name: checkout
         uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          fetch-depth: 0 #TODO See https://github.com/actions/checkout/issues/1471
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'adopt'
+          java-version: '17'
 
       - name: Enable KVM
         run: |
@@ -18,7 +27,16 @@ jobs:
           sudo udevadm trigger --name-match=kvm
 
       - name: run tests
-        uses: reactivecircus/android-emulator-runner@v2
+        uses: reactivecircus/android-emulator-runner@v2.33.0
         with:
+          arch: x86_64
           api-level: 34
           script: ./gradlew connectedCheck
+
+      - name: Archive
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: code-coverage-report
+          path: build/reports/androidTests/
+          retention-days: 7
