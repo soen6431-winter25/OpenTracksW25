@@ -1,19 +1,19 @@
-    /*
-     * Copyright 2008 Google Inc.
-     *
-     * Licensed under the Apache License, Version 2.0 (the "License"); you may not
-     * use this file except in compliance with the License. You may obtain a copy of
-     * the License at
-     *
-     * http://www.apache.org/licenses/LICENSE-2.0
-     *
-     * Unless required by applicable law or agreed to in writing, software
-     * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-     * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
-     * License for the specific language governing permissions and limitations under
-     * the License.
-     */
-    
+/*
+ * Copyright 2008 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
     package de.dennisguse.opentracks.data;
     
     import android.content.ContentProvider;
@@ -99,20 +99,20 @@
                 "FROM " + TrackPointsColumns.TABLE_NAME + " t " +
                 "WHERE t." + TrackPointsColumns.TRACKID + " = ? " +
                 "AND t." + TrackPointsColumns.TYPE + " NOT IN (" + TrackPoint.Type.SEGMENT_START_MANUAL.type_db + ")";
-    
+
         public CustomContentProvider() {
             uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-            uriMatcher.addURI(ContentProviderUtils.AUTHORITY_PACKAGE, TrackPointsColumns.CONTENT_URI_BY_ID.getPath(), UrlType.TRACKPOINTS.ordinal());
-            uriMatcher.addURI(ContentProviderUtils.AUTHORITY_PACKAGE, TrackPointsColumns.CONTENT_URI_BY_ID.getPath() + "/#", UrlType.TRACKPOINTS_BY_ID.ordinal());
-            uriMatcher.addURI(ContentProviderUtils.AUTHORITY_PACKAGE, TrackPointsColumns.CONTENT_URI_BY_TRACKID.getPath() + "/*", UrlType.TRACKPOINTS_BY_TRACKID.ordinal());
-    
-            uriMatcher.addURI(ContentProviderUtils.AUTHORITY_PACKAGE, TracksColumns.CONTENT_URI.getPath(), UrlType.TRACKS.ordinal());
-            uriMatcher.addURI(ContentProviderUtils.AUTHORITY_PACKAGE, TracksColumns.CONTENT_URI_SENSOR_STATS.getPath() + "/#", UrlType.TRACKS_SENSOR_STATS.ordinal());
-            uriMatcher.addURI(ContentProviderUtils.AUTHORITY_PACKAGE, TracksColumns.CONTENT_URI.getPath() + "/*", UrlType.TRACKS_BY_ID.ordinal());
-    
-            uriMatcher.addURI(ContentProviderUtils.AUTHORITY_PACKAGE, MarkerColumns.CONTENT_URI.getPath(), UrlType.MARKERS.ordinal());
-            uriMatcher.addURI(ContentProviderUtils.AUTHORITY_PACKAGE, MarkerColumns.CONTENT_URI.getPath() + "/#", UrlType.MARKERS_BY_ID.ordinal());
-            uriMatcher.addURI(ContentProviderUtils.AUTHORITY_PACKAGE, MarkerColumns.CONTENT_URI_BY_TRACKID.getPath() + "/*", UrlType.MARKERS_BY_TRACKID.ordinal());
+
+            // Access the authority via the method
+            uriMatcher.addURI(ContentProviderUtils.getAuthorityPackage(), TrackPointsColumns.CONTENT_URI_BY_ID.getPath(), UrlType.TRACKPOINTS.ordinal());
+            uriMatcher.addURI(ContentProviderUtils.getAuthorityPackage(), TrackPointsColumns.CONTENT_URI_BY_ID.getPath() + "/#", UrlType.TRACKPOINTS_BY_ID.ordinal());
+            uriMatcher.addURI(ContentProviderUtils.getAuthorityPackage(), TrackPointsColumns.CONTENT_URI_BY_TRACKID.getPath() + "/*", UrlType.TRACKPOINTS_BY_TRACKID.ordinal());
+            uriMatcher.addURI(ContentProviderUtils.getAuthorityPackage(), TracksColumns.CONTENT_URI.getPath(), UrlType.TRACKS.ordinal());
+            uriMatcher.addURI(ContentProviderUtils.getAuthorityPackage(), TracksColumns.CONTENT_URI_SENSOR_STATS.getPath() + "/#", UrlType.TRACKS_SENSOR_STATS.ordinal());
+            uriMatcher.addURI(ContentProviderUtils.getAuthorityPackage(), TracksColumns.CONTENT_URI.getPath() + "/*", UrlType.TRACKS_BY_ID.ordinal());
+            uriMatcher.addURI(ContentProviderUtils.getAuthorityPackage(), MarkerColumns.CONTENT_URI.getPath(), UrlType.MARKERS.ordinal());
+            uriMatcher.addURI(ContentProviderUtils.getAuthorityPackage(), MarkerColumns.CONTENT_URI.getPath() + "/#", UrlType.MARKERS_BY_ID.ordinal());
+            uriMatcher.addURI(ContentProviderUtils.getAuthorityPackage(), MarkerColumns.CONTENT_URI_BY_TRACKID.getPath() + "/*", UrlType.MARKERS_BY_TRACKID.ordinal());
         }
     
         @Override
