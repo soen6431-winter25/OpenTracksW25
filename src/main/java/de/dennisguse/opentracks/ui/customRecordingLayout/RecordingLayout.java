@@ -104,7 +104,7 @@ public class RecordingLayout implements Parcelable {
         }
 
         return getName() + CsvLayoutUtils.ITEM_SEPARATOR + getColumnsPerRow() + CsvLayoutUtils.ITEM_SEPARATOR
-                + fields.stream().map(RecordingLayoutIO::toCsv).collect(Collectors.joining(CsvLayoutUtils.ITEM_SEPARATOR))
+                + fields.stream().map(RecordingLayoutIO::convertDataFieldToCsv).collect(Collectors.joining(CsvLayoutUtils.ITEM_SEPARATOR))
                 + CsvLayoutUtils.ITEM_SEPARATOR;
     }
 
