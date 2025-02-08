@@ -30,7 +30,7 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2.33.0
         with:
           arch: x86_64
-          api-level: 21
+          api-level: 29
           script: ./gradlew connectedCheck
 
       - name: Archive
