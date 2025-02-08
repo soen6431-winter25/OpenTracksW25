@@ -36,9 +36,12 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 import de.dennisguse.opentracks.BuildConfig;
 import de.dennisguse.opentracks.data.models.ActivityType;
@@ -98,79 +101,60 @@ public class ContentProviderUtils {
      * @param cursor the cursor pointing to the track
      */
     public static Track createTrack(Cursor cursor) {
-        int idIndex = cursor.getColumnIndexOrThrow(TracksColumns._ID);
-        int uuidIndex = cursor.getColumnIndexOrThrow(TracksColumns.UUID);
-        int nameIndex = cursor.getColumnIndexOrThrow(TracksColumns.NAME);
-        int descriptionIndex = cursor.getColumnIndexOrThrow(TracksColumns.DESCRIPTION);
-        int activityTypeIndex = cursor.getColumnIndexOrThrow(TracksColumns.ACTIVITY_TYPE);
-        int activityTypeLocalizedIndex = cursor.getColumnIndexOrThrow(TracksColumns.ACTIVITY_TYPE_LOCALIZED);
-        int startTimeIndex = cursor.getColumnIndexOrThrow(TracksColumns.STARTTIME);
-        int startTimeOffsetIndex = cursor.getColumnIndexOrThrow(TracksColumns.STARTTIME_OFFSET);
-        int stopTimeIndex = cursor.getColumnIndexOrThrow(TracksColumns.STOPTIME);
-        int totalDistanceIndex = cursor.getColumnIndexOrThrow(TracksColumns.TOTALDISTANCE);
-        int totalTimeIndex = cursor.getColumnIndexOrThrow(TracksColumns.TOTALTIME);
-        int movingTimeIndex = cursor.getColumnIndexOrThrow(TracksColumns.MOVINGTIME);
-        int maxSpeedIndex = cursor.getColumnIndexOrThrow(TracksColumns.MAXSPEED);
-        int minAltitudeIndex = cursor.getColumnIndexOrThrow(TracksColumns.MIN_ALTITUDE);
-        int maxAltitudeIndex = cursor.getColumnIndexOrThrow(TracksColumns.MAX_ALTITUDE);
-        int altitudeGainIndex = cursor.getColumnIndexOrThrow(TracksColumns.ALTITUDE_GAIN);
-        int altitudeLossIndex = cursor.getColumnIndexOrThrow(TracksColumns.ALTITUDE_LOSS);
+        // Mapping column indices
+        Map<String, Integer> columnIndices = getColumnIndices(cursor);
 
-        Track track = new Track(ZoneOffset.ofTotalSeconds(cursor.getInt(startTimeOffsetIndex)));
+        // Creating track with start time offset
+        Track track = new Track(ZoneOffset.ofTotalSeconds(cursor.getInt(columnIndices.get(TracksColumns.STARTTIME_OFFSET))));
         TrackStatistics trackStatistics = track.getTrackStatistics();
-        if (!cursor.isNull(idIndex)) {
-            track.setId(new Track.Id(cursor.getLong(idIndex)));
-        }
-        if (!cursor.isNull(uuidIndex)) {
-            track.setUuid(UUIDUtils.fromBytes(cursor.getBlob(uuidIndex)));
-        }
-        if (!cursor.isNull(nameIndex)) {
-            track.setName(cursor.getString(nameIndex));
-        }
-        if (!cursor.isNull(descriptionIndex)) {
-            track.setDescription(cursor.getString(descriptionIndex));
-        }
-        if (!cursor.isNull(activityTypeIndex)) {
-            track.setActivityType(ActivityType.findBy(cursor.getString(activityTypeIndex)));
-        }
-        if (!cursor.isNull(activityTypeLocalizedIndex)) {
-            track.setActivityTypeLocalized(cursor.getString(activityTypeLocalizedIndex));
-        }
-
-        if (!cursor.isNull(startTimeIndex)) {
-            trackStatistics.setStartTime(Instant.ofEpochMilli(cursor.getLong(startTimeIndex)));
-        }
-        if (!cursor.isNull(stopTimeIndex)) {
-            trackStatistics.setStopTime(Instant.ofEpochMilli(cursor.getLong(stopTimeIndex)));
-        }
-        if (!cursor.isNull(totalDistanceIndex)) {
-            trackStatistics.setTotalDistance(Distance.of(cursor.getFloat(totalDistanceIndex)));
-        }
-        if (!cursor.isNull(totalTimeIndex)) {
-            trackStatistics.setTotalTime(Duration.ofMillis(cursor.getLong(totalTimeIndex)));
-        }
-        if (!cursor.isNull(movingTimeIndex)) {
-            trackStatistics.setMovingTime(Duration.ofMillis(cursor.getLong(movingTimeIndex)));
-        }
-        if (!cursor.isNull(maxSpeedIndex)) {
-            trackStatistics.setMaxSpeed(Speed.of(cursor.getFloat(maxSpeedIndex)));
-        }
-        if (!cursor.isNull(minAltitudeIndex)) {
-            trackStatistics.setMinAltitude(cursor.getFloat(minAltitudeIndex));
-        }
-        if (!cursor.isNull(maxAltitudeIndex)) {
-            trackStatistics.setMaxAltitude(cursor.getFloat(maxAltitudeIndex));
-        }
-        if (!cursor.isNull(altitudeGainIndex)) {
-            trackStatistics.setTotalAltitudeGain(cursor.getFloat(altitudeGainIndex));
-        }
-        if (!cursor.isNull(altitudeLossIndex)) {
-            trackStatistics.setTotalAltitudeLoss(cursor.getFloat(altitudeLossIndex));
-        }
-
+        // Setting track attributes
+        setIfNotNull(cursor, columnIndices.get(TracksColumns._ID), val -> track.setId(new Track.Id(val)));
+        setIfNotNull(cursor, columnIndices.get(TracksColumns.UUID), val -> track.setUuid(UUIDUtils.fromBytes(cursor.getBlob(val))));
+        setIfNotNull(cursor, columnIndices.get(TracksColumns.NAME), val -> track.setName(cursor.getString(val)));
+        setIfNotNull(cursor, columnIndices.get(TracksColumns.DESCRIPTION), val -> track.setDescription(cursor.getString(val)));
+        setIfNotNull(cursor, columnIndices.get(TracksColumns.ACTIVITY_TYPE), val -> track.setActivityType(ActivityType.findBy(cursor.getString(val))));
+        setIfNotNull(cursor, columnIndices.get(TracksColumns.ACTIVITY_TYPE_LOCALIZED), val -> track.setActivityTypeLocalized(cursor.getString(val)));
+        // Setting track statistics
+        setIfNotNull(cursor, columnIndices.get(TracksColumns.STARTTIME), val -> trackStatistics.setStartTime(Instant.ofEpochMilli(cursor.getLong(val))));
+        setIfNotNull(cursor, columnIndices.get(TracksColumns.STOPTIME), val -> trackStatistics.setStopTime(Instant.ofEpochMilli(cursor.getLong(val))));
+        setIfNotNull(cursor, columnIndices.get(TracksColumns.TOTALDISTANCE), val -> trackStatistics.setTotalDistance(Distance.of(cursor.getFloat(val))));
+        setIfNotNull(cursor, columnIndices.get(TracksColumns.TOTALTIME), val -> trackStatistics.setTotalTime(Duration.ofMillis(cursor.getLong(val))));
+        setIfNotNull(cursor, columnIndices.get(TracksColumns.MOVINGTIME), val -> trackStatistics.setMovingTime(Duration.ofMillis(cursor.getLong(val))));
+        setIfNotNull(cursor, columnIndices.get(TracksColumns.MAXSPEED), val -> trackStatistics.setMaxSpeed(Speed.of(cursor.getFloat(val))));
+        setIfNotNull(cursor, columnIndices.get(TracksColumns.MIN_ALTITUDE), val -> trackStatistics.setMinAltitude(cursor.getFloat(val)));
+        setIfNotNull(cursor, columnIndices.get(TracksColumns.MAX_ALTITUDE), val -> trackStatistics.setMaxAltitude(cursor.getFloat(val)));
+        setIfNotNull(cursor, columnIndices.get(TracksColumns.ALTITUDE_GAIN), val -> trackStatistics.setTotalAltitudeGain(cursor.getFloat(val)));
+        setIfNotNull(cursor, columnIndices.get(TracksColumns.ALTITUDE_LOSS), val -> trackStatistics.setTotalAltitudeLoss(cursor.getFloat(val)));
         return track;
     }
 
+    /**
+     * Helper method to map column names to their indices.
+     */
+    private static Map<String, Integer> getColumnIndices(Cursor cursor) {
+        Map<String, Integer> columnIndices = new HashMap<>();
+        String[] columns = {
+                TracksColumns._ID, TracksColumns.UUID, TracksColumns.NAME, TracksColumns.DESCRIPTION,
+                TracksColumns.ACTIVITY_TYPE, TracksColumns.ACTIVITY_TYPE_LOCALIZED, TracksColumns.STARTTIME,
+                TracksColumns.STARTTIME_OFFSET, TracksColumns.STOPTIME, TracksColumns.TOTALDISTANCE,
+                TracksColumns.TOTALTIME, TracksColumns.MOVINGTIME, TracksColumns.MAXSPEED,
+                TracksColumns.MIN_ALTITUDE, TracksColumns.MAX_ALTITUDE, TracksColumns.ALTITUDE_GAIN,
+                TracksColumns.ALTITUDE_LOSS
+        };
+        for (String column : columns) {
+            columnIndices.put(column, cursor.getColumnIndexOrThrow(column));
+        }
+        return columnIndices;
+    }
+
+    /**
+     * Helper method to check if a column is not null and apply an action.
+     */
+    private static void setIfNotNull(Cursor cursor, int columnIndex, Consumer<Integer> action) {
+        if (!cursor.isNull(columnIndex)) {
+            action.accept(columnIndex);
+        }
+    }
     @VisibleForTesting
     public void deleteAllTracks(Context context) {
         //TODO Both calls should not be necessary
