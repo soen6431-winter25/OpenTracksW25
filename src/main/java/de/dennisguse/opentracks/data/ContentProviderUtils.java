@@ -91,6 +91,12 @@ public class ContentProviderUtils {
         this.contentResolver = contentResolver;
     }
 
+    // Adding this method to get the authority package for production use
+    public static String getAuthorityPackage() {
+        // Return the authority package for production use
+        return AUTHORITY_PACKAGE;
+    }
+
     /**
      * Creates a {@link Track} from a cursor.
      *
