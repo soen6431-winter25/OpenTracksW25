@@ -56,6 +56,8 @@ public class CustomContentProvider extends ContentProvider {
 
     private static final int TOTAL_DELETED_ROWS_VACUUM_THRESHOLD = 10000;
 
+    private static final String UNKNOWN_URL = "Unknown URL ";
+
     private final UriMatcher uriMatcher;
 
     private SQLiteDatabase db;
@@ -139,7 +141,7 @@ public class CustomContentProvider extends ContentProvider {
             case TRACKPOINTS -> TrackPointsColumns.TABLE_NAME;
             case TRACKS -> TracksColumns.TABLE_NAME;
             case MARKERS -> MarkerColumns.TABLE_NAME;
-            default -> throw new IllegalArgumentException("Unknown URL " + url);
+            default -> throw new IllegalArgumentException(UNKNOWN_URL + url);
         };
 
         Log.w(TAG, "Deleting from table " + table);
@@ -187,7 +189,7 @@ public class CustomContentProvider extends ContentProvider {
             case TRACKS_BY_ID -> TracksColumns.CONTENT_ITEMTYPE;
             case MARKERS -> MarkerColumns.CONTENT_TYPE;
             case MARKERS_BY_ID, MARKERS_BY_TRACKID -> MarkerColumns.CONTENT_ITEMTYPE;
-            default -> throw new IllegalArgumentException("Unknown URL " + url);
+            default -> throw new IllegalArgumentException(UNKNOWN_URL + url);
         };
     }
 
@@ -276,7 +278,7 @@ public class CustomContentProvider extends ContentProvider {
                 queryBuilder.setTables(MarkerColumns.TABLE_NAME);
                 queryBuilder.appendWhere(MarkerColumns.TRACKID + " IN (" + TextUtils.join(SQL_LIST_DELIMITER, ContentProviderUtils.parseTrackIdsFromUri(url)) + ")");
             }
-            default -> throw new IllegalArgumentException("Unknown url " + url);
+            default -> throw new IllegalArgumentException(UNKNOWN_URL + url);
         }
         Cursor cursor = queryBuilder.query(db, projection, selection, selectionArgs, null, null, sortOrder);
         cursor.setNotificationUri(getContext().getContentResolver(), url);
@@ -322,7 +324,7 @@ public class CustomContentProvider extends ContentProvider {
                     whereClause += " AND (" + where + ")";
                 }
             }
-            default -> throw new IllegalArgumentException("Unknown url " + url);
+            default -> throw new IllegalArgumentException(UNKNOWN_URL + url);
         }
         int count;
         try {
@@ -344,7 +346,7 @@ public class CustomContentProvider extends ContentProvider {
             return urlTypes[matchIndex];
         }
 
-        throw new IllegalArgumentException("Unknown URL " + url);
+        throw new IllegalArgumentException(UNKNOWN_URL + url);
     }
 
     /**
@@ -359,7 +361,7 @@ public class CustomContentProvider extends ContentProvider {
             case TRACKPOINTS -> insertTrackPoint(url, contentValues);
             case TRACKS -> insertTrack(url, contentValues);
             case MARKERS -> insertMarker(url, contentValues);
-            default -> throw new IllegalArgumentException("Unknown url " + url);
+            default -> throw new IllegalArgumentException(UNKNOWN_URL + url);
         };
     }
 
