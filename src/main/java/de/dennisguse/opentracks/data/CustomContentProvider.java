@@ -56,7 +56,7 @@ public class CustomContentProvider extends ContentProvider {
 
     private static final int TOTAL_DELETED_ROWS_VACUUM_THRESHOLD = 10000;
 
-    private final String COALESCE_MAX = " * (COALESCE(MAX(t.";
+    private static final String COALESCE_MAX = " * (COALESCE(MAX(t.";
 
     private final UriMatcher uriMatcher;
 
