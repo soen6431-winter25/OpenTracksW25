@@ -48,7 +48,6 @@ limitations under the License.
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-<!--    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />-->
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
@@ -323,7 +322,8 @@ limitations under the License.
 
         <activity
             android:name=".publicapi.ShowMarkerActivity"
-            android:exported="true">
+            android:exported="true"
+            android:permission="android.permission.ACCESS_FINE_LOCATION">
             <intent-filter>
                 <action android:name="de.dennisguse.opentracks.MarkerDetails" />
                 <category android:name="android.intent.category.DEFAULT" />
