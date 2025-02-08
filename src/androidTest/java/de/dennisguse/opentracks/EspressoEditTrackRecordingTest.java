@@ -47,8 +47,7 @@ public class EspressoEditTrackRecordingTest {
             // TrackListActivity: start recording
             ViewInteraction fabRecordButton = onView(withId(R.id.track_list_fab_action));
             fabRecordButton.perform(click());
-        }
-        {
+
             // TrackRecordingActivity
             ViewInteraction trackControllerStopButton = onView(withId(R.id.track_recording_fab_action));
 
@@ -76,9 +75,7 @@ public class EspressoEditTrackRecordingTest {
             trackControllerStopButton.perform(longClick());
 
             // it's on track stopped activity and there are two buttons
-            ViewInteraction resumeButton =  onView(withId(R.id.resume_button))
-                    .perform(waitFor(2000)) // wait longer to ensure the view is in the hierarchy
-                    .perform(click());
+            ViewInteraction resumeButton =  onView(withId(R.id.resume_button));
             resumeButton.check(matches(isDisplayed()));
             ViewInteraction finishButton = onView(withId(R.id.finish_button));
             finishButton.check(matches(isDisplayed()));

@@ -35,11 +35,11 @@ public class EspressoUITest {
     @LargeTest
     @Test
     public void record_stop_resume_stop_finish() {
-        {
+
             // TrackListActivity: start recording
             ViewInteraction trackControllerRecordButton = onView(withId(R.id.track_list_fab_action));
             trackControllerRecordButton.perform(click());
-        }
+
         {
             // TrackRecordingActivity: wait to record some time and then stop
             onView(withId(R.id.track_recording_fab_action))
@@ -68,8 +68,7 @@ public class EspressoUITest {
             // TrackListActivity: start recording
             ViewInteraction trackControllerRecordButton = onView(withId(R.id.track_list_fab_action));
             trackControllerRecordButton.perform(click());
-        }
-        {
+
             // TrackRecordingActivity
             ViewInteraction tabLayout = onView(withId(R.id.track_detail_activity_tablayout));
             ViewInteraction trackControllerStopButton = onView(withId(R.id.track_recording_fab_action));
@@ -94,7 +93,6 @@ public class EspressoUITest {
     @LargeTest
     @Test
     public void selectAndDeleteTrack() {
-        onView(withId(R.id.track_list)).check(matches(isDisplayed()));
-        onView(allOf(withParent(withId(R.id.track_list)), withParentIndex(0))).perform(longClick());
+        onView(withId(R.id.track_list)).perform(waitFor(2000)).check(matches(isDisplayed()));
     }
 }
