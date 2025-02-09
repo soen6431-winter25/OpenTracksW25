@@ -75,12 +75,9 @@ public class TrackPointAssert {
 
     public void assertEquals(List<TrackPoint> expected, List<TrackPoint> actual) {
         try {
-            Assert.assertEquals("Size mismatch", expected.size(), actual.size());
+            Assert.assertEquals(expected.size(), actual.size());
         } catch (AssertionError e) {
-            System.out.println("Expected size: " + expected.size() + ", Actual size: " + actual.size());
-            System.out.println("Expected TrackPoints: " + expected);
-            System.out.println("Actual TrackPoints: " + actual);
-            throw new AssertionError("Size difference; expected: " + expected.size() + "; actual: " + actual.size() + "\nExpected: " + expected + "\n actual: " + actual, e);
+            throw new AssertionError("Size difference; expected: " + expected.size() + "; actual: " + actual.size() + "\nExpected: " + expected + "\n actual: " + actual);
         }
 
         for (int i = 0; i < expected.size(); i++) {
@@ -90,7 +87,13 @@ public class TrackPointAssert {
                 throw new AssertionError("Expected: " + i + " to be " + expected.get(i) + "\n actual: " + actual.get(i), e);
             }
         }
+        Assert.assertEquals(expected.size(), actual.size());
+
+        for (int i = 0; i < expected.size(); i++) {
+            assertEquals(expected.get(i), actual.get(i));
+        }
     }
+
     public TrackPointAssert setDelta(double delta) {
         this.delta = delta;
         return this;

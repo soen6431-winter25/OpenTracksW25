@@ -340,7 +340,7 @@ public class CustomContentProviderUtilsTest {
         // when
         List<Track> allTracks = contentProviderUtils.getTracks();
 
-//        // then
+        // then
 //        assertEquals(initialTrackNumber + 1, allTracks.size());
 //        assertEquals(trackId, allTracks.get(allTracks.size() - 1).getId());
     }
@@ -790,12 +790,12 @@ public class CustomContentProviderUtilsTest {
         // when
         TrackPoint trackPoint = contentProviderUtils.createTrackPoint(cursorMock);
 
-//        // then
-//        assertEquals(longitude, trackPoint.getLongitude(), 0.01);
-//        assertEquals(latitude, trackPoint.getLatitude(), 0.01);
-//        assertEquals(time, trackPoint.getTime().toEpochMilli());
-//        assertEquals(speed, trackPoint.getSpeed().toMPS(), 0.01);
-//        assertEquals(HeartRate.of(75f), trackPoint.getHeartRate());
+        // then
+        assertEquals(longitude, trackPoint.getLongitude(), 0.01);
+        assertEquals(latitude, trackPoint.getLatitude(), 0.01);
+        assertEquals(time, trackPoint.getTime().toEpochMilli());
+        assertEquals(speed, trackPoint.getSpeed().toMPS(), 0.01);
+        assertEquals(HeartRate.of(75f), trackPoint.getHeartRate());
     }
 
     /**
