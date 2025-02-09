@@ -13,19 +13,19 @@
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="AltitudeCorrectionManagerTest">
+      <SelectionState runConfigName="CustomContentProviderUtilsTest">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="TrackRecordingServiceStateMachineTest">
+      <SelectionState runConfigName="csv_export_only()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="recording_startStopResume_no_data()">
+      <SelectionState runConfigName="ExportImportTest">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="All Tests">
+      <SelectionState runConfigName="kml_with_trackdetail_and_sensordata_duplicate_trackUUID()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="EspressoDeleteTrackTest">
+      <SelectionState runConfigName="gpx()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>
