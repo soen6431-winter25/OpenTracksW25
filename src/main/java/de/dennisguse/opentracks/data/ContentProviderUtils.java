@@ -70,6 +70,7 @@ import de.dennisguse.opentracks.util.FileUtils;
 public class ContentProviderUtils {
 
     private static final String TAG = ContentProviderUtils.class.getSimpleName();
+    private static final String LIKE_OR = " LIKE ? OR ";
 
     // The authority (the first part of the URI) for the app's content provider.
     @VisibleForTesting
@@ -241,8 +242,8 @@ public class ContentProviderUtils {
         final String sortOrder = TracksColumns.STARTTIME + " DESC";
 
         if (searchQuery != null) {
-            selection = TracksColumns.NAME + " LIKE ? OR " +
-                    TracksColumns.DESCRIPTION + " LIKE ? OR " +
+            selection = TracksColumns.NAME + LIKE_OR +
+                    TracksColumns.DESCRIPTION + LIKE_OR +
                     TracksColumns.ACTIVITY_TYPE_LOCALIZED + " LIKE ?";
             selectionArgs = new String[]{"%" + searchQuery + "%", "%" + searchQuery + "%", "%" + searchQuery + "%"};
         }
@@ -574,8 +575,8 @@ public class ContentProviderUtils {
                 selectionArgs = new String[]{Long.toString(trackId.id())};
             }
         } else {
-            selection = MarkerColumns.NAME + " LIKE ? OR " +
-                    MarkerColumns.DESCRIPTION + " LIKE ? OR " +
+            selection = MarkerColumns.NAME + LIKE_OR +
+                    MarkerColumns.DESCRIPTION + LIKE_OR +
                     MarkerColumns.CATEGORY + " LIKE ?";
             selectionArgs = new String[]{"%" + query + "%", "%" + query + "%", "%" + query + "%"};
             sortOrder = MarkerColumns.DEFAULT_SORT_ORDER + " DESC";

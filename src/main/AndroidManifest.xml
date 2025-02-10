@@ -331,7 +331,8 @@ limitations under the License.
 
         <activity
             android:name=".publicapi.ShowMarkerActivity"
-            android:exported="true">
+            android:exported="true"
+            android:permission="android.permission.ACCESS_FINE_LOCATION">
             <intent-filter>
                 <action android:name="de.dennisguse.opentracks.MarkerDetails" />
                 <category android:name="android.intent.category.DEFAULT" />

@@ -14,40 +14,41 @@
  * the License.
  */
 
-    package de.dennisguse.opentracks.data;
-    
-    import android.content.ContentProvider;
-    import android.content.ContentUris;
-    import android.content.ContentValues;
-    import android.content.Context;
-    import android.content.UriMatcher;
-    import android.database.Cursor;
-    import android.database.SQLException;
-    import android.database.sqlite.SQLiteDatabase;
-    import android.database.sqlite.SQLiteException;
-    import android.database.sqlite.SQLiteQueryBuilder;
-    import android.net.Uri;
-    import android.text.TextUtils;
-    import android.util.Log;
-    
-    import androidx.annotation.NonNull;
-    import androidx.annotation.VisibleForTesting;
-    
-    import java.util.Arrays;
-    
-    import de.dennisguse.opentracks.data.models.TrackPoint;
-    import de.dennisguse.opentracks.data.tables.MarkerColumns;
-    import de.dennisguse.opentracks.data.tables.TrackPointsColumns;
-    import de.dennisguse.opentracks.data.tables.TracksColumns;
-    import de.dennisguse.opentracks.settings.PreferencesUtils;
-    
-    /**
-     * A {@link ContentProvider} that handles access to track points, tracks, and markers tables.
-     * <p>
-     * Data consistency is enforced using Foreign Key Constraints within the database incl. cascading deletes.
-     *
-     * @author Leif Hendrik Wilden
-     */
+
+package de.dennisguse.opentracks.data;
+
+import android.content.ContentProvider;
+import android.content.ContentUris;
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.UriMatcher;
+import android.database.Cursor;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
+import android.database.sqlite.SQLiteQueryBuilder;
+import android.net.Uri;
+import android.text.TextUtils;
+import android.util.Log;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
+
+import java.util.Arrays;
+
+import de.dennisguse.opentracks.data.models.TrackPoint;
+import de.dennisguse.opentracks.data.tables.MarkerColumns;
+import de.dennisguse.opentracks.data.tables.TrackPointsColumns;
+import de.dennisguse.opentracks.data.tables.TracksColumns;
+import de.dennisguse.opentracks.settings.PreferencesUtils;
+
+/**
+ * A {@link ContentProvider} that handles access to track points, tracks, and markers tables.
+ * <p>
+ * Data consistency is enforced using Foreign Key Constraints within the database incl. cascading deletes.
+ *
+ * @author Leif Hendrik Wilden
+ */
     public class CustomContentProvider extends ContentProvider {
     
         private static final String TAG = CustomContentProvider.class.getSimpleName();
@@ -119,7 +120,7 @@
         public boolean onCreate() {
             return onCreate(getContext());
         }
-    
+
         /**
          * Helper method to make onCreate is testable.
          *
@@ -284,9 +285,11 @@
                 }
                 default -> throw new IllegalArgumentException("Unknown url " + url);
             }
+
             Cursor cursor = queryBuilder.query(db, projection, selection, selectionArgs, null, null, sortOrder);
             cursor.setNotificationUri(getContext().getContentResolver(), url);
             return cursor;
+
         }
     
         @Override
@@ -294,6 +297,7 @@
             // TODO Use SQLiteQueryBuilder
             String table;
             String whereClause;
+          
             switch (getUrlType(url)) {
                 case TRACKPOINTS -> {
                     table = TrackPointsColumns.TABLE_NAME;
@@ -330,7 +334,9 @@
                 }
                 default -> throw new IllegalArgumentException("Unknown url " + url);
             }
+          
             int count;
+          
             try {
                 db.beginTransaction();
                 count = db.update(table, values, whereClause, selectionArgs);
@@ -338,8 +344,10 @@
             } finally {
                 db.endTransaction();
             }
+
             getContext().getContentResolver().notifyChange(url, null, false);
             return count;
+
         }
     
         @NonNull
@@ -379,6 +387,7 @@
                 return ContentUris.appendId(TrackPointsColumns.CONTENT_URI_BY_ID.buildUpon(), rowId).build();
             }
             throw new SQLiteException("Failed to insert a track point " + url);
+
         }
     
         private Uri insertTrack(Uri url, ContentValues contentValues) {
