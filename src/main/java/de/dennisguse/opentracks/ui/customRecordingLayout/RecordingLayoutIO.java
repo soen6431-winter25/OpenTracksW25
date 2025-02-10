@@ -37,7 +37,7 @@ public class RecordingLayoutIO {
         return recordingLayout;
     }
 
-    public static String toCSV(List<RecordingLayout> recordingLayouts) {
+    public static String convertListToCSV(List<RecordingLayout> recordingLayouts) {
         return recordingLayouts.stream().map(RecordingLayout::toCsv).collect(Collectors.joining(CsvLayoutUtils.LINE_SEPARATOR));
     }
 
@@ -49,7 +49,7 @@ public class RecordingLayoutIO {
                 fieldParts[0].equals(resources.getString(R.string.stats_custom_layout_coordinates_key)));
     }
 
-    static String toCsv(DataField datafield) {
+    static String convertDataFieldToCsv(DataField datafield) {
         String visible = datafield.isVisible() ? YES_VALUE : NOT_VALUE;
         String primary = datafield.isPrimary() ? YES_VALUE : NOT_VALUE;
         String wide = datafield.isWide() ? YES_VALUE : NOT_VALUE;

@@ -369,8 +369,10 @@ public class TrackListActivity extends AbstractTrackDeleteActivity implements Co
                         .putExtra(TrackEditActivity.EXTRA_TRACK_ID, trackIds[0]);
                 startActivity(intent);
                 return true;
-            }
-            else {
+
+            } else {
+                Toast.makeText(this, "No track selected.", Toast.LENGTH_SHORT).show();
+               
                 return false;
             }
         }
