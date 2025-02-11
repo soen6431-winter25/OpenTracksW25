@@ -33,6 +33,8 @@ class CustomSQLiteOpenHelper extends SQLiteOpenHelper {
 
     private final Context context;
 
+    private static final String DROP_INDEX_TRACKS_UUID = "DROP INDEX tracks_uuid_index";
+
     public CustomSQLiteOpenHelper(Context context) {
         this(context, ((Startup) context.getApplicationContext()).getDatabaseName());
     }
@@ -200,7 +202,7 @@ class CustomSQLiteOpenHelper extends SQLiteOpenHelper {
     private void downgradeFrom26to25(SQLiteDatabase db) {
         db.beginTransaction();
 
-        db.execSQL("DROP INDEX tracks_uuid_index");
+        db.execSQL(DROP_INDEX_TRACKS_UUID);
 
         db.execSQL("ALTER TABLE tracks RENAME TO tracks_old");
         db.execSQL("CREATE TABLE tracks (_id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, description TEXT, category TEXT, starttime INTEGER, stoptime INTEGER, numpoints INTEGER, totaldistance FLOAT, totaltime INTEGER, movingtime INTEGER, avgspeed FLOAT, avgmovingspeed FLOAT, maxspeed FLOAT, minelevation FLOAT, maxelevation FLOAT, elevationgain FLOAT, mingrade FLOAT, maxgrade FLOAT, icon TEXT)");
@@ -304,7 +306,7 @@ class CustomSQLiteOpenHelper extends SQLiteOpenHelper {
         db.beginTransaction();
 
         // Tracks
-        db.execSQL("DROP INDEX tracks_uuid_index");
+        db.execSQL(DROP_INDEX_TRACKS_UUID);
 
         db.execSQL("ALTER TABLE tracks RENAME TO tracks_old");
         db.execSQL("CREATE TABLE tracks (_id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, description TEXT, category TEXT, starttime INTEGER, stoptime INTEGER, numpoints INTEGER, totaldistance FLOAT, totaltime INTEGER, movingtime INTEGER, avgspeed FLOAT, avgmovingspeed FLOAT, maxspeed FLOAT, minelevation FLOAT, maxelevation FLOAT, elevationgain FLOAT, icon TEXT, uuid BLOB)");
@@ -476,7 +478,7 @@ class CustomSQLiteOpenHelper extends SQLiteOpenHelper {
     private void downgradeFrom33to32(SQLiteDatabase db) {
         db.beginTransaction();
 
-        db.execSQL("DROP INDEX tracks_uuid_index");
+        db.execSQL(DROP_INDEX_TRACKS_UUID);
 
         db.execSQL("ALTER TABLE tracks RENAME TO tracks_old");
         db.execSQL("CREATE TABLE tracks (_id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, description TEXT, category TEXT, starttime INTEGER, stoptime INTEGER, numpoints INTEGER, totaldistance FLOAT, totaltime INTEGER, movingtime INTEGER, avgspeed FLOAT, avgmovingspeed FLOAT, maxspeed FLOAT, minelevation FLOAT, maxelevation FLOAT, elevationgain FLOAT, icon TEXT, uuid BLOB, elevationloss FLOAT)");
@@ -633,7 +635,7 @@ class CustomSQLiteOpenHelper extends SQLiteOpenHelper {
     private void downgradeFrom37to36(SQLiteDatabase db) {
         db.beginTransaction();
 
-        db.execSQL("DROP INDEX tracks_uuid_index");
+        db.execSQL(DROP_INDEX_TRACKS_UUID);
 
         db.execSQL("ALTER TABLE tracks RENAME TO tracks_old");
         db.execSQL("CREATE TABLE tracks (_id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, description TEXT, category TEXT, starttime INTEGER, stoptime INTEGER, numpoints INTEGER, totaldistance FLOAT, totaltime INTEGER, movingtime INTEGER, avgspeed FLOAT, avgmovingspeed FLOAT, maxspeed FLOAT, minelevation FLOAT, maxelevation FLOAT, elevationgain FLOAT, icon TEXT, uuid BLOB, elevationloss FLOAT, starttime_offset INTEGER)");
