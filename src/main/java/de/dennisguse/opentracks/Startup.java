@@ -63,8 +63,9 @@ public class Startup extends Application {
                 Class<?> activityThread = Class.forName("android.app.ActivityThread");
                 @SuppressLint("DiscouragedPrivateApi") Method getProcessName = activityThread.getDeclaredMethod("currentProcessName");
                 processName = (String) getProcessName.invoke(null);
-            } catch (Exception ignored) {
-                Log.e(TAG, "Failed to retrieve process name via reflection", ignored);
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to retrieve process name", e);
+
             }
         } else {
             processName = Application.getProcessName();
