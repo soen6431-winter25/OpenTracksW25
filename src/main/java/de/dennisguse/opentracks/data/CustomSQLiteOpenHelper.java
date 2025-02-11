@@ -33,7 +33,7 @@ class CustomSQLiteOpenHelper extends SQLiteOpenHelper {
 
     private final Context context;
 
-    private final String DROP_INDEX_TRACKS_UUID = "DROP INDEX tracks_uuid_index";
+    private static final String DROP_INDEX_TRACKS_UUID = "DROP INDEX tracks_uuid_index";
 
     public CustomSQLiteOpenHelper(Context context) {
         this(context, ((Startup) context.getApplicationContext()).getDatabaseName());
