@@ -313,9 +313,12 @@ public class TrackRecordingService extends Service implements TrackPointCreator.
             Log.w(TAG, "Currently not recording; cannot update data.");
             return;
         }
-
-        // Compute temporary track statistics using sensorData and update time.
         Pair<Track, Pair<TrackPoint, SensorDataSet>> data = trackRecordingManager.getDataForUI();
+        if (data == null || data.first == null || data.second == null) {
+            Log.e(TAG, "trackRecordingManager.getDataForUI() returned null");
+            return;
+        }
+        // Compute temporary track statistics using sensorData and update time.
 
         voiceAnnouncementManager.announceStatisticsIfNeeded(data.first, data.second.second);
 

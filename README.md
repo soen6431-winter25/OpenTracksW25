@@ -1,6 +1,6 @@
 # <img src="drawable-svg/LOGO.svg" alt="OpenTracks logo" height="40"></img> OpenTracks: a sport tracker
 
-_OpenTracks_ is a sport tracking application that completely respects your privacy.
+_OpenTracks_ is a sports tracking application that completely respects your privacy.
 
 [![Awesome Humane Tech](https://codeberg.org/teaserbot-labs/delightful-humane-design/raw/branch/main/humane-tech-badge.svg)](https://delightful.club/delightful-humane-design/#health)
 

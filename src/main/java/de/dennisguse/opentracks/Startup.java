@@ -65,6 +65,7 @@ public class Startup extends Application {
                 processName = (String) getProcessName.invoke(null);
             } catch (Exception e) {
                 Log.e(TAG, "Failed to retrieve process name", e);
+
             }
         } else {
             processName = Application.getProcessName();

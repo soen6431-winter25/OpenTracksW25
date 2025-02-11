@@ -6,6 +6,8 @@ import de.dennisguse.opentracks.settings.UnitSystem;
 
 public record Speed(double speed_mps) {
 
+
+
     public static Speed of(Distance distance, Duration duration) {
         if (duration.isZero()) {
             return zero();
