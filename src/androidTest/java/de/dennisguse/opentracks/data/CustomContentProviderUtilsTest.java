@@ -1121,31 +1121,9 @@ public class CustomContentProviderUtilsTest {
     @Test
     public void testGetSensorStats_withManualResume() {
         // given
-        /*
-         * time elapsed    hr      cadence     power       track type
-         * 0               140     75          250         -1
-         * 2               148     80          300         0
-         * 1               150     82          325         0
-         * 3               174     88          400         0
-         * 20              127     54          175         -2
-         * 3               160     90          275         0
-         * 7               155     85          280         0
-         * 3               150     90          267         0
-         * 3               170     90          240         0
-         * 2               155     84          295         1
-         */
         Instant start = Instant.now();
         TestSensorDataUtil sensorDataUtil = new TestSensorDataUtil();
-        sensorDataUtil.add(start, 140f, 75f, 250f, TrackPoint.Type.SEGMENT_START_AUTOMATIC);
-        sensorDataUtil.add(start.plus(2, ChronoUnit.SECONDS), 148f, 80f, 300f, TrackPoint.Type.TRACKPOINT);
-        sensorDataUtil.add(start.plus(3, ChronoUnit.SECONDS), 150f, 82f, 325f, TrackPoint.Type.TRACKPOINT);
-        sensorDataUtil.add(start.plus(6, ChronoUnit.SECONDS), 174f, 88f, 400f, TrackPoint.Type.TRACKPOINT);
-        sensorDataUtil.add(start.plus(26, ChronoUnit.SECONDS), 127f, 54f, 175f, TrackPoint.Type.SEGMENT_START_MANUAL);
-        sensorDataUtil.add(start.plus(29, ChronoUnit.SECONDS), 160f, 90f, 275f, TrackPoint.Type.TRACKPOINT);
-        sensorDataUtil.add(start.plus(36, ChronoUnit.SECONDS), 155f, 85f, 280f, TrackPoint.Type.TRACKPOINT);
-        sensorDataUtil.add(start.plus(39, ChronoUnit.SECONDS), 150f, 90f, 267f, TrackPoint.Type.TRACKPOINT);
-        sensorDataUtil.add(start.plus(42, ChronoUnit.SECONDS), 170f, 90f, 240f, TrackPoint.Type.TRACKPOINT);
-        sensorDataUtil.add(start.plus(44, ChronoUnit.SECONDS), 155f, 84f, 295f, TrackPoint.Type.SEGMENT_END_MANUAL);
+        addSensorDataWithManualResume(start, sensorDataUtil);
 
         Track.Id trackId = new Track.Id(start.toEpochMilli());
         Track track = TestDataUtil.createTrack(trackId);
@@ -1166,31 +1144,9 @@ public class CustomContentProviderUtilsTest {
     @Test
     public void testGetSensorStats_withStartAutomatic() {
         // given
-        /*
-         * time elapsed    hr      cadence     power       track type
-         * 0               140     75          250         -1
-         * 2               148     80          300         0
-         * 1               150     82          325         0
-         * 3               174     88          400         0
-         * 20              127     54          175         -1
-         * 3               160     90          275         0
-         * 7               155     85          280         0
-         * 3               150     90          267         0
-         * 3               170     90          240         0
-         * 2               155     84          295         1
-         */
         Instant start = Instant.now();
         TestSensorDataUtil sensorDataUtil = new TestSensorDataUtil();
-        sensorDataUtil.add(start, 140f, 75f, 250f, TrackPoint.Type.SEGMENT_START_AUTOMATIC);
-        sensorDataUtil.add(start.plus(2, ChronoUnit.SECONDS), 148f, 80f, 300f, TrackPoint.Type.TRACKPOINT);
-        sensorDataUtil.add(start.plus(3, ChronoUnit.SECONDS), 150f, 82f, 325f, TrackPoint.Type.TRACKPOINT);
-        sensorDataUtil.add(start.plus(6, ChronoUnit.SECONDS), 174f, 88f, 400f, TrackPoint.Type.TRACKPOINT);
-        sensorDataUtil.add(start.plus(26, ChronoUnit.SECONDS), 127f, 54f, 175f, TrackPoint.Type.SEGMENT_START_AUTOMATIC);
-        sensorDataUtil.add(start.plus(29, ChronoUnit.SECONDS), 160f, 90f, 275f, TrackPoint.Type.TRACKPOINT);
-        sensorDataUtil.add(start.plus(36, ChronoUnit.SECONDS), 155f, 85f, 280f, TrackPoint.Type.TRACKPOINT);
-        sensorDataUtil.add(start.plus(39, ChronoUnit.SECONDS), 150f, 90f, 267f, TrackPoint.Type.TRACKPOINT);
-        sensorDataUtil.add(start.plus(42, ChronoUnit.SECONDS), 170f, 90f, 240f, TrackPoint.Type.TRACKPOINT);
-        sensorDataUtil.add(start.plus(44, ChronoUnit.SECONDS), 155f, 84f, 295f, TrackPoint.Type.SEGMENT_END_MANUAL);
+        addSensorDataWithStartAutomatic(start, sensorDataUtil);
 
         Track.Id trackId = new Track.Id(start.toEpochMilli());
         Track track = TestDataUtil.createTrack(trackId);
@@ -1206,6 +1162,32 @@ public class CustomContentProviderUtilsTest {
         assertEquals(sensorStatistics.avgCadence().getRPM(), stats.avgCadence, 0f);
         assertEquals(sensorStatistics.maxCadence().getRPM(), stats.maxCadence, 0f);
         assertEquals(sensorStatistics.avgPower().getW(), stats.avgPower, 0f);
+    }
+
+    private void addSensorDataWithManualResume(Instant start, TestSensorDataUtil sensorDataUtil) {
+        sensorDataUtil.add(start, 140f, 75f, 250f, TrackPoint.Type.SEGMENT_START_AUTOMATIC);
+        sensorDataUtil.add(start.plus(2, ChronoUnit.SECONDS), 148f, 80f, 300f, TrackPoint.Type.TRACKPOINT);
+        sensorDataUtil.add(start.plus(3, ChronoUnit.SECONDS), 150f, 82f, 325f, TrackPoint.Type.TRACKPOINT);
+        sensorDataUtil.add(start.plus(6, ChronoUnit.SECONDS), 174f, 88f, 400f, TrackPoint.Type.TRACKPOINT);
+        sensorDataUtil.add(start.plus(26, ChronoUnit.SECONDS), 127f, 54f, 175f, TrackPoint.Type.SEGMENT_START_MANUAL);
+        sensorDataUtil.add(start.plus(29, ChronoUnit.SECONDS), 160f, 90f, 275f, TrackPoint.Type.TRACKPOINT);
+        sensorDataUtil.add(start.plus(36, ChronoUnit.SECONDS), 155f, 85f, 280f, TrackPoint.Type.TRACKPOINT);
+        sensorDataUtil.add(start.plus(39, ChronoUnit.SECONDS), 150f, 90f, 267f, TrackPoint.Type.TRACKPOINT);
+        sensorDataUtil.add(start.plus(42, ChronoUnit.SECONDS), 170f, 90f, 240f, TrackPoint.Type.TRACKPOINT);
+        sensorDataUtil.add(start.plus(44, ChronoUnit.SECONDS), 155f, 84f, 295f, TrackPoint.Type.SEGMENT_END_MANUAL);
+    }
+
+    private void addSensorDataWithStartAutomatic(Instant start, TestSensorDataUtil sensorDataUtil) {
+        sensorDataUtil.add(start, 140f, 75f, 250f, TrackPoint.Type.SEGMENT_START_AUTOMATIC);
+        sensorDataUtil.add(start.plus(2, ChronoUnit.SECONDS), 148f, 80f, 300f, TrackPoint.Type.TRACKPOINT);
+        sensorDataUtil.add(start.plus(3, ChronoUnit.SECONDS), 150f, 82f, 325f, TrackPoint.Type.TRACKPOINT);
+        sensorDataUtil.add(start.plus(6, ChronoUnit.SECONDS), 174f, 88f, 400f, TrackPoint.Type.TRACKPOINT);
+        sensorDataUtil.add(start.plus(26, ChronoUnit.SECONDS), 127f, 54f, 175f, TrackPoint.Type.SEGMENT_START_AUTOMATIC);
+        sensorDataUtil.add(start.plus(29, ChronoUnit.SECONDS), 160f, 90f, 275f, TrackPoint.Type.TRACKPOINT);
+        sensorDataUtil.add(start.plus(36, ChronoUnit.SECONDS), 155f, 85f, 280f, TrackPoint.Type.TRACKPOINT);
+        sensorDataUtil.add(start.plus(39, ChronoUnit.SECONDS), 150f, 90f, 267f, TrackPoint.Type.TRACKPOINT);
+        sensorDataUtil.add(start.plus(42, ChronoUnit.SECONDS), 170f, 90f, 240f, TrackPoint.Type.TRACKPOINT);
+        sensorDataUtil.add(start.plus(44, ChronoUnit.SECONDS), 155f, 84f, 295f, TrackPoint.Type.SEGMENT_END_MANUAL);
     }
 
     private void testGetSensorStats_randomData(int totalPoints, boolean withStartSegments) {
