@@ -165,25 +165,11 @@ public abstract class GenericStatisticsViewHolder extends StatisticViewHolder<St
         }
     }
 
-    public static class AverageMovingPace extends GenericStatisticsViewHolder {
-
-        @Override
-        public void onChanged(UnitSystem unitSystem, RecordingData data) {
-            SpeedFormatter speedFormatterSpeed = SpeedFormatter.Builder()
-                    .setUnit(unitSystem)
-                    .setReportSpeedOrPace(false)
-                    .build(getContext());
-
-            Pair<String, String> valueAndUnit = speedFormatterSpeed.getSpeedParts(data.getTrackStatistics().getAverageMovingSpeed());
-
-            getBinding().statsValue.setText(valueAndUnit.first);
-            getBinding().statsUnit.setText(valueAndUnit.second);
-            getBinding().statsDescriptionMain.setText(getContext().getString(R.string.stats_average_moving_pace));
+    public static class Pace extends GenericStatisticsViewHolder {
+        private final int textResId;
+        Pace(int textResId) {
+            this.textResId = textResId;
         }
-    }
-
-    public static class AveragePace extends GenericStatisticsViewHolder {
-
         @Override
         public void onChanged(UnitSystem unitSystem, RecordingData data) {
             SpeedFormatter speedFormatterSpeed = SpeedFormatter.Builder()
@@ -195,7 +181,7 @@ public abstract class GenericStatisticsViewHolder extends StatisticViewHolder<St
 
             getBinding().statsValue.setText(valueAndUnit.first);
             getBinding().statsUnit.setText(valueAndUnit.second);
-            getBinding().statsDescriptionMain.setText(getContext().getString(R.string.stats_average_pace));
+            getBinding().statsDescriptionMain.setText(getContext().getString(textResId));
         }
     }
 
