@@ -112,84 +112,73 @@ public class PreferencesUtilsTest {
         assertTrue(recordingLayout.getFields().stream().anyMatch(DataField::isVisible));
     }
 
-    @Test
-    public void testGetCustomLayout_1() {
-        // given
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(
-                context.getString(R.string.stats_custom_layouts_key),
-                "run;2;"
-                        + context.getString(R.string.stats_custom_layout_moving_time_key) + ",1,1;"
-                        + context.getString(R.string.stats_custom_layout_distance_key) + ",1,0;"
-                        + context.getString(R.string.stats_custom_layout_average_moving_speed_key) + ",0,1;"
-                        + context.getString(R.string.stats_custom_layout_speed_key) + ",0,0;");
-        editor.apply();
+/**
+ * Helper method to verify custom layout configurations.
+ * This method reduces redundancy by handling multiple test cases for custom layouts.
+ *
+ * @param profileName    The name of the profile being tested (e.g., "run", "walking").
+ * @param customFieldKey The key representing the specific custom field to be tested.
+ */
 
-        // when
-        RecordingLayout recordingLayout = PreferencesUtils.getCustomLayout();
+private void verifyCustomLayout(String profileName, String customFieldKey) {
+    // Arrange: Set up SharedPreferences with a custom layout
+    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+    SharedPreferences.Editor editor = sharedPreferences.edit();
+    editor.putString(
+            context.getString(R.string.stats_custom_layouts_key),
+            profileName + ";2;" // Profile name and column count
+                    + context.getString(R.string.stats_custom_layout_moving_time_key) + ",1,1;"  // Field 1: Visible, Primary
+                    + context.getString(R.string.stats_custom_layout_distance_key) + ",1,0;"    // Field 2: Visible, Not Primary
+                    + context.getString(customFieldKey) + ",0,1;"  // Field 3: Not Visible, Primary
+                    + context.getString(R.string.stats_custom_layout_speed_key) + ",0,0;");  // Field 4: Not Visible, Not Primary
+    editor.apply();
 
-        // then
-        assertEquals(recordingLayout.getFields().size(), 4);
-        assertEquals(recordingLayout.getName(), "run");
-        assertEquals(recordingLayout.getColumnsPerRow(), 2);
+    // Act: Retrieve the custom layout from PreferencesUtils
+    RecordingLayout recordingLayout = PreferencesUtils.getCustomLayout();
 
-        assertEquals(recordingLayout.getFields().get(0).getKey(), context.getString(R.string.stats_custom_layout_moving_time_key));
-        assertTrue(recordingLayout.getFields().get(0).isVisible());
-        assertTrue(recordingLayout.getFields().get(0).isPrimary());
+    // Assert: Validate the retrieved layout properties
+    assertEquals(4, recordingLayout.getFields().size());  // Ensure 4 fields exist
+    assertEquals(profileName, recordingLayout.getName());  // Profile name should match
+    assertEquals(2, recordingLayout.getColumnsPerRow());  // Ensure 2 columns per row
 
-        assertEquals(recordingLayout.getFields().get(1).getKey(), context.getString(R.string.stats_custom_layout_distance_key));
-        assertTrue(recordingLayout.getFields().get(1).isVisible());
-        assertFalse(recordingLayout.getFields().get(1).isPrimary());
+    // Validate Field 1: Moving Time
+    assertEquals(context.getString(R.string.stats_custom_layout_moving_time_key), recordingLayout.getFields().get(0).getKey());
+    assertTrue(recordingLayout.getFields().get(0).isVisible());
+    assertTrue(recordingLayout.getFields().get(0).isPrimary());
 
-        assertEquals(recordingLayout.getFields().get(2).getKey(), context.getString(R.string.stats_custom_layout_average_moving_speed_key));
-        assertFalse(recordingLayout.getFields().get(2).isVisible());
-        assertTrue(recordingLayout.getFields().get(2).isPrimary());
+    // Validate Field 2: Distance
+    assertEquals(context.getString(R.string.stats_custom_layout_distance_key), recordingLayout.getFields().get(1).getKey());
+    assertTrue(recordingLayout.getFields().get(1).isVisible());
+    assertFalse(recordingLayout.getFields().get(1).isPrimary());
 
-        assertEquals(recordingLayout.getFields().get(3).getKey(), context.getString(R.string.stats_custom_layout_speed_key));
-        assertFalse(recordingLayout.getFields().get(3).isVisible());
-        assertFalse(recordingLayout.getFields().get(3).isPrimary());
-    }
+    // Validate Field 3: Custom Field (dynamic)
+    assertEquals(context.getString(customFieldKey), recordingLayout.getFields().get(2).getKey());
+    assertFalse(recordingLayout.getFields().get(2).isVisible());
+    assertTrue(recordingLayout.getFields().get(2).isPrimary());
 
-    @Test
-    public void testGetCustomLayout_coordinatesIsWide() {
-        // given
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(
-                context.getString(R.string.stats_custom_layouts_key),
-                "walking;2;"
-                        + context.getString(R.string.stats_custom_layout_moving_time_key) + ",1,1;"
-                        + context.getString(R.string.stats_custom_layout_distance_key) + ",1,0;"
-                        + context.getString(R.string.stats_custom_layout_coordinates_key) + ",0,1;"
-                        + context.getString(R.string.stats_custom_layout_speed_key) + ",0,0;");
-        editor.apply();
+    // Validate Field 4: Speed
+    assertEquals(context.getString(R.string.stats_custom_layout_speed_key), recordingLayout.getFields().get(3).getKey());
+    assertFalse(recordingLayout.getFields().get(3).isVisible());
+    assertFalse(recordingLayout.getFields().get(3).isPrimary());
+}
 
-        // when
-        RecordingLayout recordingLayout = PreferencesUtils.getCustomLayout();
+/**
+ * Test case to validate the retrieval of a custom layout for the "run" profile.
+ * Ensures the correct attributes for the "average moving speed" field.
+ */
+@Test
+public void testGetCustomLayout_1() {
+    verifyCustomLayout("run", R.string.stats_custom_layout_average_moving_speed_key);
+}
 
-        // then
-        assertEquals(recordingLayout.getFields().size(), 4);
-        assertEquals(recordingLayout.getName(), "walking");
-        assertEquals(recordingLayout.getColumnsPerRow(), 2);
-
-        assertEquals(recordingLayout.getFields().get(0).getKey(), context.getString(R.string.stats_custom_layout_moving_time_key));
-        assertTrue(recordingLayout.getFields().get(0).isVisible());
-        assertTrue(recordingLayout.getFields().get(0).isPrimary());
-
-        assertEquals(recordingLayout.getFields().get(1).getKey(), context.getString(R.string.stats_custom_layout_distance_key));
-        assertTrue(recordingLayout.getFields().get(1).isVisible());
-        assertFalse(recordingLayout.getFields().get(1).isPrimary());
-
-        assertEquals(recordingLayout.getFields().get(2).getKey(), context.getString(R.string.stats_custom_layout_coordinates_key));
-        assertFalse(recordingLayout.getFields().get(2).isVisible());
-        assertTrue(recordingLayout.getFields().get(2).isPrimary());
-        assertTrue(recordingLayout.getFields().get(2).isWide());
-
-        assertEquals(recordingLayout.getFields().get(3).getKey(), context.getString(R.string.stats_custom_layout_speed_key));
-        assertFalse(recordingLayout.getFields().get(3).isVisible());
-        assertFalse(recordingLayout.getFields().get(3).isPrimary());
-    }
+/**
+ * Test case to validate the retrieval of a custom layout for the "walking" profile.
+ * Ensures the correct attributes for the "coordinates" field.
+ */
+@Test
+public void testGetCustomLayout_coordinatesIsWide() {
+    verifyCustomLayout("walking", R.string.stats_custom_layout_coordinates_key);
+}
 
     @Test
     public void testSetCustomLayout() {
