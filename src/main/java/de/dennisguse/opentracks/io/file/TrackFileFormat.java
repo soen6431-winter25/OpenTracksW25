@@ -42,56 +42,9 @@ public enum TrackFileFormat {
     },
 
     @Deprecated //TODO Check if we really need this
-    KMZ_WITH_TRACKDETAIL_AND_SENSORDATA("KMZ_WITH_TRACKDETAIL_AND_SENSORDATA") {
+    KMZ_WITH_TRACKDETAIL_AND_SENSORDATA("KMZ_WITH_TRACKDETAIL_AND_SENSORDATA", false),
 
-        private static final boolean exportPhotos = false;
-
-        @Override
-        public TrackExporter createTrackExporter(@NonNull Context context, @NonNull ContentProviderUtils contentProviderUtils) {
-            KMLTrackExporter exporter = new KMLTrackExporter(context, contentProviderUtils, exportPhotos);
-            return new KmzTrackExporter(context, contentProviderUtils, exporter, exportPhotos);
-        }
-
-        @Override
-        public String getMimeType() {
-            return MIME_KMZ;
-        }
-
-        public String getExtension() {
-            return "kmz";
-        }
-
-        @Override
-        public boolean includesPhotos() {
-            return exportPhotos;
-        }
-    },
-
-    KMZ_WITH_TRACKDETAIL_AND_SENSORDATA_AND_PICTURES("KMZ_WITH_TRACKDETAIL_AND_SENSORDATA_AND_PICTURES") {
-
-        private static final boolean exportPhotos = true;
-
-        @Override
-        public TrackExporter createTrackExporter(@NonNull Context context, @NonNull ContentProviderUtils contentProviderUtils) {
-            KMLTrackExporter exporter = new KMLTrackExporter(context, contentProviderUtils, exportPhotos);
-            return new KmzTrackExporter(context, contentProviderUtils, exporter, exportPhotos);
-        }
-
-        @Override
-        public String getMimeType() {
-            return MIME_KMZ;
-        }
-
-        public String getExtension() {
-            return "kmz";
-        }
-
-        @Override
-        public boolean includesPhotos() {
-            return exportPhotos;
-        }
-
-    },
+    KMZ_WITH_TRACKDETAIL_AND_SENSORDATA_AND_PICTURES("KMZ_WITH_TRACKDETAIL_AND_SENSORDATA_AND_PICTURES", true),
 
     GPX("GPX") {
         @Override
@@ -127,13 +80,39 @@ public enum TrackFileFormat {
     };
 
     private static final String MIME_KMZ = "application/vnd.google-earth.kmz";
-
     private static final String MIME_KML = "application/vnd.google-earth.kml+xml";
-
+    
     private final String preferenceId;
+    private final boolean exportPhotos;
 
     TrackFileFormat(String preferenceId) {
+        this(preferenceId, false);
+    }
+
+    TrackFileFormat(String preferenceId, boolean exportPhotos) {
         this.preferenceId = preferenceId;
+        this.exportPhotos = exportPhotos;
+    }
+
+    @Override
+    public TrackExporter createTrackExporter(@NonNull Context context, @NonNull ContentProviderUtils contentProviderUtils) {
+        KMLTrackExporter exporter = new KMLTrackExporter(context, contentProviderUtils, exportPhotos);
+        return new KmzTrackExporter(context, contentProviderUtils, exporter, exportPhotos);
+    }
+
+    @Override
+    public String getMimeType() {
+        return MIME_KMZ;
+    }
+
+    @Override
+    public String getExtension() {
+        return "kmz";
+    }
+
+    @Override
+    public boolean includesPhotos() {
+        return exportPhotos;
     }
 
     public static Map<String, String> toPreferenceIdLabelMap(final Resources resources, final TrackFileFormat ... trackFileFormats) {
@@ -151,30 +130,6 @@ public enum TrackFileFormat {
                 .filter(trackFileFormat -> trackFileFormat.getPreferenceId().equals(preferenceId))
                 .findFirst()
                 .orElse(null);
-    }
-
-    /**
-     * Returns the mime type for each format.
-     */
-    public abstract String getMimeType();
-
-    /**
-     * Creates a new track writer for the format.
-     *
-     * @param context the context
-     */
-    public abstract TrackExporter createTrackExporter(@NonNull Context context, @NonNull ContentProviderUtils contentProviderUtils);
-
-    /**
-     * Returns the file extension for each format.
-     */
-    public abstract String getExtension();
-
-    /**
-     * Returns whether the format supports photos.
-     */
-    public boolean includesPhotos() {
-        return false;
     }
 
     /**
