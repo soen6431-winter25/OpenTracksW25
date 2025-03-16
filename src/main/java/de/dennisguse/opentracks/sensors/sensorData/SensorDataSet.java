@@ -133,6 +133,9 @@ public class SensorDataSet {
             return;
         }
         if (value instanceof Position) {
+            if (this.gps == null) {
+                return;
+            }
             this.gps.add((Raw<Position>) data);
             return;
         }

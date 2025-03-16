@@ -111,7 +111,7 @@ public class ChartView extends View {
     private int topBorder = BORDER;
     private int bottomBorder = BORDER;
     private int rightBorder = BORDER;
-    private int spacer = SPACER;
+    private int spacerValue = SPACER;
     private int yAxisOffset = Y_AXIS_OFFSET;
 
     private int width = 0;
@@ -693,7 +693,7 @@ public class ChartView extends View {
                 }
 
                 TitlePosition tp = tpI.next();
-                int y = topBorder - spacer - (titleDimensions.lineCount - tp.line) * (titleDimensions.lineHeight + spacer);
+                int y = topBorder - spacerValue - (titleDimensions.lineCount - tp.line) * (titleDimensions.lineHeight + spacerValue);
                 canvas.drawText(title, tp.xPos + getScrollX(), y, paint);
             }
         }
@@ -707,20 +707,21 @@ public class ChartView extends View {
         int lineCnt = 1;
         int lineHeight = 0;
         List<TitlePosition> tps = new ArrayList<>();
-        int xPosInLine = spacer;
+        int xPosInLine = spacerValue;
         for (ChartValueSeries chartValueSeries : seriesList) {
             if (chartValueSeries.isEnabled() && chartValueSeries.hasData() || allowIfEmpty(chartValueSeries)) {
                 String title = getContext().getString(chartValueSeries.getTitleId(unitSystem));
                 Rect rect = getRect(chartValueSeries.getTitlePaint(), title);
                 if (rect.height() > lineHeight) lineHeight = rect.height();
-                int xNextPosInLine = xPosInLine + rect.width() + 2*spacer;
+                int xNextPosInLine = xPosInLine + rect.width() + 2*spacerValue;
                 // if second or later title does not fully fit on this line then print it on the next line
-                if (xPosInLine > spacer && xNextPosInLine-spacer > width) {
+                if (xPosInLine > spacerValue && xNextPosInLine-spacerValue > width) {
                     lineCnt++;
-                    xPosInLine = spacer;
+                    xPosInLine = spacerValue;
                 }
+
                 tps.add(new TitlePosition(lineCnt, xPosInLine));
-                xPosInLine += rect.width() + 2*spacer;
+                xPosInLine += rect.width() + 2*spacerValue;
             }
         }
         return new TitleDimensions(lineCnt, lineHeight, tps);
@@ -744,7 +745,7 @@ public class ChartView extends View {
         NumberFormat numberFormat = interval < 1 ? X_FRACTION_FORMAT : X_NUMBER_FORMAT;
 
         for (double markerPosition : getXAxisMarkerPositions(interval)) {
-            drawXAxisMarker(canvas, markerPosition, numberFormat, spacer + rect.width(), spacer + yOffset);
+            drawXAxisMarker(canvas, markerPosition, numberFormat, spacerValue + rect.width(), spacerValue + yOffset);
         }
     }
 
@@ -817,16 +818,16 @@ public class ChartView extends View {
         canvas.drawLine(x, y, x, y + effectiveHeight, axisPaint);
 
         //TODO
-        int markerXPosition = x - spacer;
+        int markerXPosition = x - spacerValue;
         int index = titleDimensions.titlePositions.size() - 1; // index only over the visible chart series
         final int lastDrawn2ndLineMarkerIndex = getYmarkerCountOn1stLine();
         for (int i = seriesList.size()-1; i>=0 ;--i) { // draw markers from the last series to achieve right alignment
             ChartValueSeries chartValueSeries = seriesList.get(i);
             if (chartValueSeries.isEnabled() && chartValueSeries.hasData() || allowIfEmpty(chartValueSeries)) {
-                int yOffset = !twoLineYaxisNumbers ? 0 : (spacer+maxYaxisNumberHeight)/2 * (index >= lastDrawn2ndLineMarkerIndex ? 1 : -1);
-                markerXPosition -= drawYAxisMarkers(chartValueSeries, canvas, markerXPosition, yOffset) + spacer;
+                int yOffset = !twoLineYaxisNumbers ? 0 : (spacerValue+maxYaxisNumberHeight)/2 * (index >= lastDrawn2ndLineMarkerIndex ? 1 : -1);
+                markerXPosition -= drawYAxisMarkers(chartValueSeries, canvas, markerXPosition, yOffset) + spacerValue;
                 if (twoLineYaxisNumbers && index == lastDrawn2ndLineMarkerIndex)
-                    markerXPosition = x - spacer;
+                    markerXPosition = x - spacerValue;
                 --index;
             }
         }
@@ -953,13 +954,13 @@ public class ChartView extends View {
             chartValueSeries.updateDimension();
         }
         float density = getResources().getDisplayMetrics().density;
-        spacer = (int) (density * SPACER);
+        spacerValue = (int) (density * SPACER);
         yAxisOffset = (int) (density * Y_AXIS_OFFSET);
 
         titleDimensions = getTitleDimensions();
-        topBorder = (int) (density * BORDER + titleDimensions.lineCount * (titleDimensions.lineHeight + spacer));
+        topBorder = (int) (density * BORDER + titleDimensions.lineCount * (titleDimensions.lineHeight + spacerValue));
         Rect xAxisLabelRect = getRect(axisPaint, getXAxisLabel());
-        bottomBorder = (int) (density * BORDER + getRect(xAxisMarkerPaint, "1").height() + spacer + (xAxisLabelRect.height() / 2));
+        bottomBorder = (int) (density * BORDER + getRect(xAxisMarkerPaint, "1").height() + spacerValue + (xAxisLabelRect.height() / 2));
 
         final int markerCountOn1stLine = getYmarkerCountOn1stLine();
         int allMarkerLength = 0;
@@ -971,20 +972,20 @@ public class ChartView extends View {
             if (chartValueSeries.isEnabled() && chartValueSeries.hasData() || allowIfEmpty(chartValueSeries)) {
                 Rect rect = getRect(chartValueSeries.getMarkerPaint(), chartValueSeries.getLargestMarker());
                 maxYaxisNumberHeight = Math.max(maxYaxisNumberHeight, rect.height() );
-                int lengthInc = rect.width() + spacer;
+                int lengthInc = rect.width() + spacerValue;
                 allMarkerLength += lengthInc;
                 if (currentSeriesIndex < markerCountOn1stLine) firstLineMarkerLength += lengthInc;
                 else secondLineMarkerLength += lengthInc;
                 ++currentSeriesIndex;
             }
         }
-        if ( currentSeriesIndex > 1 && height-topBorder-bottomBorder-spacer > (Y_AXIS_INTERVALS+1)*(spacer+maxYaxisNumberHeight*3) ) {
+        if ( currentSeriesIndex > 1 && height-topBorder-bottomBorder-spacerValue > (Y_AXIS_INTERVALS+1)*(spacerValue+maxYaxisNumberHeight*3) ) {
             allMarkerLength = Math.max(firstLineMarkerLength, secondLineMarkerLength);
             twoLineYaxisNumbers = true;
         } else twoLineYaxisNumbers = false;
 
         leftBorder = (int) (density * BORDER + allMarkerLength);
-        rightBorder = (int) (density * BORDER + spacer);
+        rightBorder = (int) (density * BORDER + spacerValue);
         updateEffectiveDimensions();
     }
 
@@ -993,7 +994,7 @@ public class ChartView extends View {
      */
     private void updateEffectiveDimensions() {
         effectiveWidth = Math.max(0, width - leftBorder - rightBorder);
-        effectiveHeight = Math.max(0, height - topBorder - bottomBorder - spacer);
+        effectiveHeight = Math.max(0, height - topBorder - bottomBorder - spacerValue);
     }
 
     /**
