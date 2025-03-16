@@ -2,6 +2,9 @@
 *.apk
 *.ap_
 
+sonar-project.properties
+docker-compose.yaml
+
 # Files for the ART/Dalvik VM
 *.dex
 
@@ -82,3 +85,4 @@ captures/
 Appfile
 releasePlayStore/*
 Gemfile.lock
+.scannerwork

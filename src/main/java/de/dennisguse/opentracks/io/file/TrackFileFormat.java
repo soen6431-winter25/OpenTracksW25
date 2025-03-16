@@ -44,8 +44,6 @@ public enum TrackFileFormat {
     @Deprecated //TODO Check if we really need this
     KMZ_WITH_TRACKDETAIL_AND_SENSORDATA("KMZ_WITH_TRACKDETAIL_AND_SENSORDATA", false),
 
-    KMZ_WITH_TRACKDETAIL_AND_SENSORDATA_AND_PICTURES("KMZ_WITH_TRACKDETAIL_AND_SENSORDATA_AND_PICTURES", true),
-
     GPX("GPX") {
         @Override
         public TrackExporter createTrackExporter(@NonNull Context context, @NonNull ContentProviderUtils contentProviderUtils) {
