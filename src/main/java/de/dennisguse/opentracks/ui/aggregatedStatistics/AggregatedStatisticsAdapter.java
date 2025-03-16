@@ -85,36 +85,38 @@ public class AggregatedStatisticsAdapter extends RecyclerView.Adapter<RecyclerVi
             setCommonValues(aggregatedStatistic);
 
             SpeedFormatter formatter = SpeedFormatter.Builder().setUnit(unitSystem).setReportSpeedOrPace(reportSpeed).build(context);
-            {
-                Pair<String, String> parts = formatter.getSpeedParts(aggregatedStatistic.getTrackStatistics().getAverageMovingSpeed());
-                viewBinding.aggregatedStatsAvgRate.setText(parts.first);
-                viewBinding.aggregatedStatsAvgRateUnit.setText(parts.second);
-                viewBinding.aggregatedStatsAvgRateLabel.setText(context.getString(R.string.stats_average_moving_speed));
-            }
 
-            {
-                Pair<String, String> parts = formatter.getSpeedParts(aggregatedStatistic.getTrackStatistics().getMaxSpeed());
-                viewBinding.aggregatedStatsMaxRate.setText(parts.first);
-                viewBinding.aggregatedStatsMaxRateUnit.setText(parts.second);
-                viewBinding.aggregatedStatsMaxRateLabel.setText(context.getString(R.string.stats_max_speed));
-            }
+            updateSpeedOrPace(formatter, aggregatedStatistic, true);
         }
 
         public void setPace(AggregatedStatistics.AggregatedStatistic aggregatedStatistic) {
             setCommonValues(aggregatedStatistic);
 
             SpeedFormatter formatter = SpeedFormatter.Builder().setUnit(unitSystem).setReportSpeedOrPace(reportSpeed).build(context);
-            {
-                Pair<String, String> parts = formatter.getSpeedParts(aggregatedStatistic.getTrackStatistics().getAverageMovingSpeed());
-                viewBinding.aggregatedStatsAvgRate.setText(parts.first);
-                viewBinding.aggregatedStatsAvgRateUnit.setText(parts.second);
+
+            updateSpeedOrPace(formatter, aggregatedStatistic, false);
+        }
+
+        private void updateSpeedOrPace(SpeedFormatter formatter, AggregatedStatistics.AggregatedStatistic aggregatedStatistic,
+                                       boolean isSpeed) {
+            // Handles both Speed and Pace updates using a single method
+            Pair<String, String> avgParts = formatter.getSpeedParts(aggregatedStatistic.getTrackStatistics().getAverageMovingSpeed());
+            viewBinding.aggregatedStatsAvgRate.setText(avgParts.first);
+            viewBinding.aggregatedStatsAvgRateUnit.setText(avgParts.second);
+
+            if (isSpeed) {
+                viewBinding.aggregatedStatsAvgRateLabel.setText(context.getString(R.string.stats_average_moving_speed));
+            } else {
                 viewBinding.aggregatedStatsAvgRateLabel.setText(context.getString(R.string.stats_average_moving_pace));
             }
 
-            {
-                Pair<String, String> parts = formatter.getSpeedParts(aggregatedStatistic.getTrackStatistics().getMaxSpeed());
-                viewBinding.aggregatedStatsMaxRate.setText(parts.first);
-                viewBinding.aggregatedStatsMaxRateUnit.setText(parts.second);
+            Pair<String, String> maxParts = formatter.getSpeedParts(aggregatedStatistic.getTrackStatistics().getMaxSpeed());
+            viewBinding.aggregatedStatsMaxRate.setText(maxParts.first);
+            viewBinding.aggregatedStatsMaxRateUnit.setText(maxParts.second);
+
+            if (isSpeed) {
+                viewBinding.aggregatedStatsMaxRateLabel.setText(context.getString(R.string.stats_max_speed));
+            } else {
                 viewBinding.aggregatedStatsMaxRateLabel.setText(R.string.stats_fastest_pace);
             }
         }
