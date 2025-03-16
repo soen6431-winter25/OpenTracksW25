@@ -42,7 +42,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
-import de.dennisguse.opentracks.BuildConfig;
+
+//import de.dennisguse.opentracks.BuildConfig;
 import de.dennisguse.opentracks.data.models.ActivityType;
 import de.dennisguse.opentracks.data.models.Altitude;
 import de.dennisguse.opentracks.data.models.Cadence;
@@ -72,10 +73,10 @@ public class ContentProviderUtils {
 
     // The authority (the first part of the URI) for the app's content provider.
     @VisibleForTesting
-    public static final String AUTHORITY_PACKAGE = BuildConfig.APPLICATION_ID + ".content";
+//    public static final String AUTHORITY_PACKAGE = BuildConfig.APPLICATION_ID + ".content";
 
     // The base URI for the app's content provider.
-    public static final String CONTENT_BASE_URI = "content://" + AUTHORITY_PACKAGE;
+//    public static final String CONTENT_BASE_URI = "content://" + AUTHORITY_PACKAGE;
 
     private static final String ID_SEPARATOR = ",";
 
@@ -95,10 +96,10 @@ public class ContentProviderUtils {
     }
 
     // Adding this method to get the authority package for production use
-    public static String getAuthorityPackage() {
-        // Return the authority package for production use
-        return AUTHORITY_PACKAGE;
-    }
+//    public static String getAuthorityPackage() {
+//        // Return the authority package for production use
+//        return AUTHORITY_PACKAGE;
+//    }
 
     /**
      * Creates a {@link Track} from a cursor.
@@ -306,6 +307,25 @@ public class ContentProviderUtils {
         contentResolver.update(TracksColumns.CONTENT_URI, createContentValues(track), TracksColumns._ID + "=?", new String[]{Long.toString(track.getId().id())});
     }
 
+    private void updateValues(TrackStatistics trackStatistics,ContentValues values){
+        if (trackStatistics.getStartTime() != null) {
+            values.put(TracksColumns.STARTTIME, trackStatistics.getStartTime().toEpochMilli());
+        }
+        if (trackStatistics.getStopTime() != null) {
+            values.put(TracksColumns.STOPTIME, trackStatistics.getStopTime().toEpochMilli());
+        }
+        values.put(TracksColumns.TOTALDISTANCE, trackStatistics.getTotalDistance().toM());
+        values.put(TracksColumns.TOTALTIME, trackStatistics.getTotalTime().toMillis());
+        values.put(TracksColumns.MOVINGTIME, trackStatistics.getMovingTime().toMillis());
+        values.put(TracksColumns.AVGSPEED, trackStatistics.getAverageSpeed().toMPS());
+        values.put(TracksColumns.AVGMOVINGSPEED, trackStatistics.getAverageMovingSpeed().toMPS());
+        values.put(TracksColumns.MAXSPEED, trackStatistics.getMaxSpeed().toMPS());
+        values.put(TracksColumns.MIN_ALTITUDE, trackStatistics.getMinAltitude());
+        values.put(TracksColumns.MAX_ALTITUDE, trackStatistics.getMaxAltitude());
+        values.put(TracksColumns.ALTITUDE_GAIN, trackStatistics.getTotalAltitudeGain());
+        values.put(TracksColumns.ALTITUDE_LOSS, trackStatistics.getTotalAltitudeLoss());
+    }
+
     private ContentValues createContentValues(Track track) {
         ContentValues values = new ContentValues();
         TrackStatistics trackStatistics = track.getTrackStatistics();
@@ -318,23 +338,7 @@ public class ContentProviderUtils {
         values.put(TracksColumns.DESCRIPTION, track.getDescription());
         values.put(TracksColumns.ACTIVITY_TYPE, track.getActivityType() != null ? track.getActivityType().getId() : null);
         values.put(TracksColumns.ACTIVITY_TYPE_LOCALIZED, track.getActivityTypeLocalized());
-        values.put(TracksColumns.STARTTIME_OFFSET, track.getZoneOffset().getTotalSeconds());
-        if (trackStatistics.getStartTime() != null) {
-            values.put(TracksColumns.STARTTIME, trackStatistics.getStartTime().toEpochMilli());
-        }
-        if (trackStatistics.getStopTime() != null) {
-            values.put(TracksColumns.STOPTIME, trackStatistics.getStopTime().toEpochMilli());
-        }
-        values.put(TracksColumns.TOTALDISTANCE, trackStatistics.getTotalDistance().toM());
-        values.put(TracksColumns.TOTALTIME, trackStatistics.getTotalTime().toMillis());
-        values.put(TracksColumns.MOVINGTIME, trackStatistics.getMovingTime().toMillis());
-        values.put(TracksColumns.AVGSPEED, trackStatistics.getAverageSpeed().toMPS());
-        values.put(TracksColumns.AVGMOVINGSPEED, trackStatistics.getAverageMovingSpeed().toMPS());
-        values.put(TracksColumns.MAXSPEED, trackStatistics.getMaxSpeed().toMPS());
-        values.put(TracksColumns.MIN_ALTITUDE, trackStatistics.getMinAltitude());
-        values.put(TracksColumns.MAX_ALTITUDE, trackStatistics.getMaxAltitude());
-        values.put(TracksColumns.ALTITUDE_GAIN, trackStatistics.getTotalAltitudeGain());
-        values.put(TracksColumns.ALTITUDE_LOSS, trackStatistics.getTotalAltitudeLoss());
+        updateValues(trackStatistics,values);
         return values;
     }
 
@@ -344,22 +348,7 @@ public class ContentProviderUtils {
 
     private ContentValues createContentValues(TrackStatistics trackStatistics) {
         ContentValues values = new ContentValues();
-        if (trackStatistics.getStartTime() != null) {
-            values.put(TracksColumns.STARTTIME, trackStatistics.getStartTime().toEpochMilli());
-        }
-        if (trackStatistics.getStopTime() != null) {
-            values.put(TracksColumns.STOPTIME, trackStatistics.getStopTime().toEpochMilli());
-        }
-        values.put(TracksColumns.TOTALDISTANCE, trackStatistics.getTotalDistance().toM());
-        values.put(TracksColumns.TOTALTIME, trackStatistics.getTotalTime().toMillis());
-        values.put(TracksColumns.MOVINGTIME, trackStatistics.getMovingTime().toMillis());
-        values.put(TracksColumns.AVGSPEED, trackStatistics.getAverageSpeed().toMPS());
-        values.put(TracksColumns.AVGMOVINGSPEED, trackStatistics.getAverageMovingSpeed().toMPS());
-        values.put(TracksColumns.MAXSPEED, trackStatistics.getMaxSpeed().toMPS());
-        values.put(TracksColumns.MIN_ALTITUDE, trackStatistics.getMinAltitude());
-        values.put(TracksColumns.MAX_ALTITUDE, trackStatistics.getMaxAltitude());
-        values.put(TracksColumns.ALTITUDE_GAIN, trackStatistics.getTotalAltitudeGain());
-        values.put(TracksColumns.ALTITUDE_LOSS, trackStatistics.getTotalAltitudeLoss());
+        updateValues(trackStatistics,values);
         return values;
     }
 
