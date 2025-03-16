@@ -42,7 +42,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
-
 import de.dennisguse.opentracks.BuildConfig;
 import de.dennisguse.opentracks.data.models.ActivityType;
 import de.dennisguse.opentracks.data.models.Altitude;
@@ -336,7 +335,6 @@ public class ContentProviderUtils {
         values.put(TracksColumns.MAX_ALTITUDE, trackStatistics.getMaxAltitude());
         values.put(TracksColumns.ALTITUDE_GAIN, trackStatistics.getTotalAltitudeGain());
         values.put(TracksColumns.ALTITUDE_LOSS, trackStatistics.getTotalAltitudeLoss());
-
         return values;
     }
 
