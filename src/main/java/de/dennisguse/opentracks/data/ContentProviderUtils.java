@@ -43,7 +43,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-//import de.dennisguse.opentracks.BuildConfig;
+import de.dennisguse.opentracks.BuildConfig;
 import de.dennisguse.opentracks.data.models.ActivityType;
 import de.dennisguse.opentracks.data.models.Altitude;
 import de.dennisguse.opentracks.data.models.Cadence;
@@ -73,10 +73,10 @@ public class ContentProviderUtils {
 
     // The authority (the first part of the URI) for the app's content provider.
     @VisibleForTesting
-//    public static final String AUTHORITY_PACKAGE = BuildConfig.APPLICATION_ID + ".content";
+    public static final String AUTHORITY_PACKAGE = BuildConfig.APPLICATION_ID + ".content";
 
     // The base URI for the app's content provider.
-//    public static final String CONTENT_BASE_URI = "content://" + AUTHORITY_PACKAGE;
+    public static final String CONTENT_BASE_URI = "content://" + AUTHORITY_PACKAGE;
 
     private static final String ID_SEPARATOR = ",";
 
@@ -96,10 +96,10 @@ public class ContentProviderUtils {
     }
 
     // Adding this method to get the authority package for production use
-//    public static String getAuthorityPackage() {
-//        // Return the authority package for production use
-//        return AUTHORITY_PACKAGE;
-//    }
+    public static String getAuthorityPackage() {
+        // Return the authority package for production use
+        return AUTHORITY_PACKAGE;
+    }
 
     /**
      * Creates a {@link Track} from a cursor.
@@ -307,7 +307,9 @@ public class ContentProviderUtils {
         contentResolver.update(TracksColumns.CONTENT_URI, createContentValues(track), TracksColumns._ID + "=?", new String[]{Long.toString(track.getId().id())});
     }
 
-
+    public void updateTrackStatistics(@NonNull Track.Id trackId, @NonNull TrackStatistics trackStatistics) {
+        contentResolver.update(TracksColumns.CONTENT_URI, createContentValues(trackStatistics), TracksColumns._ID + "=?", new String[]{Long.toString(trackId.id())});
+    }
     private ContentValues createContentValues(Track track) {
         ContentValues values = new ContentValues();
         TrackStatistics trackStatistics = track.getTrackStatistics();
@@ -323,11 +325,6 @@ public class ContentProviderUtils {
         updateValues(trackStatistics,values);
         return values;
     }
-
-    public void updateTrackStatistics(@NonNull Track.Id trackId, @NonNull TrackStatistics trackStatistics) {
-        contentResolver.update(TracksColumns.CONTENT_URI, createContentValues(trackStatistics), TracksColumns._ID + "=?", new String[]{Long.toString(trackId.id())});
-    }
-
     private ContentValues createContentValues(TrackStatistics trackStatistics) {
         ContentValues values = new ContentValues();
         updateValues(trackStatistics,values);
