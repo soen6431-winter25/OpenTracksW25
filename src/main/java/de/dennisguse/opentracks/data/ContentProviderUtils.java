@@ -348,7 +348,7 @@ public class ContentProviderUtils {
         values.put(TracksColumns.STARTTIME_OFFSET, track.getZoneOffset().getTotalSeconds());
 
         populateTrackStatistics(values, track.getTrackStatistics());
-        
+
         return values;
     }
 
@@ -672,12 +672,7 @@ public class ContentProviderUtils {
     public TrackPoint.Id getLastTrackPointId(@NonNull Track.Id trackId) {
         String selection = TrackPointsColumns._ID + SELECT_MAX + TrackPointsColumns._ID + ") from " + TrackPointsColumns.TABLE_NAME + WHERE + TrackPointsColumns.TRACKID + "=?)";
         String[] selectionArgs = new String[]{Long.toString(trackId.id())};
-        try (Cursor cursor = getTrackPointCursor(new String[]{TrackPointsColumns._ID}, selection, selectionArgs, TrackPointsColumns._ID)) {
-            if (cursor != null && cursor.moveToFirst()) {
-                return new TrackPoint.Id(cursor.getLong(cursor.getColumnIndexOrThrow(TrackPointsColumns._ID)));
-            }
-        }
-        return null;
+        return getIdFromSelection(selection, selectionArgs);
     }
 
     /**
@@ -691,6 +686,16 @@ public class ContentProviderUtils {
     public TrackPoint.Id getTrackPointId(Track.Id trackId, Location location) {
         String selection = TrackPointsColumns._ID + SELECT_MAX + TrackPointsColumns._ID + ") FROM " + TrackPointsColumns.TABLE_NAME + WHERE + TrackPointsColumns.TRACKID + "=? AND " + TrackPointsColumns.TIME + "=?)";
         String[] selectionArgs = new String[]{Long.toString(trackId.id()), Long.toString(location.getTime())};
+        return getIdFromSelection(selection, selectionArgs);
+    }
+
+    /**
+     * Obtains an id from a selection statement string
+     * @param selection the selection statement
+     * @param selectionArgs selection arguments
+     * @return id selected from executing the selection statement
+     */
+    public TrackPoint.Id getIdFromSelection(String selection, String[] selectionArgs){
         try (Cursor cursor = getTrackPointCursor(new String[]{TrackPointsColumns._ID}, selection, selectionArgs, TrackPointsColumns._ID)) {
             if (cursor != null && cursor.moveToFirst()) {
                 return new TrackPoint.Id(cursor.getLong(cursor.getColumnIndexOrThrow(TrackPointsColumns._ID)));
@@ -698,6 +703,7 @@ public class ContentProviderUtils {
         }
         return null;
     }
+
 
     /**
      * Creates a {@link TrackPoint} object from a cursor.
