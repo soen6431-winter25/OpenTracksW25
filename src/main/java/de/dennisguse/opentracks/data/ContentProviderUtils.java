@@ -76,7 +76,7 @@ public class ContentProviderUtils {
     public static final String AUTHORITY_PACKAGE = BuildConfig.APPLICATION_ID + ".content";
 
     // The base URI for the app's content provider.
-//    public static final String CONTENT_BASE_URI = "content://" + AUTHORITY_PACKAGE;
+    public static final String CONTENT_BASE_URI = "content://" + AUTHORITY_PACKAGE;
 
     private static final String ID_SEPARATOR = ",";
 
