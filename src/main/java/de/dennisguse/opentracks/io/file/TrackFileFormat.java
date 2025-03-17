@@ -94,23 +94,20 @@ public enum TrackFileFormat {
         this.exportPhotos = exportPhotos;
     }
 
-    @Override
     public TrackExporter createTrackExporter(@NonNull Context context, @NonNull ContentProviderUtils contentProviderUtils) {
         KMLTrackExporter exporter = new KMLTrackExporter(context, contentProviderUtils, exportPhotos);
         return new KmzTrackExporter(context, contentProviderUtils, exporter, exportPhotos);
     }
 
-    @Override
     public String getMimeType() {
         return MIME_KMZ;
     }
 
-    @Override
+
     public String getExtension() {
         return "kmz";
     }
 
-    @Override
     public boolean includesPhotos() {
         return exportPhotos;
     }
