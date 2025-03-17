@@ -114,59 +114,70 @@ public abstract class GenericStatisticsViewHolder extends StatisticViewHolder<St
         }
     }
 
-    public static class AverageMovingSpeed extends GenericStatisticsViewHolder {
+    public abstract static class SpeedStatisticViewHolder extends GenericStatisticsViewHolder {
+        private final boolean reportSpeed;
+        private final int textResId;
+
+        public SpeedStatisticViewHolder(boolean reportSpeed, int textResId) {
+            this.reportSpeed = reportSpeed;
+            this.textResId = textResId;
+        }
 
         @Override
         public void onChanged(UnitSystem unitSystem, RecordingData data) {
-            SpeedFormatter speedFormatterSpeed = SpeedFormatter.Builder()
+            SpeedFormatter speedFormatter = SpeedFormatter.Builder()
                     .setUnit(unitSystem)
-                    .setReportSpeedOrPace(true)
+                    .setReportSpeedOrPace(reportSpeed)
                     .build(getContext());
 
-            Pair<String, String> valueAndUnit = speedFormatterSpeed.getSpeedParts(data.getTrackStatistics().getAverageMovingSpeed());
+            Pair<String, String> valueAndUnit = speedFormatter.getSpeedParts(getSpeedValue(data));
 
             getBinding().statsValue.setText(valueAndUnit.first);
             getBinding().statsUnit.setText(valueAndUnit.second);
-            getBinding().statsDescriptionMain.setText(getContext().getString(R.string.stats_average_moving_speed));
+            getBinding().statsDescriptionMain.setText(getContext().getString(textResId));
         }
+
+        protected abstract Speed getSpeedValue(RecordingData data);
     }
 
-    public static class AverageSpeed extends GenericStatisticsViewHolder {
+    public static class AverageMovingSpeed extends SpeedStatisticViewHolder {
+        public AverageMovingSpeed() {
+            super(true, R.string.stats_average_moving_speed);
+        }
 
         @Override
-        public void onChanged(UnitSystem unitSystem, RecordingData data) {
-            SpeedFormatter speedFormatterSpeed = SpeedFormatter.Builder()
-                    .setUnit(unitSystem)
-                    .setReportSpeedOrPace(true)
-                    .build(getContext());
-
-            Pair<String, String> valueAndUnit = speedFormatterSpeed.getSpeedParts(data.getTrackStatistics().getAverageSpeed());
-
-            getBinding().statsValue.setText(valueAndUnit.first);
-            getBinding().statsUnit.setText(valueAndUnit.second);
-            getBinding().statsDescriptionMain.setText(getContext().getString(R.string.stats_average_speed));
+        protected Speed getSpeedValue(RecordingData data) {
+            return data.getTrackStatistics().getAverageMovingSpeed();
         }
     }
 
-    public static class MaxSpeed extends GenericStatisticsViewHolder {
+    public static class AverageSpeed extends SpeedStatisticViewHolder {
+        public AverageSpeed() {
+            super(true, R.string.stats_average_speed);
+        }
 
         @Override
-        public void onChanged(UnitSystem unitSystem, RecordingData data) {
-            SpeedFormatter speedFormatterSpeed = SpeedFormatter.Builder()
-                    .setUnit(unitSystem)
-                    .setReportSpeedOrPace(true)
-                    .build(getContext());
-
-            Pair<String, String> valueAndUnit = speedFormatterSpeed.getSpeedParts(data.getTrackStatistics().getMaxSpeed());
-
-            getBinding().statsValue.setText(valueAndUnit.first);
-            getBinding().statsUnit.setText(valueAndUnit.second);
-            getBinding().statsDescriptionMain.setText(getContext().getString(R.string.stats_max_speed));
+        protected Speed getSpeedValue(RecordingData data) {
+            return data.getTrackStatistics().getAverageSpeed();
         }
     }
 
-    public static class AverageMovingPace extends GenericStatisticsViewHolder {
+    public static class MaxSpeed extends SpeedStatisticViewHolder {
+        public MaxSpeed() {
+            super(true, R.string.stats_max_speed);
+        }
 
+        @Override
+        protected Speed getSpeedValue(RecordingData data) {
+            return data.getTrackStatistics().getMaxSpeed();
+        }
+    }
+
+    public static class Pace extends GenericStatisticsViewHolder {
+        private final int textResId;
+        Pace(int textResId) {
+            this.textResId = textResId;
+        }
         @Override
         public void onChanged(UnitSystem unitSystem, RecordingData data) {
             SpeedFormatter speedFormatterSpeed = SpeedFormatter.Builder()
@@ -178,41 +189,18 @@ public abstract class GenericStatisticsViewHolder extends StatisticViewHolder<St
 
             getBinding().statsValue.setText(valueAndUnit.first);
             getBinding().statsUnit.setText(valueAndUnit.second);
-            getBinding().statsDescriptionMain.setText(getContext().getString(R.string.stats_average_moving_pace));
+            getBinding().statsDescriptionMain.setText(getContext().getString(textResId));
         }
     }
 
-    public static class AveragePace extends GenericStatisticsViewHolder {
-
-        @Override
-        public void onChanged(UnitSystem unitSystem, RecordingData data) {
-            SpeedFormatter speedFormatterSpeed = SpeedFormatter.Builder()
-                    .setUnit(unitSystem)
-                    .setReportSpeedOrPace(false)
-                    .build(getContext());
-
-            Pair<String, String> valueAndUnit = speedFormatterSpeed.getSpeedParts(data.getTrackStatistics().getAverageMovingSpeed());
-
-            getBinding().statsValue.setText(valueAndUnit.first);
-            getBinding().statsUnit.setText(valueAndUnit.second);
-            getBinding().statsDescriptionMain.setText(getContext().getString(R.string.stats_average_pace));
+    public static class FastestPace extends SpeedStatisticViewHolder {
+        public FastestPace() {
+            super(false, R.string.stats_fastest_pace);
         }
-    }
-
-    public static class FastestPace extends GenericStatisticsViewHolder {
 
         @Override
-        public void onChanged(UnitSystem unitSystem, RecordingData data) {
-            SpeedFormatter speedFormatterSpeed = SpeedFormatter.Builder()
-                    .setUnit(unitSystem)
-                    .setReportSpeedOrPace(false)
-                    .build(getContext());
-
-            Pair<String, String> valueAndUnit = speedFormatterSpeed.getSpeedParts(data.getTrackStatistics().getMaxSpeed());
-
-            getBinding().statsValue.setText(valueAndUnit.first);
-            getBinding().statsUnit.setText(valueAndUnit.second);
-            getBinding().statsDescriptionMain.setText(getContext().getString(R.string.stats_fastest_pace));
+        protected Speed getSpeedValue(RecordingData data) {
+            return data.getTrackStatistics().getMaxSpeed();
         }
     }
 

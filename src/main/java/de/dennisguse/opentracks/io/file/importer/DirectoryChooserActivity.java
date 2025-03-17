@@ -68,41 +68,7 @@ public abstract class DirectoryChooserActivity extends AppCompatActivity {
 
     protected abstract Intent createNextActivityIntent(Uri directoryUri);
 
-    public static class ImportDirectoryChooserActivity extends DirectoryChooserActivity {
-
-        @Override
-        protected Intent createNextActivityIntent(Uri directoryUri) {
-            Intent intent = IntentUtils.newIntent(this, ImportActivity.class);
-            intent.putExtra(ImportActivity.EXTRA_DIRECTORY_URI_KEY, directoryUri);
-            return intent;
-        }
-    }
-
-    public static class ExportDirectoryChooserActivity extends DirectoryChooserActivity {
-
-        @Override
-        protected DocumentFile configureDirectoryChooserIntent(Intent intent) {
-            super.configureDirectoryChooserIntent(intent);
-            intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
-            return IntentUtils.toDocumentFile(this, PreferencesUtils.getDefaultExportDirectoryUri());
-        }
-
-        @Override
-        protected boolean isDirectoryValid(final DocumentFile directoryUri) {
-            return super.isDirectoryValid(directoryUri) && directoryUri.canWrite();
-        }
-
-        @Override
-        protected Intent createNextActivityIntent(Uri directoryUri) {
-            Intent intent = IntentUtils.newIntent(this, ExportActivity.class);
-            intent.putExtra(ExportActivity.EXTRA_DIRECTORY_URI_KEY, directoryUri);
-            intent.putExtra(ExportActivity.EXTRA_TRACKFILEFORMAT_KEY, PreferencesUtils.getExportTrackFileFormat());
-            return intent;
-        }
-    }
-
-    public static class ExportDirectoryChooserOneFileActivity extends DirectoryChooserActivity {
-
+    private static abstract class BaseExportDirectoryChooser extends DirectoryChooserActivity {
         @Override
         protected DocumentFile configureDirectoryChooserIntent(Intent intent) {
             super.configureDirectoryChooserIntent(intent);
@@ -119,8 +85,41 @@ public abstract class DirectoryChooserActivity extends AppCompatActivity {
         protected Intent createNextActivityIntent(Uri directoryUri) {
             Intent intent = IntentUtils.newIntent(this, ExportActivity.class);
             intent.putExtra(ExportActivity.EXTRA_DIRECTORY_URI_KEY, directoryUri);
-            intent.putExtra(ExportActivity.EXTRA_ONE_FILE_KEY, true);
             intent.putExtra(ExportActivity.EXTRA_TRACKFILEFORMAT_KEY, PreferencesUtils.getExportTrackFileFormat());
+            return customizeIntent(intent);
+        }
+
+        protected abstract Intent customizeIntent(Intent intent);
+    }
+
+    public static class ExportDirectoryChooserActivity extends BaseExportDirectoryChooser {
+        @Override
+        protected DocumentFile configureDirectoryChooserIntent(Intent intent) {
+            super.configureDirectoryChooserIntent(intent);
+            intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+            return IntentUtils.toDocumentFile(this, PreferencesUtils.getDefaultExportDirectoryUri());
+        }
+
+        @Override
+        protected Intent customizeIntent(Intent intent) {
+            return intent;
+        }
+    }
+
+    public static class ExportDirectoryChooserOneFileActivity extends BaseExportDirectoryChooser {
+        @Override
+        protected Intent customizeIntent(Intent intent) {
+            intent.putExtra(ExportActivity.EXTRA_ONE_FILE_KEY, true);
+            return intent;
+        }
+    }
+
+    public static class ImportDirectoryChooserActivity extends DirectoryChooserActivity {
+
+        @Override
+        protected Intent createNextActivityIntent(Uri directoryUri) {
+            Intent intent = IntentUtils.newIntent(this, ImportActivity.class);
+            intent.putExtra(ImportActivity.EXTRA_DIRECTORY_URI_KEY, directoryUri);
             return intent;
         }
     }
