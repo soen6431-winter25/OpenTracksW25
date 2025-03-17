@@ -120,76 +120,66 @@ public abstract class GenericStatisticsViewHolder extends StatisticViewHolder<St
         }
     }
 
-    public abstract static class SpeedStatisticViewHolder extends GenericStatisticsViewHolder {
-        private final boolean reportSpeed;
-        private final int textResId;
-
-        public SpeedStatisticViewHolder(boolean reportSpeed, int textResId) {
-            this.reportSpeed = reportSpeed;
-            this.textResId = textResId;
-        }
+    public static class AverageMovingSpeed extends GenericStatisticsViewHolder {
 
         @Override
         public void onChanged(UnitSystem unitSystem, RecordingData data) {
-            SpeedFormatter speedFormatter = SpeedFormatter.Builder()
+            SpeedFormatter speedFormatterSpeed = SpeedFormatter.Builder()
                     .setUnit(unitSystem)
-                    .setReportSpeedOrPace(reportSpeed)
+                    .setReportSpeedOrPace(true)
                     .build(getContext());
 
-            Pair<String, String> valueAndUnit = speedFormatter.getSpeedParts(getSpeedValue(data));
+            Pair<String, String> valueAndUnit = speedFormatterSpeed
+                    .getSpeedParts(data.getTrackStatistics().getAverageMovingSpeed());
 
             getBinding().statsValue.setText(valueAndUnit.first);
             getBinding().statsUnit.setText(valueAndUnit.second);
-            getBinding().statsDescriptionMain.setText(getContext().getString(textResId));
+            getBinding().statsDescriptionMain.setText(getContext().getString(R.string.stats_average_moving_speed));
         }
-
-        protected abstract Speed getSpeedValue(RecordingData data);
     }
 
-    public static class AverageMovingSpeed extends SpeedStatisticViewHolder {
-        public AverageMovingSpeed() {
-            super(true, R.string.stats_average_moving_speed);
-        }
+    public static class AverageSpeed extends GenericStatisticsViewHolder {
 
         @Override
-        protected Speed getSpeedValue(RecordingData data) {
-            return data.getTrackStatistics().getAverageMovingSpeed();
+        public void onChanged(UnitSystem unitSystem, RecordingData data) {
+            SpeedFormatter speedFormatterSpeed = SpeedFormatter.Builder()
+                    .setUnit(unitSystem)
+                    .setReportSpeedOrPace(true)
+                    .build(getContext());
+
+            Pair<String, String> valueAndUnit = speedFormatterSpeed
+                    .getSpeedParts(data.getTrackStatistics().getAverageSpeed());
+
+            getBinding().statsValue.setText(valueAndUnit.first);
+            getBinding().statsUnit.setText(valueAndUnit.second);
+            getBinding().statsDescriptionMain.setText(getContext().getString(R.string.stats_average_speed));
         }
     }
 
-    public static class AverageSpeed extends SpeedStatisticViewHolder {
-        public AverageSpeed() {
-            super(true, R.string.stats_average_speed);
-        }
+    public static class MaxSpeed extends GenericStatisticsViewHolder {
 
         @Override
-        protected Speed getSpeedValue(RecordingData data) {
-            return data.getTrackStatistics().getAverageSpeed();
+        public void onChanged(UnitSystem unitSystem, RecordingData data) {
+            SpeedFormatter speedFormatterSpeed = SpeedFormatter.Builder()
+                    .setUnit(unitSystem)
+                    .setReportSpeedOrPace(true)
+                    .build(getContext());
+
+            Pair<String, String> valueAndUnit = speedFormatterSpeed
+                    .getSpeedParts(data.getTrackStatistics().getMaxSpeed());
+
+            getBinding().statsValue.setText(valueAndUnit.first);
+            getBinding().statsUnit.setText(valueAndUnit.second);
+            getBinding().statsDescriptionMain.setText(getContext().getString(R.string.stats_max_speed));
         }
     }
 
-    public static class MaxSpeed extends SpeedStatisticViewHolder {
-        public MaxSpeed() {
-            super(true, R.string.stats_max_speed);
-            // public static class AveragePaceVH extends GenericStatisticsViewHolder {
+    public static class AveragePaceVH extends GenericStatisticsViewHolder {
 
-            // private final boolean isMovingPace;
+        private final boolean isMovingPace;
 
-            // protected AveragePaceVH(boolean isMovingPace) {
-            // this.isMovingPace = isMovingPace;
-        }
-
-        @Override
-        protected Speed getSpeedValue(RecordingData data) {
-            return data.getTrackStatistics().getMaxSpeed();
-        }
-    }
-
-    public static class Pace extends GenericStatisticsViewHolder {
-        private final int textResId;
-
-        Pace(int textResId) {
-            this.textResId = textResId;
+        protected AveragePaceVH(boolean isMovingPace) {
+            this.isMovingPace = isMovingPace;
         }
 
         @Override
@@ -204,36 +194,40 @@ public abstract class GenericStatisticsViewHolder extends StatisticViewHolder<St
 
             getBinding().statsValue.setText(valueAndUnit.first);
             getBinding().statsUnit.setText(valueAndUnit.second);
-            getBinding().statsDescriptionMain.setText(getContext().getString(textResId));
+            getBinding().statsDescriptionMain.setText(
+                    getContext().getString(
+                            isMovingPace ? R.string.stats_average_moving_pace : R.string.stats_average_pace));
         }
     }
 
-    public static class FastestPace extends SpeedStatisticViewHolder {
-        public FastestPace() {
-            super(false, R.string.stats_fastest_pace);
+    // Subclasses for map-based instantiation
+    public static class AverageMovingPace extends AveragePaceVH {
+        public AverageMovingPace() {
+            super(true);
+        }
+    }
 
-            // getBinding().statsDescriptionMain.setText(
-            // getContext().getString(isMovingPace ? R.string.stats_average_moving_pace :
-            // R.string.stats_average_pace)
-            // );
-            // }
-            // }
-
-            // // Subclasses for map-based instantiation
-            // public static class AverageMovingPace extends AveragePaceVH {
-            // public AverageMovingPace() {
-            // super(true);
-            // }
-            // }
-
-            // public static class AveragePace extends AveragePaceVH {
-            // public AveragePace() {
+    public static class AveragePace extends AveragePaceVH {
+        public AveragePace() {
             super(false);
         }
+    }
+
+    public static class FastestPace extends GenericStatisticsViewHolder {
 
         @Override
-        protected Speed getSpeedValue(RecordingData data) {
-            return data.getTrackStatistics().getMaxSpeed();
+        public void onChanged(UnitSystem unitSystem, RecordingData data) {
+            SpeedFormatter speedFormatterSpeed = SpeedFormatter.Builder()
+                    .setUnit(unitSystem)
+                    .setReportSpeedOrPace(false)
+                    .build(getContext());
+
+            Pair<String, String> valueAndUnit = speedFormatterSpeed
+                    .getSpeedParts(data.getTrackStatistics().getMaxSpeed());
+
+            getBinding().statsValue.setText(valueAndUnit.first);
+            getBinding().statsUnit.setText(valueAndUnit.second);
+            getBinding().statsDescriptionMain.setText(getContext().getString(R.string.stats_fastest_pace));
         }
     }
 
