@@ -99,16 +99,15 @@ public enum TrackFileFormat {
         return new KmzTrackExporter(context, contentProviderUtils, exporter, exportPhotos);
     }
 
-
     public String getMimeType() {
         return MIME_KMZ;
     }
+
 
     public String getExtension() {
         return "kmz";
     }
 
- 
     public boolean includesPhotos() {
         return exportPhotos;
     }
