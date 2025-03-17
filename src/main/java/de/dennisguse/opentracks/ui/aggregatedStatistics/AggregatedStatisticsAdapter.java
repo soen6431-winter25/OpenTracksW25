@@ -81,49 +81,42 @@ public class AggregatedStatisticsAdapter extends RecyclerView.Adapter<RecyclerVi
             this.viewBinding = viewBinding;
         }
 
-        private void configureSpeedPaceViews(
-                AggregatedStatistics.AggregatedStatistic aggregatedStatistic,
-                int averageLabelResId
-        ) {
-            SpeedFormatter formatter = SpeedFormatter.Builder()
-                    .setUnit(unitSystem)
-                    .setReportSpeedOrPace(reportSpeed)
-                    .build(context);
-
-            // Configure average
-            Pair<String, String> avgParts = formatter.getSpeedParts(
-                    aggregatedStatistic.getTrackStatistics().getAverageMovingSpeed()
-            );
-            viewBinding.aggregatedStatsAvgRate.setText(avgParts.first);
-            viewBinding.aggregatedStatsAvgRateUnit.setText(avgParts.second);
-            viewBinding.aggregatedStatsAvgRateLabel.setText(context.getString(averageLabelResId));
-
-            // Configure max
-            Pair<String, String> maxParts = formatter.getSpeedParts(
-                    aggregatedStatistic.getTrackStatistics().getMaxSpeed()
-            );
-            viewBinding.aggregatedStatsMaxRate.setText(maxParts.first);
-            viewBinding.aggregatedStatsMaxRateUnit.setText(maxParts.second);
-        }
-
         public void setSpeed(AggregatedStatistics.AggregatedStatistic aggregatedStatistic) {
             setCommonValues(aggregatedStatistic);
 
-            configureSpeedPaceViews(
-                    aggregatedStatistic,
-                    R.string.stats_average_moving_speed
-            );
-            viewBinding.aggregatedStatsMaxRateLabel.setText(context.getString(R.string.stats_max_speed));
+            SpeedFormatter formatter = SpeedFormatter.Builder().setUnit(unitSystem).setReportSpeedOrPace(reportSpeed).build(context);
+            {
+                Pair<String, String> parts = formatter.getSpeedParts(aggregatedStatistic.getTrackStatistics().getAverageMovingSpeed());
+                viewBinding.aggregatedStatsAvgRate.setText(parts.first);
+                viewBinding.aggregatedStatsAvgRateUnit.setText(parts.second);
+                viewBinding.aggregatedStatsAvgRateLabel.setText(context.getString(R.string.stats_average_moving_speed));
+            }
+
+            {
+                Pair<String, String> parts = formatter.getSpeedParts(aggregatedStatistic.getTrackStatistics().getMaxSpeed());
+                viewBinding.aggregatedStatsMaxRate.setText(parts.first);
+                viewBinding.aggregatedStatsMaxRateUnit.setText(parts.second);
+                viewBinding.aggregatedStatsMaxRateLabel.setText(context.getString(R.string.stats_max_speed));
+            }
         }
 
         public void setPace(AggregatedStatistics.AggregatedStatistic aggregatedStatistic) {
             setCommonValues(aggregatedStatistic);
 
-            configureSpeedPaceViews(
-                    aggregatedStatistic,
-                    R.string.stats_average_moving_pace
-            );
-            viewBinding.aggregatedStatsMaxRateLabel.setText(R.string.stats_fastest_pace);
+            SpeedFormatter formatter = SpeedFormatter.Builder().setUnit(unitSystem).setReportSpeedOrPace(reportSpeed).build(context);
+            {
+                Pair<String, String> parts = formatter.getSpeedParts(aggregatedStatistic.getTrackStatistics().getAverageMovingSpeed());
+                viewBinding.aggregatedStatsAvgRate.setText(parts.first);
+                viewBinding.aggregatedStatsAvgRateUnit.setText(parts.second);
+                viewBinding.aggregatedStatsAvgRateLabel.setText(context.getString(R.string.stats_average_moving_pace));
+            }
+
+            {
+                Pair<String, String> parts = formatter.getSpeedParts(aggregatedStatistic.getTrackStatistics().getMaxSpeed());
+                viewBinding.aggregatedStatsMaxRate.setText(parts.first);
+                viewBinding.aggregatedStatsMaxRateUnit.setText(parts.second);
+                viewBinding.aggregatedStatsMaxRateLabel.setText(R.string.stats_fastest_pace);
+            }
         }
 
         //TODO Check preference handling.
