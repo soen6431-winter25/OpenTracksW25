@@ -28,6 +28,13 @@ public abstract class SensorStatisticsViewHolder extends StatisticViewHolder<Sta
         getBinding().statsDescriptionMain.setTextAppearance(dataField.isPrimary() ? R.style.TextAppearance_OpenTracks_PrimaryHeader : R.style.TextAppearance_OpenTracks_SecondaryHeader);
     }
 
+    protected static void updateUI(Pair<String, String> valueAndUnit, String sensorName, int descriptionResId) {
+        getBinding().statsValue.setText(valueAndUnit.first);
+        getBinding().statsUnit.setText(valueAndUnit.second);
+        getBinding().statsDescriptionMain.setText(descriptionResId);
+        getBinding().statsDescriptionSecondary.setText(sensorName);
+    }
+
     public static class SensorHeartRate extends SensorStatisticsViewHolder {
 
         @Override
@@ -77,11 +84,7 @@ public abstract class SensorStatisticsViewHolder extends StatisticViewHolder<Sta
                 valueAndUnit = StringUtils.getCadenceParts(getContext(), null);
             }
 
-            getBinding().statsValue.setText(valueAndUnit.first);
-            getBinding().statsUnit.setText(valueAndUnit.second);
-            getBinding().statsDescriptionMain.setText(R.string.stats_sensors_cadence);
-
-            getBinding().statsDescriptionSecondary.setText(sensorName);
+            updateUI(valueAndUnit, sensorName, R.string.stats_sensors_cadence);
         }
     }
 
@@ -100,11 +103,7 @@ public abstract class SensorStatisticsViewHolder extends StatisticViewHolder<Sta
                 valueAndUnit = StringUtils.getCadenceParts(getContext(), null);
             }
 
-            getBinding().statsValue.setText(valueAndUnit.first);
-            getBinding().statsUnit.setText(valueAndUnit.second);
-            getBinding().statsDescriptionMain.setText(R.string.stats_sensors_power);
-
-            getBinding().statsDescriptionSecondary.setText(sensorName);
+            updateUI(valueAndUnit, sensorName, R.string.stats_sensors_power);
         }
     }
 }
