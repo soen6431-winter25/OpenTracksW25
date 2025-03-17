@@ -393,7 +393,7 @@ public class ContentProviderUtils {
         return values;
     }
 
-    private void updateValues(TrackStatistics trackStatistics, ContentValues values) {
+    private ContentValues updateValues(TrackStatistics trackStatistics, ContentValues values) {
         if (trackStatistics.getStartTime() != null) {
             values.put(TracksColumns.STARTTIME, trackStatistics.getStartTime().toEpochMilli());
         }
