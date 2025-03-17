@@ -24,8 +24,11 @@ public abstract class GenericStatisticsViewHolder extends StatisticViewHolder<St
 
     @Override
     public void configureUI(DataField dataField) {
-        getBinding().statsValue.setTextAppearance(dataField.isPrimary() ? R.style.TextAppearance_OpenTracks_PrimaryValue : R.style.TextAppearance_OpenTracks_SecondaryValue);
-        getBinding().statsDescriptionMain.setTextAppearance(dataField.isPrimary() ? R.style.TextAppearance_OpenTracks_PrimaryHeader : R.style.TextAppearance_OpenTracks_SecondaryHeader);
+        getBinding().statsValue.setTextAppearance(dataField.isPrimary() ? R.style.TextAppearance_OpenTracks_PrimaryValue
+                : R.style.TextAppearance_OpenTracks_SecondaryValue);
+        getBinding().statsDescriptionMain
+                .setTextAppearance(dataField.isPrimary() ? R.style.TextAppearance_OpenTracks_PrimaryHeader
+                        : R.style.TextAppearance_OpenTracks_SecondaryHeader);
     }
 
     public static class Distance extends GenericStatisticsViewHolder {
@@ -46,7 +49,8 @@ public abstract class GenericStatisticsViewHolder extends StatisticViewHolder<St
 
         @Override
         public void onChanged(UnitSystem unitSystem, RecordingData data) {
-            Pair<String, String> valueAndUnit = new Pair<>(StringUtils.formatElapsedTime(data.getTrackStatistics().getTotalTime()), null);
+            Pair<String, String> valueAndUnit = new Pair<>(
+                    StringUtils.formatElapsedTime(data.getTrackStatistics().getTotalTime()), null);
 
             getBinding().statsValue.setText(valueAndUnit.first);
             getBinding().statsUnit.setText(valueAndUnit.second);
@@ -88,10 +92,12 @@ public abstract class GenericStatisticsViewHolder extends StatisticViewHolder<St
                 valueAndUnit = localSpeedFormatter.getSpeedParts(sensorDataSet.getSpeed().first);
                 getBinding().statsDescriptionMain.setText(sensorDataSet.getSpeed().second);
             } else {
-                Speed speed = latestTrackPoint != null && latestTrackPoint.hasSpeed() ? latestTrackPoint.getSpeed() : null;
+                Speed speed = latestTrackPoint != null && latestTrackPoint.hasSpeed() ? latestTrackPoint.getSpeed()
+                        : null;
                 valueAndUnit = localSpeedFormatter.getSpeedParts(speed);
 
-                String title = reportSpeed ? getContext().getString(R.string.stats_speed) : getContext().getString(R.string.stats_pace);
+                String title = reportSpeed ? getContext().getString(R.string.stats_speed)
+                        : getContext().getString(R.string.stats_pace);
                 getBinding().statsDescriptionMain.setText(title);
             }
 
@@ -165,6 +171,12 @@ public abstract class GenericStatisticsViewHolder extends StatisticViewHolder<St
     public static class MaxSpeed extends SpeedStatisticViewHolder {
         public MaxSpeed() {
             super(true, R.string.stats_max_speed);
+            // public static class AveragePaceVH extends GenericStatisticsViewHolder {
+
+            // private final boolean isMovingPace;
+
+            // protected AveragePaceVH(boolean isMovingPace) {
+            // this.isMovingPace = isMovingPace;
         }
 
         @Override
@@ -175,9 +187,11 @@ public abstract class GenericStatisticsViewHolder extends StatisticViewHolder<St
 
     public static class Pace extends GenericStatisticsViewHolder {
         private final int textResId;
+
         Pace(int textResId) {
             this.textResId = textResId;
         }
+
         @Override
         public void onChanged(UnitSystem unitSystem, RecordingData data) {
             SpeedFormatter speedFormatterSpeed = SpeedFormatter.Builder()
@@ -185,7 +199,8 @@ public abstract class GenericStatisticsViewHolder extends StatisticViewHolder<St
                     .setReportSpeedOrPace(false)
                     .build(getContext());
 
-            Pair<String, String> valueAndUnit = speedFormatterSpeed.getSpeedParts(data.getTrackStatistics().getAverageMovingSpeed());
+            Pair<String, String> valueAndUnit = speedFormatterSpeed
+                    .getSpeedParts(data.getTrackStatistics().getAverageMovingSpeed());
 
             getBinding().statsValue.setText(valueAndUnit.first);
             getBinding().statsUnit.setText(valueAndUnit.second);
@@ -196,6 +211,24 @@ public abstract class GenericStatisticsViewHolder extends StatisticViewHolder<St
     public static class FastestPace extends SpeedStatisticViewHolder {
         public FastestPace() {
             super(false, R.string.stats_fastest_pace);
+
+            // getBinding().statsDescriptionMain.setText(
+            // getContext().getString(isMovingPace ? R.string.stats_average_moving_pace :
+            // R.string.stats_average_pace)
+            // );
+            // }
+            // }
+
+            // // Subclasses for map-based instantiation
+            // public static class AverageMovingPace extends AveragePaceVH {
+            // public AverageMovingPace() {
+            // super(true);
+            // }
+            // }
+
+            // public static class AveragePace extends AveragePaceVH {
+            // public AveragePace() {
+            super(false);
         }
 
         @Override
@@ -209,8 +242,12 @@ public abstract class GenericStatisticsViewHolder extends StatisticViewHolder<St
         @Override
         public void onChanged(UnitSystem unitSystem, RecordingData data) {
             TrackPoint latestTrackPoint = data.latestTrackPoint();
-            Float altitude = latestTrackPoint != null && latestTrackPoint.hasAltitude() ? (float) latestTrackPoint.getAltitude().toM() : null;
-            String altitudeReference = latestTrackPoint != null && latestTrackPoint.hasAltitude() ? getContext().getString(latestTrackPoint.getAltitude().getLabelId()) : null;
+            Float altitude = latestTrackPoint != null && latestTrackPoint.hasAltitude()
+                    ? (float) latestTrackPoint.getAltitude().toM()
+                    : null;
+            String altitudeReference = latestTrackPoint != null && latestTrackPoint.hasAltitude()
+                    ? getContext().getString(latestTrackPoint.getAltitude().getLabelId())
+                    : null;
             Pair<String, String> valueAndUnit = StringUtils.getAltitudeParts(getContext(), altitude, unitSystem);
 
             getBinding().statsValue.setText(valueAndUnit.first);
@@ -225,7 +262,8 @@ public abstract class GenericStatisticsViewHolder extends StatisticViewHolder<St
         @Override
         public void onChanged(UnitSystem unitSystem, RecordingData data) {
 
-            Pair<String, String> valueAndUnit = StringUtils.getAltitudeParts(getContext(), data.getTrackStatistics().getTotalAltitudeGain(), unitSystem);
+            Pair<String, String> valueAndUnit = StringUtils.getAltitudeParts(getContext(),
+                    data.getTrackStatistics().getTotalAltitudeGain(), unitSystem);
 
             getBinding().statsValue.setText(valueAndUnit.first);
             getBinding().statsUnit.setText(valueAndUnit.second);
@@ -238,7 +276,8 @@ public abstract class GenericStatisticsViewHolder extends StatisticViewHolder<St
         @Override
         public void onChanged(UnitSystem unitSystem, RecordingData data) {
 
-            Pair<String, String> valueAndUnit = StringUtils.getAltitudeParts(getContext(), data.getTrackStatistics().getTotalAltitudeLoss(), unitSystem);
+            Pair<String, String> valueAndUnit = StringUtils.getAltitudeParts(getContext(),
+                    data.getTrackStatistics().getTotalAltitudeLoss(), unitSystem);
 
             getBinding().statsValue.setText(valueAndUnit.first);
             getBinding().statsUnit.setText(valueAndUnit.second);
@@ -253,7 +292,8 @@ public abstract class GenericStatisticsViewHolder extends StatisticViewHolder<St
             TrackPoint latestTrackPoint = data.latestTrackPoint();
             String value;
             if (latestTrackPoint != null && latestTrackPoint.hasLocation()) {
-                value = StringUtils.formatCoordinate(getContext(), latestTrackPoint.getLatitude(), latestTrackPoint.getLongitude());
+                value = StringUtils.formatCoordinate(getContext(), latestTrackPoint.getLatitude(),
+                        latestTrackPoint.getLongitude());
             } else {
                 value = getContext().getString(R.string.value_unknown);
             }
