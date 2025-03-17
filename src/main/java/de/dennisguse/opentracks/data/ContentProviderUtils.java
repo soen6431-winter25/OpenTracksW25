@@ -70,9 +70,6 @@ import de.dennisguse.opentracks.util.FileUtils;
 public class ContentProviderUtils {
 
     private static final String TAG = ContentProviderUtils.class.getSimpleName();
-    private static final String LIKE_OR = " LIKE ? OR ";
-    private static final String WHERE = " WHERE ";
-    private static final String SELECT_MAX = "=(SELECT MAX(";
 
     // The authority (the first part of the URI) for the app's content provider.
     @VisibleForTesting
@@ -310,7 +307,19 @@ public class ContentProviderUtils {
         contentResolver.update(TracksColumns.CONTENT_URI, createContentValues(track), TracksColumns._ID + "=?", new String[]{Long.toString(track.getId().id())});
     }
 
-    private void populateTrackStatistics(ContentValues values, TrackStatistics trackStatistics) {
+    private ContentValues createContentValues(Track track) {
+        ContentValues values = new ContentValues();
+        TrackStatistics trackStatistics = track.getTrackStatistics();
+
+        if (track.getId() != null) {
+            values.put(TracksColumns._ID, track.getId().id());
+        }
+        values.put(TracksColumns.UUID, UUIDUtils.toBytes(track.getUuid()));
+        values.put(TracksColumns.NAME, track.getName());
+        values.put(TracksColumns.DESCRIPTION, track.getDescription());
+        values.put(TracksColumns.ACTIVITY_TYPE, track.getActivityType() != null ? track.getActivityType().getId() : null);
+        values.put(TracksColumns.ACTIVITY_TYPE_LOCALIZED, track.getActivityTypeLocalized());
+        values.put(TracksColumns.STARTTIME_OFFSET, track.getZoneOffset().getTotalSeconds());
         if (trackStatistics.getStartTime() != null) {
             values.put(TracksColumns.STARTTIME, trackStatistics.getStartTime().toEpochMilli());
         }
@@ -327,23 +336,7 @@ public class ContentProviderUtils {
         values.put(TracksColumns.MAX_ALTITUDE, trackStatistics.getMaxAltitude());
         values.put(TracksColumns.ALTITUDE_GAIN, trackStatistics.getTotalAltitudeGain());
         values.put(TracksColumns.ALTITUDE_LOSS, trackStatistics.getTotalAltitudeLoss());
-    }
 
-    private ContentValues createContentValues(Track track) {
-        ContentValues values = new ContentValues();
-        TrackStatistics trackStatistics = track.getTrackStatistics();
-        if (track.getId() != null) {
-            values.put(TracksColumns._ID, track.getId().id());
-        }
-        values.put(TracksColumns.UUID, UUIDUtils.toBytes(track.getUuid()));
-        values.put(TracksColumns.NAME, track.getName());
-        values.put(TracksColumns.DESCRIPTION, track.getDescription());
-        values.put(TracksColumns.ACTIVITY_TYPE, track.getActivityType() != null ? track.getActivityType().getId() : null);
-        values.put(TracksColumns.ACTIVITY_TYPE_LOCALIZED, track.getActivityTypeLocalized());
-        values.put(TracksColumns.STARTTIME_OFFSET, track.getZoneOffset().getTotalSeconds());
-
-        populateTrackStatistics(values, track.getTrackStatistics());
-        
         return values;
     }
 
@@ -353,7 +346,22 @@ public class ContentProviderUtils {
 
     private ContentValues createContentValues(TrackStatistics trackStatistics) {
         ContentValues values = new ContentValues();
-        populateTrackStatistics(values, trackStatistics);
+        if (trackStatistics.getStartTime() != null) {
+            values.put(TracksColumns.STARTTIME, trackStatistics.getStartTime().toEpochMilli());
+        }
+        if (trackStatistics.getStopTime() != null) {
+            values.put(TracksColumns.STOPTIME, trackStatistics.getStopTime().toEpochMilli());
+        }
+        values.put(TracksColumns.TOTALDISTANCE, trackStatistics.getTotalDistance().toM());
+        values.put(TracksColumns.TOTALTIME, trackStatistics.getTotalTime().toMillis());
+        values.put(TracksColumns.MOVINGTIME, trackStatistics.getMovingTime().toMillis());
+        values.put(TracksColumns.AVGSPEED, trackStatistics.getAverageSpeed().toMPS());
+        values.put(TracksColumns.AVGMOVINGSPEED, trackStatistics.getAverageMovingSpeed().toMPS());
+        values.put(TracksColumns.MAXSPEED, trackStatistics.getMaxSpeed().toMPS());
+        values.put(TracksColumns.MIN_ALTITUDE, trackStatistics.getMinAltitude());
+        values.put(TracksColumns.MAX_ALTITUDE, trackStatistics.getMaxAltitude());
+        values.put(TracksColumns.ALTITUDE_GAIN, trackStatistics.getTotalAltitudeGain());
+        values.put(TracksColumns.ALTITUDE_LOSS, trackStatistics.getTotalAltitudeLoss());
         return values;
     }
 
@@ -667,9 +675,14 @@ public class ContentProviderUtils {
      */
     @Deprecated
     public TrackPoint.Id getLastTrackPointId(@NonNull Track.Id trackId) {
-        String selection = TrackPointsColumns._ID + SELECT_MAX + TrackPointsColumns._ID + ") from " + TrackPointsColumns.TABLE_NAME + WHERE + TrackPointsColumns.TRACKID + "=?)";
+        String selection = TrackPointsColumns._ID + "=(SELECT MAX(" + TrackPointsColumns._ID + ") from " + TrackPointsColumns.TABLE_NAME + " WHERE " + TrackPointsColumns.TRACKID + "=?)";
         String[] selectionArgs = new String[]{Long.toString(trackId.id())};
-        return getIdFromSelection(selection, selectionArgs);
+        try (Cursor cursor = getTrackPointCursor(new String[]{TrackPointsColumns._ID}, selection, selectionArgs, TrackPointsColumns._ID)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                return new TrackPoint.Id(cursor.getLong(cursor.getColumnIndexOrThrow(TrackPointsColumns._ID)));
+            }
+        }
+        return null;
     }
 
     /**
@@ -681,18 +694,8 @@ public class ContentProviderUtils {
      */
     @Deprecated
     public TrackPoint.Id getTrackPointId(Track.Id trackId, Location location) {
-        String selection = TrackPointsColumns._ID + SELECT_MAX + TrackPointsColumns._ID + ") FROM " + TrackPointsColumns.TABLE_NAME + WHERE + TrackPointsColumns.TRACKID + "=? AND " + TrackPointsColumns.TIME + "=?)";
+        String selection = TrackPointsColumns._ID + "=(SELECT MAX(" + TrackPointsColumns._ID + ") FROM " + TrackPointsColumns.TABLE_NAME + " WHERE " + TrackPointsColumns.TRACKID + "=? AND " + TrackPointsColumns.TIME + "=?)";
         String[] selectionArgs = new String[]{Long.toString(trackId.id()), Long.toString(location.getTime())};
-        return getIdFromSelection(selection, selectionArgs);
-    }
-
-    /**
-     * Obtains an id from a selection statement string
-     * @param selection the selection statement
-     * @param selectionArgs selection arguments
-     * @return id selected from executing the selection statement
-     */
-    public TrackPoint.Id getIdFromSelection(String selection, String[] selectionArgs){
         try (Cursor cursor = getTrackPointCursor(new String[]{TrackPointsColumns._ID}, selection, selectionArgs, TrackPointsColumns._ID)) {
             if (cursor != null && cursor.moveToFirst()) {
                 return new TrackPoint.Id(cursor.getLong(cursor.getColumnIndexOrThrow(TrackPointsColumns._ID)));
@@ -739,7 +742,7 @@ public class ContentProviderUtils {
      */
     @Deprecated
     public TrackPoint getLastValidTrackPoint(Track.Id trackId) {
-        String selection = TrackPointsColumns._ID + SELECT_MAX + TrackPointsColumns._ID + ") FROM " + TrackPointsColumns.TABLE_NAME + WHERE + TrackPointsColumns.TRACKID + "=? AND " + TrackPointsColumns.TYPE + " IN (" + TrackPoint.Type.SEGMENT_START_AUTOMATIC.type_db + "," + TrackPoint.Type.TRACKPOINT.type_db + "))";
+        String selection = TrackPointsColumns._ID + "=(SELECT MAX(" + TrackPointsColumns._ID + ") FROM " + TrackPointsColumns.TABLE_NAME + " WHERE " + TrackPointsColumns.TRACKID + "=? AND " + TrackPointsColumns.TYPE + " IN (" + TrackPoint.Type.SEGMENT_START_AUTOMATIC.type_db + "," + TrackPoint.Type.TRACKPOINT.type_db + "))";
         String[] selectionArgs = new String[]{Long.toString(trackId.id())};
         return findTrackPointBy(selection, selectionArgs);
     }
