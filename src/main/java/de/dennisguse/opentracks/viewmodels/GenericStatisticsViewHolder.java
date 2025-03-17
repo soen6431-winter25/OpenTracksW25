@@ -165,7 +165,13 @@ public abstract class GenericStatisticsViewHolder extends StatisticViewHolder<St
         }
     }
 
-    public static class AverageMovingPace extends GenericStatisticsViewHolder {
+    public static class AveragePaceVH extends GenericStatisticsViewHolder {
+
+        private final boolean isMovingPace;
+
+        protected AveragePaceVH(boolean isMovingPace) {
+            this.isMovingPace = isMovingPace;
+        }
 
         @Override
         public void onChanged(UnitSystem unitSystem, RecordingData data) {
@@ -178,24 +184,22 @@ public abstract class GenericStatisticsViewHolder extends StatisticViewHolder<St
 
             getBinding().statsValue.setText(valueAndUnit.first);
             getBinding().statsUnit.setText(valueAndUnit.second);
-            getBinding().statsDescriptionMain.setText(getContext().getString(R.string.stats_average_moving_pace));
+            getBinding().statsDescriptionMain.setText(
+                    getContext().getString(isMovingPace ? R.string.stats_average_moving_pace : R.string.stats_average_pace)
+            );
         }
     }
 
-    public static class AveragePace extends GenericStatisticsViewHolder {
+    // Subclasses for map-based instantiation
+    public static class AverageMovingPace extends AveragePaceVH {
+        public AverageMovingPace() {
+            super(true);
+        }
+    }
 
-        @Override
-        public void onChanged(UnitSystem unitSystem, RecordingData data) {
-            SpeedFormatter speedFormatterSpeed = SpeedFormatter.Builder()
-                    .setUnit(unitSystem)
-                    .setReportSpeedOrPace(false)
-                    .build(getContext());
-
-            Pair<String, String> valueAndUnit = speedFormatterSpeed.getSpeedParts(data.getTrackStatistics().getAverageMovingSpeed());
-
-            getBinding().statsValue.setText(valueAndUnit.first);
-            getBinding().statsUnit.setText(valueAndUnit.second);
-            getBinding().statsDescriptionMain.setText(getContext().getString(R.string.stats_average_pace));
+    public static class AveragePace extends AveragePaceVH {
+        public AveragePace() {
+            super(false);
         }
     }
 
