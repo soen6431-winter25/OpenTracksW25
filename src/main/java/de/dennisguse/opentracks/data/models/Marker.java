@@ -15,6 +15,7 @@
  */
 
 package de.dennisguse.opentracks.data.models;
+import de.dennisguse.opentracks.data.Id;
 
 import android.location.Location;
 import android.net.Uri;
@@ -236,34 +237,5 @@ public final class Marker {
 
     public boolean hasPhoto() {
         return photoUrl != null && !photoUrl.isEmpty();
-    }
-
-    public record Id(long id) implements Parcelable {
-
-        @NonNull
-        @Override
-        public String toString() {
-            throw new RuntimeException("Not supported");
-        }
-
-        @Override
-        public int describeContents() {
-            return 0;
-        }
-
-        @Override
-        public void writeToParcel(Parcel parcel, int i) {
-            parcel.writeLong(id);
-        }
-
-        public static final Creator<Id> CREATOR = new Creator<>() {
-            public Id createFromParcel(Parcel in) {
-                return new Id(in.readLong());
-            }
-
-            public Id[] newArray(int size) {
-                return new Id[size];
-            }
-        };
     }
 }
