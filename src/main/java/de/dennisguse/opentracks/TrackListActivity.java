@@ -148,8 +148,8 @@ public class TrackListActivity extends AbstractTrackDeleteActivity implements Co
 
         recordingStatusConnection = new TrackRecordingServiceConnection(bindChangedCallback);
 
-        viewBinding.aggregatedStatsButton.setOnClickListener(view -> startActivity(IntentUtils.newIntent(this, AggregatedStatisticsActivity.class)));
-        viewBinding.sensorStartButton.setOnClickListener(view -> {
+        viewBinding.aggregatedStatsButton.setOnClickListener((view) -> startActivity(IntentUtils.newIntent(this, AggregatedStatisticsActivity.class)));
+        viewBinding.sensorStartButton.setOnClickListener((view) -> {
             LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
             if (locationManager != null && !locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
@@ -167,7 +167,7 @@ public class TrackListActivity extends AbstractTrackDeleteActivity implements Co
         viewBinding.trackList.setLayoutManager(layoutManager);
         viewBinding.trackList.setAdapter(adapter);
 
-        viewBinding.trackListFabAction.setOnClickListener(view -> {
+        viewBinding.trackListFabAction.setOnClickListener((view) -> {
             if (recordingStatus.isRecording()) {
                 Toast.makeText(TrackListActivity.this, getString(R.string.hold_to_stop), Toast.LENGTH_LONG).show();
                 return;
@@ -184,7 +184,7 @@ public class TrackListActivity extends AbstractTrackDeleteActivity implements Co
                 startActivity(newIntent);
             });
         });
-        viewBinding.trackListFabAction.setOnLongClickListener(view -> {
+        viewBinding.trackListFabAction.setOnLongClickListener((view) -> {
             if (!recordingStatus.isRecording()) {
                 return false;
             }
@@ -203,7 +203,7 @@ public class TrackListActivity extends AbstractTrackDeleteActivity implements Co
     }
 
     private void requestRequiredPermissions() {
-        PermissionRequester.ALL.requestPermissionsIfNeeded(this, this, null, requester -> Toast.makeText(this, R.string.permission_recording_failed, Toast.LENGTH_LONG).show());
+        PermissionRequester.ALL.requestPermissionsIfNeeded(this, this, null, (requester) -> Toast.makeText(this, R.string.permission_recording_failed, Toast.LENGTH_LONG).show());
     }
 
     @Override
@@ -369,8 +369,8 @@ public class TrackListActivity extends AbstractTrackDeleteActivity implements Co
                         .putExtra(TrackEditActivity.EXTRA_TRACK_ID, trackIds[0]);
                 startActivity(intent);
                 return true;
-            }
-            else {
+            } else {
+                Toast.makeText(this, "No track selected.", Toast.LENGTH_SHORT).show();
                 return false;
             }
         }
