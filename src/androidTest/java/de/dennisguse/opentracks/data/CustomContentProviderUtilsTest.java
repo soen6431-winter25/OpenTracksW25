@@ -963,6 +963,31 @@ public class CustomContentProviderUtilsTest {
         assertFalse(sensorStatistics.hasPower());
     }
 
+    private void assertSensorStatistics(Instant start, TestSensorDataUtil sensorDataUtil, boolean expectCadence, boolean expectPower) {
+    Track.Id trackId = new Track.Id(start.toEpochMilli());
+    Track track = TestDataUtil.createTrack(trackId);
+    TestDataUtil.insertTrackWithLocations(contentProviderUtils, track, sensorDataUtil.getTrackPointList());
+
+    // when
+    SensorStatistics sensorStatistics = contentProviderUtils.getSensorStats(trackId);
+    TestSensorDataUtil.SensorDataStats stats = sensorDataUtil.computeStats();
+
+    // then
+    assertTrue(sensorStatistics.hasHeartRate());
+    assertEquals(sensorStatistics.avgHeartRate().getBPM(), stats.avgHr, 0f);
+    assertEquals(sensorStatistics.maxHeartRate().getBPM(), stats.maxHr, 0f);
+
+    assertEquals(expectCadence, sensorStatistics.hasCadence());
+    if (expectCadence) {
+        assertEquals(sensorStatistics.avgCadence().getRPM(), stats.avgCadence, 0f);
+        assertEquals(sensorStatistics.maxCadence().getRPM(), stats.maxCadence, 0f);
+    }
+
+    assertEquals(expectPower, sensorStatistics.hasPower());
+    if (expectPower) {
+        assertEquals(sensorStatistics.avgPower().getW(), stats.avgPower, 0f);
+    }
+}
     @Test
     public void testGetSensorStats_needAtLeastTwoTrackPointsTrue() {
         // given
@@ -976,23 +1001,8 @@ public class CustomContentProviderUtilsTest {
         sensorDataUtil.add(start, 140f, 90f, 300f, TrackPoint.Type.SEGMENT_START_AUTOMATIC);
         sensorDataUtil.add(start.plus(1, ChronoUnit.SECONDS), 140f, 90f, 300f, TrackPoint.Type.SEGMENT_END_MANUAL);
 
-        Track.Id trackId = new Track.Id(start.toEpochMilli());
-        Track track = TestDataUtil.createTrack(trackId);
-        TestDataUtil.insertTrackWithLocations(contentProviderUtils, track, sensorDataUtil.getTrackPointList());
-
-        // when
-        SensorStatistics sensorStatistics = contentProviderUtils.getSensorStats(trackId);
-        TestSensorDataUtil.SensorDataStats stats = sensorDataUtil.computeStats();
-
-        // then
-        assertTrue(sensorStatistics.hasHeartRate());
-        assertEquals(sensorStatistics.avgHeartRate().getBPM(), stats.avgHr, 0f);
-        assertEquals(sensorStatistics.maxHeartRate().getBPM(), stats.maxHr, 0f);
-        assertTrue(sensorStatistics.hasCadence());
-        assertEquals(sensorStatistics.avgCadence().getRPM(), stats.avgCadence, 0f);
-        assertEquals(sensorStatistics.maxCadence().getRPM(), stats.maxCadence, 0f);
-        assertTrue(sensorStatistics.hasPower());
-        assertEquals(sensorStatistics.avgPower().getW(), stats.avgPower, 0f);
+        // Call the helper method
+        assertSensorStatistics(start, sensorDataUtil, true, true);
     }
 
     @Test
@@ -1007,21 +1017,10 @@ public class CustomContentProviderUtilsTest {
         TestSensorDataUtil sensorDataUtil = new TestSensorDataUtil();
         sensorDataUtil.add(start, 140f, null, null, TrackPoint.Type.SEGMENT_START_AUTOMATIC);
         sensorDataUtil.add(start.plus(1, ChronoUnit.SECONDS), 140f, null, null, TrackPoint.Type.SEGMENT_END_MANUAL);
-
-        Track.Id trackId = new Track.Id(start.toEpochMilli());
-        Track track = TestDataUtil.createTrack(trackId);
-        TestDataUtil.insertTrackWithLocations(contentProviderUtils, track, sensorDataUtil.getTrackPointList());
-
-        // when
-        SensorStatistics sensorStatistics = contentProviderUtils.getSensorStats(trackId);
-        TestSensorDataUtil.SensorDataStats stats = sensorDataUtil.computeStats();
-
-        // then
-        assertTrue(sensorStatistics.hasHeartRate());
-        assertEquals(sensorStatistics.avgHeartRate().getBPM(), stats.avgHr, 0f);
-        assertEquals(sensorStatistics.maxHeartRate().getBPM(), stats.maxHr, 0f);
-        assertFalse(sensorStatistics.hasCadence());
-        assertFalse(sensorStatistics.hasPower());
+       
+        // Call the helper method
+        assertSensorStatistics(start, sensorDataUtil, false, false);
+        
     }
 
     @Test
