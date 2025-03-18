@@ -70,6 +70,9 @@ import de.dennisguse.opentracks.util.FileUtils;
 public class ContentProviderUtils {
 
     private static final String TAG = ContentProviderUtils.class.getSimpleName();
+    private static final String LIKE_OR = " LIKE ? OR ";
+    private static final String WHERE = " WHERE ";
+    private static final String SELECT_MAX = "=(SELECT MAX(";
 
     // The authority (the first part of the URI) for the app's content provider.
     @VisibleForTesting
