@@ -728,6 +728,7 @@ public class ContentProviderUtils {
      */
     @Deprecated
     public TrackPoint.Id getLastTrackPointId(@NonNull Track.Id trackId) {
+
         String selection = TrackPointsColumns._ID + SELECT_MAX + TrackPointsColumns._ID + ") from "
                 + TrackPointsColumns.TABLE_NAME + WHERE + TrackPointsColumns.TRACKID + "=?)";
         String[] selectionArgs = new String[] { Long.toString(trackId.id()) };
