@@ -21,11 +21,46 @@ public abstract class SensorStatisticsViewHolder extends StatisticViewHolder<Sta
     protected StatsSensorItemBinding createViewBinding(LayoutInflater inflater) {
         return StatsSensorItemBinding.inflate(inflater);
     }
+    // @mohammadnaserameri
+    // You are trying to call the method getBinding() in a static context,
+    // but getBinding() is a non-static method. This means it belongs to an instance
+    // of the class
+    // and cannot be accessed directly from a static method or context.
+    // Added the correct code below.
+
+    // @Override
+    // public void configureUI(DataField dataField) {
+    // getBinding().statsValue.setTextAppearance(dataField.isPrimary() ?
+    // R.style.TextAppearance_OpenTracks_PrimaryValue :
+    // R.style.TextAppearance_OpenTracks_SecondaryValue);
+    // getBinding().statsDescriptionMain.setTextAppearance(dataField.isPrimary() ?
+    // R.style.TextAppearance_OpenTracks_PrimaryHeader :
+    // R.style.TextAppearance_OpenTracks_SecondaryHeader);
+    // }
+
+    // protected static void updateUI(Pair<String, String> valueAndUnit, String
+    // sensorName, int descriptionResId) {
+    // getBinding().statsValue.setText(valueAndUnit.first);
+    // getBinding().statsUnit.setText(valueAndUnit.second);
+    // getBinding().statsDescriptionMain.setText(descriptionResId);
+    // getBinding().statsDescriptionSecondary.setText(sensorName);
+    // }
 
     @Override
     public void configureUI(DataField dataField) {
-        getBinding().statsValue.setTextAppearance(dataField.isPrimary() ? R.style.TextAppearance_OpenTracks_PrimaryValue : R.style.TextAppearance_OpenTracks_SecondaryValue);
-        getBinding().statsDescriptionMain.setTextAppearance(dataField.isPrimary() ? R.style.TextAppearance_OpenTracks_PrimaryHeader : R.style.TextAppearance_OpenTracks_SecondaryHeader);
+        this.getBinding().statsValue
+                .setTextAppearance(dataField.isPrimary() ? R.style.TextAppearance_OpenTracks_PrimaryValue
+                        : R.style.TextAppearance_OpenTracks_SecondaryValue);
+        this.getBinding().statsDescriptionMain
+                .setTextAppearance(dataField.isPrimary() ? R.style.TextAppearance_OpenTracks_PrimaryHeader
+                        : R.style.TextAppearance_OpenTracks_SecondaryHeader);
+    }
+
+    protected void updateUI(Pair<String, String> valueAndUnit, String sensorName, int descriptionResId) {
+        this.getBinding().statsValue.setText(valueAndUnit.first);
+        this.getBinding().statsUnit.setText(valueAndUnit.second);
+        this.getBinding().statsDescriptionMain.setText(descriptionResId);
+        this.getBinding().statsDescriptionSecondary.setText(sensorName);
     }
 
     public static class SensorHeartRate extends SensorStatisticsViewHolder {
@@ -43,7 +78,7 @@ public abstract class SensorStatisticsViewHolder extends StatisticViewHolder<Sta
                 valueAndUnit = StringUtils.getHeartRateParts(getContext(), null);
             }
 
-            //TODO Loads preference every time
+            // TODO Loads preference every time
             HeartRateZones zones = PreferencesUtils.getHeartRateZones();
             int textColor;
             if (sensorDataSet != null && sensorDataSet.getHeartRate() != null) {
@@ -77,11 +112,7 @@ public abstract class SensorStatisticsViewHolder extends StatisticViewHolder<Sta
                 valueAndUnit = StringUtils.getCadenceParts(getContext(), null);
             }
 
-            getBinding().statsValue.setText(valueAndUnit.first);
-            getBinding().statsUnit.setText(valueAndUnit.second);
-            getBinding().statsDescriptionMain.setText(R.string.stats_sensors_cadence);
-
-            getBinding().statsDescriptionSecondary.setText(sensorName);
+            updateUI(valueAndUnit, sensorName, R.string.stats_sensors_cadence);
         }
     }
 
@@ -94,17 +125,14 @@ public abstract class SensorStatisticsViewHolder extends StatisticViewHolder<Sta
 
             Pair<String, String> valueAndUnit;
             if (sensorDataSet != null && sensorDataSet.getCyclingPower() != null) {
-                valueAndUnit = StringUtils.getPowerParts(getContext(), sensorDataSet.getCyclingPower().getValue(Instant.now())); //TODO Use MonotonicClock
+                valueAndUnit = StringUtils.getPowerParts(getContext(),
+                        sensorDataSet.getCyclingPower().getValue(Instant.now())); // TODO Use MonotonicClock
                 sensorName = sensorDataSet.getCyclingPower().getSensorNameOrAddress();
             } else {
                 valueAndUnit = StringUtils.getCadenceParts(getContext(), null);
             }
 
-            getBinding().statsValue.setText(valueAndUnit.first);
-            getBinding().statsUnit.setText(valueAndUnit.second);
-            getBinding().statsDescriptionMain.setText(R.string.stats_sensors_power);
-
-            getBinding().statsDescriptionSecondary.setText(sensorName);
+            updateUI(valueAndUnit, sensorName, R.string.stats_sensors_power);
         }
     }
 }
