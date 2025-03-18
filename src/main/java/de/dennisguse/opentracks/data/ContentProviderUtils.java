@@ -70,9 +70,6 @@ import de.dennisguse.opentracks.util.FileUtils;
 public class ContentProviderUtils {
 
     private static final String TAG = ContentProviderUtils.class.getSimpleName();
-    private static final String LIKE_OR = " LIKE ? OR ";
-    private static final String WHERE = " WHERE ";
-    private static final String SELECT_MAX = "=(SELECT MAX(";
 
     // The authority (the first part of the URI) for the app's content provider.
     @VisibleForTesting
@@ -334,6 +331,8 @@ public class ContentProviderUtils {
                 new String[] { Long.toString(track.getId().id()) });
     }
 
+    <<<<<<<HEAD
+
     public void updateTrackStatistics(@NonNull Track.Id trackId, @NonNull TrackStatistics trackStatistics) {
         contentResolver.update(TracksColumns.CONTENT_URI, createContentValues(trackStatistics),
                 TracksColumns._ID + "=?", new String[] { Long.toString(trackId.id()) });
@@ -370,6 +369,13 @@ public class ContentProviderUtils {
     private ContentValues createContentValues(Track track) {
         ContentValues values = new ContentValues();
         TrackStatistics trackStatistics = track.getTrackStatistics();
+=======
+
+    private ContentValues createContentValues(Track track) {
+        ContentValues values = new ContentValues();
+        TrackStatistics trackStatistics = track.getTrackStatistics();
+
+>>>>>>> upstream/main
         if (track.getId() != null) {
             values.put(TracksColumns._ID, track.getId().id());
         }
@@ -728,10 +734,21 @@ public class ContentProviderUtils {
      */
     @Deprecated
     public TrackPoint.Id getLastTrackPointId(@NonNull Track.Id trackId) {
+<<<<<<< HEAD
         String selection = TrackPointsColumns._ID + SELECT_MAX + TrackPointsColumns._ID + ") from "
                 + TrackPointsColumns.TABLE_NAME + WHERE + TrackPointsColumns.TRACKID + "=?)";
         String[] selectionArgs = new String[] { Long.toString(trackId.id()) };
         return getIdFromSelection(selection, selectionArgs);
+=======
+        String selection = TrackPointsColumns._ID + "=(SELECT MAX(" + TrackPointsColumns._ID + ") from " + TrackPointsColumns.TABLE_NAME + " WHERE " + TrackPointsColumns.TRACKID + "=?)";
+        String[] selectionArgs = new String[]{Long.toString(trackId.id())};
+        try (Cursor cursor = getTrackPointCursor(new String[]{TrackPointsColumns._ID}, selection, selectionArgs, TrackPointsColumns._ID)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                return new TrackPoint.Id(cursor.getLong(cursor.getColumnIndexOrThrow(TrackPointsColumns._ID)));
+            }
+        }
+        return null;
+>>>>>>> upstream/main
     }
 
     /**
@@ -743,6 +760,7 @@ public class ContentProviderUtils {
      */
     @Deprecated
     public TrackPoint.Id getTrackPointId(Track.Id trackId, Location location) {
+<<<<<<< HEAD
         String selection = TrackPointsColumns._ID + SELECT_MAX + TrackPointsColumns._ID + ") FROM "
                 + TrackPointsColumns.TABLE_NAME + WHERE + TrackPointsColumns.TRACKID + "=? AND "
                 + TrackPointsColumns.TIME + "=?)";
@@ -760,6 +778,11 @@ public class ContentProviderUtils {
     public TrackPoint.Id getIdFromSelection(String selection, String[] selectionArgs) {
         try (Cursor cursor = getTrackPointCursor(new String[] { TrackPointsColumns._ID }, selection, selectionArgs,
                 TrackPointsColumns._ID)) {
+=======
+        String selection = TrackPointsColumns._ID + "=(SELECT MAX(" + TrackPointsColumns._ID + ") FROM " + TrackPointsColumns.TABLE_NAME + " WHERE " + TrackPointsColumns.TRACKID + "=? AND " + TrackPointsColumns.TIME + "=?)";
+        String[] selectionArgs = new String[]{Long.toString(trackId.id()), Long.toString(location.getTime())};
+        try (Cursor cursor = getTrackPointCursor(new String[]{TrackPointsColumns._ID}, selection, selectionArgs, TrackPointsColumns._ID)) {
+>>>>>>> upstream/main
             if (cursor != null && cursor.moveToFirst()) {
                 return new TrackPoint.Id(cursor.getLong(cursor.getColumnIndexOrThrow(TrackPointsColumns._ID)));
             }
@@ -806,11 +829,16 @@ public class ContentProviderUtils {
      */
     @Deprecated
     public TrackPoint getLastValidTrackPoint(Track.Id trackId) {
+<<<<<<< HEAD
         String selection = TrackPointsColumns._ID + SELECT_MAX + TrackPointsColumns._ID + ") FROM "
                 + TrackPointsColumns.TABLE_NAME + WHERE + TrackPointsColumns.TRACKID + "=? AND "
                 + TrackPointsColumns.TYPE + " IN (" + TrackPoint.Type.SEGMENT_START_AUTOMATIC.type_db + ","
                 + TrackPoint.Type.TRACKPOINT.type_db + "))";
         String[] selectionArgs = new String[] { Long.toString(trackId.id()) };
+=======
+        String selection = TrackPointsColumns._ID + "=(SELECT MAX(" + TrackPointsColumns._ID + ") FROM " + TrackPointsColumns.TABLE_NAME + " WHERE " + TrackPointsColumns.TRACKID + "=? AND " + TrackPointsColumns.TYPE + " IN (" + TrackPoint.Type.SEGMENT_START_AUTOMATIC.type_db + "," + TrackPoint.Type.TRACKPOINT.type_db + "))";
+        String[] selectionArgs = new String[]{Long.toString(trackId.id())};
+>>>>>>> upstream/main
         return findTrackPointBy(selection, selectionArgs);
     }
 

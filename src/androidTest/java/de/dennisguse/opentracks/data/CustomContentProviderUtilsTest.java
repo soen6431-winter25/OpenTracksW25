@@ -624,73 +624,63 @@ public class CustomContentProviderUtilsTest {
         assertEquals(TEST_DESC_NEW, contentProviderUtils.getMarker(markerId).getDescription());
     }
 
+    private Marker.Id insertMarkerWithPhoto(Track.Id trackId) throws IOException {
+        TestDataUtil.createTrackAndInsert(contentProviderUtils, trackId, 10);
+        TrackPoint trackPoint = contentProviderUtils.getLastValidTrackPoint(trackId);
+        Marker marker = TestDataUtil.createMarkerWithPhoto(context, trackId, trackPoint);
+        marker.setDescription(TEST_DESC);
+        return contentProviderUtils.insertMarker(marker);
+    }
+
+    private void updateMarkerAndVerify(Marker.Id markerId, boolean expectPhoto) {
+        Marker marker = contentProviderUtils.getMarker(markerId);
+        marker.setName(TEST_NAME_NEW);
+        marker.setDescription(TEST_DESC_NEW);
+
+        if (!expectPhoto) {
+            marker.setPhotoUrl(null);
+        }
+
+        contentProviderUtils.updateMarker(context, marker);
+
+        assertEquals(TEST_NAME_NEW, contentProviderUtils.getMarker(markerId).getName());
+        assertEquals(TEST_DESC_NEW, contentProviderUtils.getMarker(markerId).getDescription());
+        assertEquals(expectPhoto, marker.hasPhoto());
+    }
     /**
      * Tests the method {@link ContentProviderUtils#updateMarker(Context, Marker)}.
      */
     @Test
-    public void testUpdateMarker_withPhoto() throws IOException {
-        // tests after update marker with photo the photo remains in the storage.
-
+    public void testUpdateMarker_delPhotoAndDir() throws IOException {
         Track.Id trackId = new Track.Id(System.currentTimeMillis());
-        TestDataUtil.createTrackAndInsert(contentProviderUtils, trackId, 10);
-
-        // Insert at first.
-        TrackPoint trackPoint = contentProviderUtils.getLastValidTrackPoint(trackId);
-        Marker marker = TestDataUtil.createMarkerWithPhoto(context, trackId, trackPoint);
-        marker.setDescription(TEST_DESC);
-        Marker.Id markerId = contentProviderUtils.insertMarker(marker);
+        Marker.Id markerId = insertMarkerWithPhoto(trackId);
 
         File dir = new File(FileUtils.getPhotoDir(context), "" + trackId.id());
         assertTrue(dir.exists());
         assertTrue(dir.isDirectory());
         assertEquals(1, dir.list().length);
 
-        // Update
-        marker = contentProviderUtils.getMarker(markerId);
-        marker.setName(TEST_NAME_NEW);
-        marker.setDescription(TEST_DESC_NEW);
-        contentProviderUtils.updateMarker(context, marker);
-
-        assertEquals(TEST_NAME_NEW, contentProviderUtils.getMarker(markerId).getName());
-        assertEquals(TEST_DESC_NEW, contentProviderUtils.getMarker(markerId).getDescription());
-        assertTrue(marker.hasPhoto());
-        assertTrue(dir.exists());
-        assertTrue(dir.isDirectory());
-        assertEquals(1, dir.list().length);
+        updateMarkerAndVerify(markerId, false);
+        assertFalse(dir.exists()); // Directory should be deleted
     }
 
     /**
      * Tests the method {@link ContentProviderUtils#updateMarker(Context, Marker)}.
      */
     @Test
-    public void testUpdateMarker_delPhotoAndDir() throws IOException {
-        // tests after update marker if user deletes the photo then file photo is deleted from the storage. Also empty directory is deleted.
-
+    public void testUpdateMarker_withPhoto() throws IOException {
         Track.Id trackId = new Track.Id(System.currentTimeMillis());
-        TestDataUtil.createTrackAndInsert(contentProviderUtils, trackId, 10);
-
-        // Insert at first.
-        TrackPoint trackPoint = contentProviderUtils.getLastValidTrackPoint(trackId);
-        Marker marker = TestDataUtil.createMarkerWithPhoto(context, trackId, trackPoint);
-        marker.setDescription(TEST_DESC);
-        Marker.Id markerId = contentProviderUtils.insertMarker(marker);
+        Marker.Id markerId = insertMarkerWithPhoto(trackId);
 
         File dir = new File(FileUtils.getPhotoDir(context), "" + trackId.id());
         assertTrue(dir.exists());
         assertTrue(dir.isDirectory());
         assertEquals(1, dir.list().length);
 
-        // Update
-        marker = contentProviderUtils.getMarker(markerId);
-        marker.setName(TEST_NAME_NEW);
-        marker.setDescription(TEST_DESC_NEW);
-        marker.setPhotoUrl(null);
-        contentProviderUtils.updateMarker(context, marker);
-
-        assertEquals(TEST_NAME_NEW, contentProviderUtils.getMarker(markerId).getName());
-        assertEquals(TEST_DESC_NEW, contentProviderUtils.getMarker(markerId).getDescription());
-        assertFalse(marker.hasPhoto());
-        assertFalse(dir.exists());
+        updateMarkerAndVerify(markerId, true);
+        assertTrue(dir.exists()); // Directory should remain
+        assertTrue(dir.isDirectory());
+        assertEquals(1, dir.list().length);
     }
 
     /**
