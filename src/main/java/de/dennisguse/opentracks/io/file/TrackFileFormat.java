@@ -27,7 +27,8 @@ public enum TrackFileFormat {
 
     KML_WITH_TRACKDETAIL_AND_SENSORDATA("KML_WITH_TRACKDETAIL_AND_SENSORDATA") {
         @Override
-        public TrackExporter createTrackExporter(@NonNull Context context, @NonNull ContentProviderUtils contentProviderUtils) {
+        public TrackExporter createTrackExporter(@NonNull Context context,
+                @NonNull ContentProviderUtils contentProviderUtils) {
             return new KMLTrackExporter(context, contentProviderUtils, false);
         }
 
@@ -41,14 +42,15 @@ public enum TrackFileFormat {
         }
     },
 
-    @Deprecated //TODO Check if we really need this
+    @Deprecated // TODO Check if we really need this
     KMZ_WITH_TRACKDETAIL_AND_SENSORDATA("KMZ_WITH_TRACKDETAIL_AND_SENSORDATA", false),
 
     KMZ_WITH_TRACKDETAIL_AND_SENSORDATA_AND_PICTURES("KMZ_WITH_TRACKDETAIL_AND_SENSORDATA_AND_PICTURES", true),
 
     GPX("GPX") {
         @Override
-        public TrackExporter createTrackExporter(@NonNull Context context, @NonNull ContentProviderUtils contentProviderUtils) {
+        public TrackExporter createTrackExporter(@NonNull Context context,
+                @NonNull ContentProviderUtils contentProviderUtils) {
             return new GPXTrackExporter(contentProviderUtils, context.getString(R.string.app_name));
         }
 
@@ -64,7 +66,8 @@ public enum TrackFileFormat {
 
     CSV("CSV") {
         @Override
-        public TrackExporter createTrackExporter(@NonNull Context context, @NonNull ContentProviderUtils contentProviderUtils) {
+        public TrackExporter createTrackExporter(@NonNull Context context,
+                @NonNull ContentProviderUtils contentProviderUtils) {
             return new CSVTrackExporter(contentProviderUtils);
         }
 
@@ -81,7 +84,7 @@ public enum TrackFileFormat {
 
     private static final String MIME_KMZ = "application/vnd.google-earth.kmz";
     private static final String MIME_KML = "application/vnd.google-earth.kml+xml";
-    
+
     private final String preferenceId;
     private final boolean exportPhotos;
 
@@ -94,7 +97,8 @@ public enum TrackFileFormat {
         this.exportPhotos = exportPhotos;
     }
 
-    public TrackExporter createTrackExporter(@NonNull Context context, @NonNull ContentProviderUtils contentProviderUtils) {
+    public TrackExporter createTrackExporter(@NonNull Context context,
+            @NonNull ContentProviderUtils contentProviderUtils) {
         KMLTrackExporter exporter = new KMLTrackExporter(context, contentProviderUtils, exportPhotos);
         return new KmzTrackExporter(context, contentProviderUtils, exporter, exportPhotos);
     }
@@ -102,7 +106,6 @@ public enum TrackFileFormat {
     public String getMimeType() {
         return MIME_KMZ;
     }
-
 
     public String getExtension() {
         return "kmz";
@@ -112,12 +115,15 @@ public enum TrackFileFormat {
         return exportPhotos;
     }
 
-    public static Map<String, String> toPreferenceIdLabelMap(final Resources resources, final TrackFileFormat ... trackFileFormats) {
+    public static Map<String, String> toPreferenceIdLabelMap(final Resources resources,
+            final TrackFileFormat... trackFileFormats) {
         Map<String, String> preferenceIdLabelMap = new LinkedHashMap<>(trackFileFormats.length);
         for (TrackFileFormat trackFileFormat : trackFileFormats) {
-            String trackFileFormatUpperCase = trackFileFormat.getExtension().toUpperCase(Locale.US); //ASCII upper case
-            int photoMessageId = trackFileFormat.includesPhotos() ? R.string.export_with_photos : R.string.export_without_photos;
-            preferenceIdLabelMap.put(trackFileFormat.getPreferenceId(), String.format("%s (%s)", trackFileFormatUpperCase, resources.getString(photoMessageId)));
+            String trackFileFormatUpperCase = trackFileFormat.getExtension().toUpperCase(Locale.US); // ASCII upper case
+            int photoMessageId = trackFileFormat.includesPhotos() ? R.string.export_with_photos
+                    : R.string.export_without_photos;
+            preferenceIdLabelMap.put(trackFileFormat.getPreferenceId(),
+                    String.format("%s (%s)", trackFileFormatUpperCase, resources.getString(photoMessageId)));
         }
         return preferenceIdLabelMap;
     }

@@ -15,6 +15,7 @@
  */
 
 package de.dennisguse.opentracks.data.models;
+
 import de.dennisguse.opentracks.data.Id;
 
 import android.location.Location;
@@ -29,12 +30,13 @@ import java.time.Duration;
 import java.time.Instant;
 
 /**
- * NOTE: A marker is indirectly (via it's location) assigned to one {@link TrackPoint} with trackPoint.hasLocation() == true.
+ * NOTE: A marker is indirectly (via it's location) assigned to one
+ * {@link TrackPoint} with trackPoint.hasLocation() == true.
  *
  * @author Leif Hendrik Wilden
  * @author Rodrigo Damazio
  */
-//TODO All data should be final; no default values.
+// TODO All data should be final; no default values.
 public final class Marker {
 
     private Id id;
@@ -47,12 +49,12 @@ public final class Marker {
     private final Instant time;
     private Double latitude;
     private Double longitude;
-    @Deprecated //Not needed
+    @Deprecated // Not needed
     private Distance accuracy;
     private Altitude altitude;
     private Float bearing;
 
-    @Deprecated //TODO Make an URI instead of String
+    @Deprecated // TODO Make an URI instead of String
     private String photoUrl = "";
 
     public Marker(@Nullable Track.Id trackId, Instant time) {
@@ -72,7 +74,8 @@ public final class Marker {
     }
 
     @Deprecated
-    public Marker(String name, String description, String category, String icon, @NonNull Track.Id trackId, @NonNull TrackPoint trackPoint, String photoUrl) {
+    public Marker(String name, String description, String category, String icon, @NonNull Track.Id trackId,
+            @NonNull TrackPoint trackPoint, String photoUrl) {
         this(trackId, trackPoint);
         this.name = name;
         this.description = description;
@@ -81,13 +84,17 @@ public final class Marker {
         this.photoUrl = photoUrl;
     }
 
-    //TODO Is somehow part of the initialization process. Can we at least limit visibility?
+    // TODO Is somehow part of the initialization process. Can we at least limit
+    // visibility?
     public void setTrackPoint(TrackPoint trackPoint) {
         this.latitude = trackPoint.getLatitude();
         this.longitude = trackPoint.getLongitude();
-        if (trackPoint.hasHorizontalAccuracy()) this.accuracy = trackPoint.getHorizontalAccuracy();
-        if (trackPoint.hasAltitude()) this.altitude = trackPoint.getAltitude();
-        if (trackPoint.hasBearing()) this.bearing = trackPoint.getBearing();
+        if (trackPoint.hasHorizontalAccuracy())
+            this.accuracy = trackPoint.getHorizontalAccuracy();
+        if (trackPoint.hasAltitude())
+            this.altitude = trackPoint.getAltitude();
+        if (trackPoint.hasBearing())
+            this.bearing = trackPoint.getBearing();
     }
 
     /**
@@ -237,5 +244,39 @@ public final class Marker {
 
     public boolean hasPhoto() {
         return photoUrl != null && !photoUrl.isEmpty();
+    }
+
+    // @poorav-panchal
+    // Before removing the code, please check its usage on other
+    // part of the project. For example: CustomContentProviderUtils.java,
+    // ShowMarkerActivity.java, etc.
+
+    public record Id(long id) implements Parcelable {
+
+        @NonNull
+        @Override
+        public String toString() {
+            throw new RuntimeException("Not supported");
+        }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel parcel, int i) {
+            parcel.writeLong(id);
+        }
+
+        public static final Creator<Id> CREATOR = new Creator<>() {
+            public Id createFromParcel(Parcel in) {
+                return new Id(in.readLong());
+            }
+
+            public Id[] newArray(int size) {
+                return new Id[size];
+            }
+        };
     }
 }
