@@ -91,6 +91,7 @@ public class AggregatedStatisticsAdapter extends RecyclerView.Adapter<RecyclerVi
 
             // Configure average
             Pair<String, String> avgParts = formatter.getSpeedParts(
+
                     aggregatedStatistic.getTrackStatistics().getAverageMovingSpeed());
             viewBinding.aggregatedStatsAvgRate.setText(avgParts.first);
             viewBinding.aggregatedStatsAvgRateUnit.setText(avgParts.second);
@@ -117,6 +118,7 @@ public class AggregatedStatisticsAdapter extends RecyclerView.Adapter<RecyclerVi
 
             configureSpeedPaceViews(
                     aggregatedStatistic,
+
                     R.string.stats_average_moving_pace);
             viewBinding.aggregatedStatsMaxRateLabel.setText(R.string.stats_fastest_pace);
         }
