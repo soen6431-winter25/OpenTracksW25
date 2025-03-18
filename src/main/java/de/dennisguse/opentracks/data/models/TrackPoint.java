@@ -14,6 +14,7 @@
  * the License.
  */
 package de.dennisguse.opentracks.data.models;
+
 import de.dennisguse.opentracks.data.Id;
 
 import android.location.Location;
@@ -31,10 +32,12 @@ import java.util.Optional;
 /**
  * Sensor and/or location information for a specific point in time.
  * <p>
- * Time is created using the {@link de.dennisguse.opentracks.services.handlers.MonotonicClock}, because system time jump backwards.
+ * Time is created using the
+ * {@link de.dennisguse.opentracks.services.handlers.MonotonicClock}, because
+ * system time jump backwards.
  * GPS time is ignored as for non-GPS events, we could not create timestamps.
  */
-//TODO Should be a record (with final properties)
+// TODO Should be a record (with final properties)
 public class TrackPoint {
 
     private static final Duration MAX_LOCATION_AGE = Duration.ofMinutes(1);
@@ -44,31 +47,31 @@ public class TrackPoint {
     @NonNull
     private final Instant time;
 
-    //TODO We may use Position for these items
+    // TODO We may use Position for these items
     private Double latitude;
     private Double longitude;
     private Distance horizontalAccuracy;
     private Distance verticalAccuracy;
-    private Altitude altitude; //TODO use Altitude.WGS84
+    private Altitude altitude; // TODO use Altitude.WGS84
     private Speed speed;
     private Float bearing;
     private Distance sensorDistance;
 
     public enum Type {
-        SEGMENT_START_MANUAL(-2), //Start of a segment due to user interaction (start, resume)
+        SEGMENT_START_MANUAL(-2), // Start of a segment due to user interaction (start, resume)
 
-        SEGMENT_START_AUTOMATIC(-1), //Start of a segment due to too much distance from previous TrackPoint
-        TRACKPOINT(0), //Was created due to sensor data (may contain GPS or other BLE data)
+        SEGMENT_START_AUTOMATIC(-1), // Start of a segment due to too much distance from previous TrackPoint
+        TRACKPOINT(0), // Was created due to sensor data (may contain GPS or other BLE data)
 
-        // Was used to distinguish the source (i.e., GPS vs BLE sensor), but this was too complicated. Everything is now a TRACKPOINT again.
+        // Was used to distinguish the source (i.e., GPS vs BLE sensor), but this was
+        // too complicated. Everything is now a TRACKPOINT again.
         @Deprecated
         SENSORPOINT(2),
-        IDLE(3), //Device became idle
+        IDLE(3), // Device became idle
 
-        SEGMENT_END_MANUAL(1); //End of a segment
+        SEGMENT_END_MANUAL(1); // End of a segment
 
         public final int type_db;
-
 
         Type(int type_db) {
             this.type_db = type_db;
@@ -81,7 +84,8 @@ public class TrackPoint {
 
         public static Type getById(int id) {
             for (Type e : values()) {
-                if (e.type_db == id) return e;
+                if (e.type_db == id)
+                    return e;
             }
 
             throw new RuntimeException("unknown id: " + id);
@@ -198,8 +202,7 @@ public class TrackPoint {
                 altitude,
                 verticalAccuracy,
                 bearing,
-                speed
-        );
+                speed);
     }
 
     public TrackPoint setPosition(Position location) {
@@ -260,7 +263,6 @@ public class TrackPoint {
         return Instant.now()
                 .isBefore(time.plus(MAX_LOCATION_AGE));
     }
-
 
     public boolean hasAltitude() {
         return altitude != null;
@@ -361,7 +363,7 @@ public class TrackPoint {
         return bearingTo(dest.getLocation());
     }
 
-    //TODO Bearing requires a location; what do we do if we don't have any?
+    // TODO Bearing requires a location; what do we do if we don't have any?
     @Deprecated
     public Optional<Float> bearingTo(@NonNull Location dest) {
         if (!hasLocation()) {
@@ -470,4 +472,46 @@ public class TrackPoint {
                 ", altitudeLoss_m=" + altitudeLoss_m +
                 '}';
     }
+
+    // @poorav-panchal
+    // Before removing the code, please check its usage on other
+    // part of the project. For example: CustomContentProviderUtils.java,
+    // TrackDataHub.java, etc.
+
+    public record Id(long id) implements Parcelable {
+
+        @Override
+
+        public int describeContents() {
+
+            return 0;
+
+        }
+
+        @Override
+
+        public void writeToParcel(Parcel parcel, int i) {
+
+            parcel.writeLong(id);
+
+        }
+
+        public static final Creator<Id> CREATOR = new Creator<>() {
+
+            public Id createFromParcel(Parcel in) {
+
+                return new Id(in.readLong());
+
+            }
+
+            public Id[] newArray(int size) {
+
+                return new Id[size];
+
+            }
+
+        };
+
+    }
+
 }

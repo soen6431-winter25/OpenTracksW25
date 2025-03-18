@@ -32,6 +32,7 @@ public class EspressoUITest {
 
     @Rule
     public GrantPermissionRule mGrantPermissionRule = TestUtil.createGrantPermissionRule();
+
     @LargeTest
     @Test
     public void record_stop_resume_stop_finish() {
@@ -97,4 +98,5 @@ public class EspressoUITest {
 //        onView(withId(R.id.track_list)).check(matches(isDisplayed()));
 //        onView(allOf(withParent(withId(R.id.track_list)), withParentIndex(0))).perform(longClick());
     }
+
 }
