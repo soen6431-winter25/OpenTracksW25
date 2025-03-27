@@ -34,7 +34,6 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 
-import java.sql.PreparedStatement;
 import java.util.Arrays;
 
 import de.dennisguse.opentracks.data.models.TrackPoint;
@@ -306,8 +305,10 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
                 }
                 case TRACKPOINTS_BY_ID -> {
                     table = TrackPointsColumns.TABLE_NAME;
-                    whereClause = TrackPointsColumns._ID + "=?" + ContentUris.parseId(url);
-                    selectionArgs = appendSelectionArg(selectionArgs, String.valueOf(ContentUris.parseId(url)));
+                    whereClause = TrackPointsColumns._ID + "=" + ContentUris.parseId(url);
+                    if (!TextUtils.isEmpty(where)) {
+                        whereClause += " AND (" + where + ")";
+                    }
                 }
                 case TRACKS -> {
                     table = TracksColumns.TABLE_NAME;
@@ -315,8 +316,10 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
                 }
                 case TRACKS_BY_ID -> {
                     table = TracksColumns.TABLE_NAME;
-                    whereClause = TracksColumns._ID + "=?" + ContentUris.parseId(url);
-                    selectionArgs = appendSelectionArg(selectionArgs, String.valueOf(ContentUris.parseId(url)));
+                    whereClause = TracksColumns._ID + "=" + ContentUris.parseId(url);
+                    if (!TextUtils.isEmpty(where)) {
+                        whereClause += " AND (" + where + ")";
+                    }
                 }
                 case MARKERS -> {
                     table = MarkerColumns.TABLE_NAME;
@@ -324,8 +327,10 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
                 }
                 case MARKERS_BY_ID -> {
                     table = MarkerColumns.TABLE_NAME;
-                    whereClause = MarkerColumns._ID + "=?" + ContentUris.parseId(url);
-                    selectionArgs = appendSelectionArg(selectionArgs, String.valueOf(ContentUris.parseId(url)));
+                    whereClause = MarkerColumns._ID + "=" + ContentUris.parseId(url);
+                    if (!TextUtils.isEmpty(where)) {
+                        whereClause += " AND (" + where + ")";
+                    }
                 }
                 default -> throw new IllegalArgumentException("Unknown url " + url);
             }
@@ -342,16 +347,7 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
 
             getContext().getContentResolver().notifyChange(url, null, false);
             return count;
-        }
 
-        private String[] appendSelectionArg(String[] selectionArgs, String id){
-            if (selectionArgs == null) {
-                return new String[]{id};
-            }
-            String[] newArgs = new String[selectionArgs.length + 1];
-            System.arraycopy(selectionArgs, 0, newArgs, 0, selectionArgs.length);
-            newArgs[selectionArgs.length] = id;
-            return newArgs;
         }
     
         @NonNull
