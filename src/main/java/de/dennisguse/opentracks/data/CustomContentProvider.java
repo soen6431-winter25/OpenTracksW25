@@ -243,45 +243,70 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
             SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
             String sortOrder = null;
             switch (getUrlType(url)) {
-                case TRACKPOINTS -> {
+                case TRACKPOINTS: {
                     queryBuilder.setTables(TrackPointsColumns.TABLE_NAME);
                     sortOrder = sort != null ? sort : TrackPointsColumns.DEFAULT_SORT_ORDER;
+                    break;
                 }
-                case TRACKPOINTS_BY_ID -> {
+                case TRACKPOINTS_BY_ID: {
                     queryBuilder.setTables(TrackPointsColumns.TABLE_NAME);
-                    queryBuilder.appendWhere(TrackPointsColumns._ID + "=" + ContentUris.parseId(url));
+                    queryBuilder.appendWhere(TrackPointsColumns._ID + "= ?");
+                    queryBuilder.appendWhereEscapeString(String.valueOf(ContentUris.parseId(url)));
+                    break;
                 }
-                case TRACKPOINTS_BY_TRACKID -> {
+                case TRACKPOINTS_BY_TRACKID: {
                     queryBuilder.setTables(TrackPointsColumns.TABLE_NAME);
-                    queryBuilder.appendWhere(TrackPointsColumns.TRACKID + " IN (" + TextUtils.join(SQL_LIST_DELIMITER, ContentProviderUtils.parseTrackIdsFromUri(url)) + ")");
+                    String[] trackIds = ContentProviderUtils.parseTrackIdsFromUri(url);
+                    String placeholders = TextUtils.join(",", Collections.nCopies(trackIds.length, "?"));
+                    queryBuilder.appendWhere(TrackPointsColumns.TRACKID + " IN (" + placeholders + ")");
+                    for(String id : trackIds) {
+                        queryBuilder.appendWhereEscapeString(id);
+                    }
+                    break;
                 }
-                case TRACKS -> {
+                case TRACKS: {
                     if (projection != null && Arrays.asList(projection).contains(TracksColumns.MARKER_COUNT)) {
                         queryBuilder.setTables(TracksColumns.TABLE_NAME + " LEFT OUTER JOIN (SELECT " + MarkerColumns.TRACKID + " AS markerTrackId, COUNT(*) AS " + TracksColumns.MARKER_COUNT + " FROM " + MarkerColumns.TABLE_NAME + " GROUP BY " + MarkerColumns.TRACKID + ") ON (" + TracksColumns.TABLE_NAME + "." + TracksColumns._ID + "= markerTrackId)");
                     } else {
                         queryBuilder.setTables(TracksColumns.TABLE_NAME);
                     }
                     sortOrder = sort != null ? sort : TracksColumns.DEFAULT_SORT_ORDER;
+                    break;
                 }
-                case TRACKS_BY_ID -> {
+                case TRACKS_BY_ID: {
                     queryBuilder.setTables(TracksColumns.TABLE_NAME);
-                    queryBuilder.appendWhere(TracksColumns._ID + " IN (" + TextUtils.join(SQL_LIST_DELIMITER, ContentProviderUtils.parseTrackIdsFromUri(url)) + ")");
+                    String[] trackIds = ContentProviderUtils.parseTrackIdsFromUri(url);
+                    String placeholders = TextUtils.join(",", Collections.nCopies(trackIds.length, "?"));
+                    queryBuilder.appendWhere(TracksColumns._ID + " IN (" + placeholders + ")");
+                    for (String id : trackIds) {
+                        queryBuilder.appendWhereEscapeString(id);
+                    }
+                    break;
                 }
-                case TRACKS_SENSOR_STATS -> {
+                case TRACKS_SENSOR_STATS: {
                     long trackId = ContentUris.parseId(url);
                     return db.rawQuery(SENSOR_STATS_QUERY, new String[]{String.valueOf(trackId), String.valueOf(trackId)});
                 }
-                case MARKERS -> {
+                case MARKERS: {
                     queryBuilder.setTables(MarkerColumns.TABLE_NAME);
                     sortOrder = sort != null ? sort : MarkerColumns.DEFAULT_SORT_ORDER;
+                    break;
                 }
-                case MARKERS_BY_ID -> {
+                case MARKERS_BY_ID: {
                     queryBuilder.setTables(MarkerColumns.TABLE_NAME);
-                    queryBuilder.appendWhere(MarkerColumns._ID + "=" + ContentUris.parseId(url));
+                    queryBuilder.appendWhere(MarkerColumns._ID + "= ?");
+                    queryBuilder.appendWhereEscapeString(String.valueOf(ContentUris.parseId(url)));
+                    break;
                 }
-                case MARKERS_BY_TRACKID -> {
+                case MARKERS_BY_TRACKID: {
                     queryBuilder.setTables(MarkerColumns.TABLE_NAME);
-                    queryBuilder.appendWhere(MarkerColumns.TRACKID + " IN (" + TextUtils.join(SQL_LIST_DELIMITER, ContentProviderUtils.parseTrackIdsFromUri(url)) + ")");
+                    trackIds = ContentProviderUtils.parseTrackIdsFromUri(url);
+                    placeholders = TextUtils.join(",", Collections.nCopies(trackIds.length, "?"));
+                    queryBuilder.appendWhere(MarkerColumns.TRACKID + " IN (" + placeholders + ")");
+                    for (String id : trackIds) {
+                        queryBuilder.appendWhereEscapeString(id);
+                    }
+                    break;
                 }
                 default -> throw new IllegalArgumentException("Unknown url " + url);
             }
@@ -289,7 +314,6 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
             Cursor cursor = queryBuilder.query(db, projection, selection, selectionArgs, null, null, sortOrder);
             cursor.setNotificationUri(getContext().getContentResolver(), url);
             return cursor;
-
         }
 
     @Override
