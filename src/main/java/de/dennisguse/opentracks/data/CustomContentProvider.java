@@ -299,25 +299,19 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 
         switch (getUrlType(url)) {
-            case TRACKPOINTS -> {
-                table = TrackPointsColumns.TABLE_NAME;
-            }
+            case TRACKPOINTS -> table = TrackPointsColumns.TABLE_NAME;
             case TRACKPOINTS_BY_ID -> {
                 table = TrackPointsColumns.TABLE_NAME;
                 qb.appendWhere(TrackPointsColumns._ID + "=?");
                 selectionArgs = appendSelectionArg(selectionArgs, String.valueOf(ContentUris.parseId(url)));
             }
-            case TRACKS -> {
-                table = TracksColumns.TABLE_NAME;
-            }
+            case TRACKS -> table = TracksColumns.TABLE_NAME;
             case TRACKS_BY_ID -> {
                 table = TracksColumns.TABLE_NAME;
                 qb.appendWhere(TrackPointsColumns._ID + "=?");
                 selectionArgs = appendSelectionArg(selectionArgs, String.valueOf(ContentUris.parseId(url)));
             }
-            case MARKERS -> {
-                table = MarkerColumns.TABLE_NAME;
-            }
+            case MARKERS -> table = MarkerColumns.TABLE_NAME;
             case MARKERS_BY_ID -> {
                 table = MarkerColumns.TABLE_NAME;
                 qb.appendWhere(TrackPointsColumns._ID + "=?");
