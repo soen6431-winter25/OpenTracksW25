@@ -324,7 +324,8 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
 
         try {
             db.beginTransaction();
-            count = db.update(qb.getTables(), values, where, selectionArgs);
+            count = db.update(qb.getTables(), values, null, selectionArgs);
+
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
