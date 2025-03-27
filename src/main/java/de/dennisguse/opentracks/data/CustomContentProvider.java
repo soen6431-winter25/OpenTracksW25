@@ -310,8 +310,8 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
                 }
                 default -> throw new IllegalArgumentException("Unknown url " + url);
             }
-
-            Cursor cursor = queryBuilder.query(db, projection, selection, selectionArgs, null, null, sortOrder);
+            String[] safeProjection = validateProjection(projection, queryBuilder.getTables());
+            Cursor cursor = queryBuilder.query(db, safeProjection, selection, selectionArgs, null, null, sortOrder);
             cursor.setNotificationUri(getContext().getContentResolver(), url);
             return cursor;
         }
