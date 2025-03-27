@@ -294,37 +294,41 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
 
     @Override
     public int update(@NonNull Uri url, ContentValues values, String where, String[] selectionArgs) {
-        // TODO Use SQLiteQueryBuilder
         String table;
-        SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
+        StringBuilder whereClause = new StringBuilder();
 
         switch (getUrlType(url)) {
             case TRACKPOINTS -> table = TrackPointsColumns.TABLE_NAME;
             case TRACKPOINTS_BY_ID -> {
                 table = TrackPointsColumns.TABLE_NAME;
-                qb.appendWhere(TrackPointsColumns._ID + "=?");
+                whereClause.append(TrackPointsColumns._ID).append("=?");
                 selectionArgs = appendSelectionArg(selectionArgs, String.valueOf(ContentUris.parseId(url)));
             }
             case TRACKS -> table = TracksColumns.TABLE_NAME;
             case TRACKS_BY_ID -> {
                 table = TracksColumns.TABLE_NAME;
-                qb.appendWhere(TrackPointsColumns._ID + "=?");
+                whereClause.append(TracksColumns._ID).append("=?");
                 selectionArgs = appendSelectionArg(selectionArgs, String.valueOf(ContentUris.parseId(url)));
             }
             case MARKERS -> table = MarkerColumns.TABLE_NAME;
             case MARKERS_BY_ID -> {
                 table = MarkerColumns.TABLE_NAME;
-                qb.appendWhere(TrackPointsColumns._ID + "=?");
+                whereClause.append(MarkerColumns._ID).append("=?");
                 selectionArgs = appendSelectionArg(selectionArgs, String.valueOf(ContentUris.parseId(url)));
             }
-            default -> throw new IllegalArgumentException("Unknown url " + url);
+            default -> throw new IllegalArgumentException("Unknown URL " + url);
         }
-        qb.setTables(table);
-        int count;
 
+        if (!TextUtils.isEmpty(where)) {
+            whereClause.append(" AND (").append(where).append(")");
+        }
+
+        int count;
         try {
             db.beginTransaction();
-            count = db.update(qb.getTables(), values, where, selectionArgs);
+
+            count = db.update(table, values, whereClause.toString(), selectionArgs);
+
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
@@ -333,6 +337,7 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
         getContext().getContentResolver().notifyChange(url, null, false);
         return count;
     }
+
 
     private String[] appendSelectionArg(String[] selectionArgs, String id) {
         if (selectionArgs == null) {
