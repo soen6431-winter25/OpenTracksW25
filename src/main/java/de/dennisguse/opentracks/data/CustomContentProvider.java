@@ -296,44 +296,41 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
     public int update(@NonNull Uri url, ContentValues values, String where, String[] selectionArgs) {
         // TODO Use SQLiteQueryBuilder
         String table;
-        String whereClause;
+        SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 
         switch (getUrlType(url)) {
             case TRACKPOINTS -> {
                 table = TrackPointsColumns.TABLE_NAME;
-                whereClause = where;
             }
             case TRACKPOINTS_BY_ID -> {
                 table = TrackPointsColumns.TABLE_NAME;
-                whereClause = TrackPointsColumns._ID + "=?";
+                qb.appendWhere(TrackPointsColumns._ID + "=?");
                 selectionArgs = appendSelectionArg(selectionArgs, String.valueOf(ContentUris.parseId(url)));
             }
             case TRACKS -> {
                 table = TracksColumns.TABLE_NAME;
-                whereClause = where;
             }
             case TRACKS_BY_ID -> {
                 table = TracksColumns.TABLE_NAME;
-                whereClause = TracksColumns._ID + "=?";
+                qb.appendWhere(TrackPointsColumns._ID + "=?");
                 selectionArgs = appendSelectionArg(selectionArgs, String.valueOf(ContentUris.parseId(url)));
             }
             case MARKERS -> {
                 table = MarkerColumns.TABLE_NAME;
-                whereClause = where;
             }
             case MARKERS_BY_ID -> {
                 table = MarkerColumns.TABLE_NAME;
-                whereClause = MarkerColumns._ID + "=?";
+                qb.appendWhere(TrackPointsColumns._ID + "=?");
                 selectionArgs = appendSelectionArg(selectionArgs, String.valueOf(ContentUris.parseId(url)));
             }
             default -> throw new IllegalArgumentException("Unknown url " + url);
         }
-
+        qb.setTables(table);
         int count;
 
         try {
             db.beginTransaction();
-            count = db.update(table, values, whereClause, selectionArgs);
+            count = db.update(qb.getTables(), values, where, selectionArgs);
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
