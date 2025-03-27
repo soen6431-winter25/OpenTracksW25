@@ -306,7 +306,7 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
                 }
                 case TRACKPOINTS_BY_ID -> {
                     table = TrackPointsColumns.TABLE_NAME;
-                    whereClause = TrackPointsColumns._ID + "=?" + ContentUris.parseId(url);
+                    whereClause = TrackPointsColumns._ID + "=?";
                     selectionArgs = appendSelectionArg(selectionArgs, String.valueOf(ContentUris.parseId(url)));
                 }
                 case TRACKS -> {
@@ -315,7 +315,7 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
                 }
                 case TRACKS_BY_ID -> {
                     table = TracksColumns.TABLE_NAME;
-                    whereClause = TracksColumns._ID + "=?" + ContentUris.parseId(url);
+                    whereClause = TracksColumns._ID + "=?";
                     selectionArgs = appendSelectionArg(selectionArgs, String.valueOf(ContentUris.parseId(url)));
                 }
                 case MARKERS -> {
@@ -324,7 +324,7 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
                 }
                 case MARKERS_BY_ID -> {
                     table = MarkerColumns.TABLE_NAME;
-                    whereClause = MarkerColumns._ID + "=?" + ContentUris.parseId(url);
+                    whereClause = MarkerColumns._ID + "=?";
                     selectionArgs = appendSelectionArg(selectionArgs, String.valueOf(ContentUris.parseId(url)));
                 }
                 default -> throw new IllegalArgumentException("Unknown url " + url);
