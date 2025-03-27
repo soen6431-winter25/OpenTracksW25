@@ -291,64 +291,67 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
             return cursor;
 
         }
-    
-        @Override
-        public int update(@NonNull Uri url, ContentValues values, String where, String[] selectionArgs) {
-            // TODO Use SQLiteQueryBuilder
-            String table;
-            String whereClause;
-          
-            switch (getUrlType(url)) {
-                case TRACKPOINTS -> {
-                    table = TrackPointsColumns.TABLE_NAME;
-                    whereClause = where;
-                }
-                case TRACKPOINTS_BY_ID -> {
-                    table = TrackPointsColumns.TABLE_NAME;
-                    whereClause = TrackPointsColumns._ID + "=" + ContentUris.parseId(url);
-                    if (!TextUtils.isEmpty(where)) {
-                        whereClause += " AND (" + where + ")";
-                    }
-                }
-                case TRACKS -> {
-                    table = TracksColumns.TABLE_NAME;
-                    whereClause = where;
-                }
-                case TRACKS_BY_ID -> {
-                    table = TracksColumns.TABLE_NAME;
-                    whereClause = TracksColumns._ID + "=" + ContentUris.parseId(url);
-                    if (!TextUtils.isEmpty(where)) {
-                        whereClause += " AND (" + where + ")";
-                    }
-                }
-                case MARKERS -> {
-                    table = MarkerColumns.TABLE_NAME;
-                    whereClause = where;
-                }
-                case MARKERS_BY_ID -> {
-                    table = MarkerColumns.TABLE_NAME;
-                    whereClause = MarkerColumns._ID + "=" + ContentUris.parseId(url);
-                    if (!TextUtils.isEmpty(where)) {
-                        whereClause += " AND (" + where + ")";
-                    }
-                }
-                default -> throw new IllegalArgumentException("Unknown url " + url);
-            }
-          
-            int count;
-          
-            try {
-                db.beginTransaction();
-                count = db.update(table, values, whereClause, selectionArgs);
-                db.setTransactionSuccessful();
-            } finally {
-                db.endTransaction();
-            }
 
-            getContext().getContentResolver().notifyChange(url, null, false);
-            return count;
+    @Override
+    public int update(@NonNull Uri url, ContentValues values, String where, String[] selectionArgs) {
+        // TODO Use SQLiteQueryBuilder
+        String table;
+        String whereClause;
 
+        switch (getUrlType(url)) {
+            case TRACKPOINTS -> {
+                table = TrackPointsColumns.TABLE_NAME;
+                whereClause = where;
+            }
+            case TRACKPOINTS_BY_ID -> {
+                table = TrackPointsColumns.TABLE_NAME;
+                whereClause = TrackPointsColumns._ID + "=?";
+                selectionArgs = appendSelectionArg(selectionArgs, String.valueOf(ContentUris.parseId(url)));
+            }
+            case TRACKS -> {
+                table = TracksColumns.TABLE_NAME;
+                whereClause = where;
+            }
+            case TRACKS_BY_ID -> {
+                table = TracksColumns.TABLE_NAME;
+                whereClause = TracksColumns._ID + "=?";
+                selectionArgs = appendSelectionArg(selectionArgs, String.valueOf(ContentUris.parseId(url)));
+            }
+            case MARKERS -> {
+                table = MarkerColumns.TABLE_NAME;
+                whereClause = where;
+            }
+            case MARKERS_BY_ID -> {
+                table = MarkerColumns.TABLE_NAME;
+                whereClause = MarkerColumns._ID + "=?";
+                selectionArgs = appendSelectionArg(selectionArgs, String.valueOf(ContentUris.parseId(url)));
+            }
+            default -> throw new IllegalArgumentException("Unknown url " + url);
         }
+
+        int count;
+
+        try {
+            db.beginTransaction();
+            count = db.update(table, values, whereClause, selectionArgs);
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+
+        getContext().getContentResolver().notifyChange(url, null, false);
+        return count;
+    }
+
+    private String[] appendSelectionArg(String[] selectionArgs, String id) {
+        if (selectionArgs == null) {
+            return new String[]{id};
+        }
+        String[] newArgs = new String[selectionArgs.length + 1];
+        System.arraycopy(selectionArgs, 0, newArgs, 0, selectionArgs.length);
+        newArgs[selectionArgs.length] = id;
+        return newArgs;
+    }
     
         @NonNull
         private UrlType getUrlType(Uri url) {
