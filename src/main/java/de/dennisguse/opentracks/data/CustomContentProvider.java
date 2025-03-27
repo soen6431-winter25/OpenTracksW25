@@ -342,7 +342,6 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
 
             getContext().getContentResolver().notifyChange(url, null, false);
             return count;
-
         }
 
         private String[] appendSelectionArg(String[] selectionArgs, String id){
