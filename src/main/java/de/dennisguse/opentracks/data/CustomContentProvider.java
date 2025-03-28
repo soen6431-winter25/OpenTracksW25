@@ -269,6 +269,19 @@ public class CustomContentProvider extends ContentProvider {
         
             return filteredProjection.isEmpty() ? null : filteredProjection.toArray(new String[0]);
         }
+
+        private String validateSelection(String selection) {
+            if (selection == null) {
+                return null;
+            }
+        
+            // Prevent dangerous characters like ; -- ' " or OR/AND without parameters
+            if (selection.matches(".*['\";].*") || selection.toLowerCase().matches(".*\\b(or|and)\\b.*")) {
+                throw new IllegalArgumentException("Invalid selection parameter detected");
+            }
+        
+            return selection;
+        }
         
         @Override
         public Cursor query(@NonNull Uri url, String[] projection, String selection, String[] selectionArgs, String sort) {
@@ -343,6 +356,7 @@ public class CustomContentProvider extends ContentProvider {
                 default -> throw new IllegalArgumentException("Unknown url " + url);
             }
             String[] safeProjection = validateProjection(projection, queryBuilder.getTables());
+            String safeSelection = validateSelection(selection);
             Cursor cursor = queryBuilder.query(db, safeProjection, selection, selectionArgs, null, null, sortOrder);
             cursor.setNotificationUri(getContext().getContentResolver(), url);
             return cursor;
