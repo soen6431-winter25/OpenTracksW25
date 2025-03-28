@@ -340,6 +340,10 @@ public class CustomContentProvider extends ContentProvider {
         
             return String.join(", ", validatedParts);
         }
+
+        private String[] getSafeSelectionArgs(String[] selectionArgs) {
+            return validateSelectionArgs(selectionArgs);
+        }
         
         
         @Override
@@ -416,7 +420,7 @@ public class CustomContentProvider extends ContentProvider {
             }
             String[] safeProjection = validateProjection(projection, queryBuilder.getTables());
             String safeSelection = validateSelection(selection);
-            String[] safeSelectionArgs = validateSelectionArgs(selectionArgs);
+            String[] safeSelectionArgs = getSafeSelectionArgs(selectionArgs);
             Cursor cursor = queryBuilder.query(db, safeProjection, safeSelection, safeSelectionArgs, null, null, sortOrder);
             cursor.setNotificationUri(getContext().getContentResolver(), url);
             return cursor;
