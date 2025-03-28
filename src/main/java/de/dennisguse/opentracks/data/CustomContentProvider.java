@@ -294,40 +294,37 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
 
     @Override
     public int update(@NonNull Uri url, ContentValues values, String where, String[] selectionArgs) {
+        // TODO Use SQLiteQueryBuilder
         String table;
-        StringBuilder whereClause = new StringBuilder();
+        SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 
         switch (getUrlType(url)) {
             case TRACKPOINTS -> table = TrackPointsColumns.TABLE_NAME;
             case TRACKPOINTS_BY_ID -> {
                 table = TrackPointsColumns.TABLE_NAME;
-                whereClause.append(TrackPointsColumns._ID).append("=?");
+                qb.appendWhere(TrackPointsColumns._ID + "=?");
                 selectionArgs = appendSelectionArg(selectionArgs, String.valueOf(ContentUris.parseId(url)));
             }
             case TRACKS -> table = TracksColumns.TABLE_NAME;
             case TRACKS_BY_ID -> {
                 table = TracksColumns.TABLE_NAME;
-                whereClause.append(TracksColumns._ID).append("=?");
+                qb.appendWhere(TracksColumns._ID + "=?");
                 selectionArgs = appendSelectionArg(selectionArgs, String.valueOf(ContentUris.parseId(url)));
             }
             case MARKERS -> table = MarkerColumns.TABLE_NAME;
             case MARKERS_BY_ID -> {
                 table = MarkerColumns.TABLE_NAME;
-                whereClause.append(MarkerColumns._ID).append("=?");
+                qb.appendWhere(MarkerColumns._ID + "=?");
                 selectionArgs = appendSelectionArg(selectionArgs, String.valueOf(ContentUris.parseId(url)));
             }
-            default -> throw new IllegalArgumentException("Unknown URL " + url);
+            default -> throw new IllegalArgumentException("Unknown url " + url);
         }
-
-        if (!TextUtils.isEmpty(where)) {
-            whereClause.append(" AND (").append(where).append(")");
-        }
-
+        qb.setTables(table);
         int count;
+
         try {
             db.beginTransaction();
-
-            count = db.update(table, values, whereClause.toString(), selectionArgs);
+            count = safeUpdate(db, qb.getTables(),values,where,selectionArgs);
 
             db.setTransactionSuccessful();
         } finally {
@@ -337,6 +334,15 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
         getContext().getContentResolver().notifyChange(url, null, false);
         return count;
     }
+    private int safeUpdate(SQLiteDatabase db, String table, ContentValues values,
+                           String where, String[] selectionArgs) {
+        if (TextUtils.isEmpty(where)) {
+            return db.update(table, values, null, null);
+        } else {
+            return db.update(table, values, "(" + where + ")", selectionArgs);
+        }
+    }
+
 
 
     private String[] appendSelectionArg(String[] selectionArgs, String id) {
