@@ -238,6 +238,38 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
             return numInserted;
         }
     
+        private String[] validateProjection(String[] projection, String tableName) {
+            if (projection == null) {
+                return null;
+            }
+        
+            // Define allowed columns for each table
+            Set<String> allowedColumns;
+            switch (tableName) {
+                case TrackPointsColumns.TABLE_NAME:
+                    allowedColumns = new HashSet<>(Arrays.asList(TrackPointsColumns.ALL_COLUMNS));
+                    break;
+                case TracksColumns.TABLE_NAME:
+                    allowedColumns = new HashSet<>(Arrays.asList(TracksColumns.ALL_COLUMNS));
+                    break;
+                case MarkerColumns.TABLE_NAME:
+                    allowedColumns = new HashSet<>(Arrays.asList(MarkerColumns.ALL_COLUMNS));
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unknown table: " + tableName);
+            }
+        
+            // Filter projection: Allow only known columns
+            List<String> filteredProjection = new ArrayList<>();
+            for (String column : projection) {
+                if (allowedColumns.contains(column)) {
+                    filteredProjection.add(column);
+                }
+            }
+        
+            return filteredProjection.isEmpty() ? null : filteredProjection.toArray(new String[0]);
+        }
+        
         @Override
         public Cursor query(@NonNull Uri url, String[] projection, String selection, String[] selectionArgs, String sort) {
             SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
