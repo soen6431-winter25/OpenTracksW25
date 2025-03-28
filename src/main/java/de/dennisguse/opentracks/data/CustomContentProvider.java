@@ -294,13 +294,17 @@ public class CustomContentProvider extends ContentProvider {
                     throw new IllegalArgumentException("Null value detected in selectionArgs");
                 }
         
-                // Prevent dangerous SQL characters (e.g., ';', '--', quotes, injections)
-                if (selectionArgs[i].matches(".*['\";].*") || selectionArgs[i].toLowerCase().matches(".*\\b(or|and)\\b.*")) {
-                    throw new IllegalArgumentException("Invalid selectionArgs parameter detected");
+                String arg = selectionArgs[i].trim();
+
+                if (arg.matches("\\d+")) { 
+                    sanitizedArgs[i] = arg;
+                } 
+                else if (arg.matches("[a-zA-Z0-9_\\-@.]+")) { 
+                    sanitizedArgs[i] = arg;
+                } 
+                else {
+                    throw new IllegalArgumentException("Invalid selectionArgs parameter detected: " + arg);
                 }
-        
-                // Trim spaces to prevent hidden injections
-                sanitizedArgs[i] = selectionArgs[i].trim();
             }
             return sanitizedArgs;
         }
