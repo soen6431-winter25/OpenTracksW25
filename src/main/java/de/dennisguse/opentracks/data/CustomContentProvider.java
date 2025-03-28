@@ -241,7 +241,6 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
         @Override
         public Cursor query(@NonNull Uri url, String[] projection, String selection, String[] selectionArgs, String sort) {
             SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
-            String constant = " IN (";
             String sortOrder = null;
             switch (getUrlType(url)) {
                 case TRACKPOINTS: {
@@ -255,9 +254,15 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
                     queryBuilder.appendWhereEscapeString(String.valueOf(ContentUris.parseId(url)));
                     break;
                 }
-                case TRACKPOINTS_BY_TRACKID -> {
+                case TRACKPOINTS_BY_TRACKID: {
                     queryBuilder.setTables(TrackPointsColumns.TABLE_NAME);
-                    queryBuilder.appendWhere(TrackPointsColumns.TRACKID + constant + TextUtils.join(SQL_LIST_DELIMITER, ContentProviderUtils.parseTrackIdsFromUri(url)) + ")");
+                    String[] trackIds = ContentProviderUtils.parseTrackIdsFromUri(url);
+                    String placeholders = TextUtils.join(",", Collections.nCopies(trackIds.length, "?"));
+                    queryBuilder.appendWhere(TrackPointsColumns.TRACKID + " IN (" + placeholders + ")");
+                    for(String id : trackIds) {
+                        queryBuilder.appendWhereEscapeString(id);
+                    }
+                    break;
                 }
                 case TRACKS: {
                     if (projection != null && Arrays.asList(projection).contains(TracksColumns.MARKER_COUNT)) {
@@ -268,9 +273,15 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
                     sortOrder = sort != null ? sort : TracksColumns.DEFAULT_SORT_ORDER;
                     break;
                 }
-                case TRACKS_BY_ID -> {
+                case TRACKS_BY_ID: {
                     queryBuilder.setTables(TracksColumns.TABLE_NAME);
-                    queryBuilder.appendWhere(TracksColumns._ID + constant + TextUtils.join(SQL_LIST_DELIMITER, ContentProviderUtils.parseTrackIdsFromUri(url)) + ")");
+                    String[] trackIds = ContentProviderUtils.parseTrackIdsFromUri(url);
+                    String placeholders = TextUtils.join(",", Collections.nCopies(trackIds.length, "?"));
+                    queryBuilder.appendWhere(TracksColumns._ID + " IN (" + placeholders + ")");
+                    for (String id : trackIds) {
+                        queryBuilder.appendWhereEscapeString(id);
+                    }
+                    break;
                 }
                 case TRACKS_SENSOR_STATS: {
                     long trackId = ContentUris.parseId(url);
@@ -287,9 +298,15 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
                     queryBuilder.appendWhereEscapeString(String.valueOf(ContentUris.parseId(url)));
                     break;
                 }
-                case MARKERS_BY_TRACKID -> {
+                case MARKERS_BY_TRACKID: {
                     queryBuilder.setTables(MarkerColumns.TABLE_NAME);
-                    queryBuilder.appendWhere(MarkerColumns.TRACKID + constant + TextUtils.join(SQL_LIST_DELIMITER, ContentProviderUtils.parseTrackIdsFromUri(url)) + ")");
+                    trackIds = ContentProviderUtils.parseTrackIdsFromUri(url);
+                    placeholders = TextUtils.join(",", Collections.nCopies(trackIds.length, "?"));
+                    queryBuilder.appendWhere(MarkerColumns.TRACKID + " IN (" + placeholders + ")");
+                    for (String id : trackIds) {
+                        queryBuilder.appendWhereEscapeString(id);
+                    }
+                    break;
                 }
                 default -> throw new IllegalArgumentException("Unknown url " + url);
             }
@@ -301,8 +318,8 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
 
     @Override
     public int update(@NonNull Uri url, ContentValues values, String where, String[] selectionArgs) {
+        // TODO Use SQLiteQueryBuilder
         String table;
-        String whereClause = where;
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 
         switch (getUrlType(url)) {
@@ -331,8 +348,8 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
 
         try {
             db.beginTransaction();
+            count = safeUpdate(db, qb.getTables(),values,where,selectionArgs);
 
-            count = safeUpdate(db, qb.getTables(),values,whereClause,selectionArgs);
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
@@ -342,8 +359,12 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
         return count;
     }
     private int safeUpdate(SQLiteDatabase db, String table, ContentValues values,
-                           String whereClause, String[] selectionArgs) {
-            return db.update(table, values, whereClause, selectionArgs);
+                           String where, String[] selectionArgs) {
+        if (TextUtils.isEmpty(where)) {
+            return db.update(table, values, null, null);
+        } else {
+            return db.update(table, values, "(" + where + ")", selectionArgs);
+        }
     }
 
 
