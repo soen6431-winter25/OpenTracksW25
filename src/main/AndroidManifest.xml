@@ -92,7 +92,7 @@ limitations under the License.
 
         <activity
             android:name=".publicapi.StartRecording"
-            android:exported="true"
+            android:exported="false"
             android:theme="@style/SplashTheme">
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
@@ -100,7 +100,7 @@ limitations under the License.
         </activity>
         <activity
             android:name=".publicapi.StopRecording"
-            android:exported="true"
+            android:exported="false"
             android:theme="@style/SplashTheme">
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
