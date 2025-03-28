@@ -239,7 +239,7 @@ public class KmzTrackImporter {
         File file = new File(dir, fileName);
         if (!file.toPath().normalize().startsWith(dir.toPath().normalize()))
         {
-            throw new RuntimeException("Bad zip entry: Path Traversal detected");
+            throw new IOException("Bad zip entry: Path Traversal detected");
         }
 
         try (FileOutputStream fileOutputStream = new FileOutputStream(file)) {
