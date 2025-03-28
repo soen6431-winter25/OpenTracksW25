@@ -357,7 +357,7 @@ public class CustomContentProvider extends ContentProvider {
             }
             String[] safeProjection = validateProjection(projection, queryBuilder.getTables());
             String safeSelection = validateSelection(selection);
-            Cursor cursor = queryBuilder.query(db, safeProjection, selection, selectionArgs, null, null, sortOrder);
+            Cursor cursor = queryBuilder.query(db, safeProjection, safeSelection, selectionArgs, null, null, sortOrder);
             cursor.setNotificationUri(getContext().getContentResolver(), url);
             return cursor;
         }
