@@ -342,7 +342,7 @@ public class CustomContentProvider extends ContentProvider {
         }
 
         private String[] getSafeSelectionArgs(String[] selectionArgs) {
-            return sanitizeSelectionArgs(selectionArgs);
+            return validateSelectionArgs(selectionArgs);
         }
         
         
