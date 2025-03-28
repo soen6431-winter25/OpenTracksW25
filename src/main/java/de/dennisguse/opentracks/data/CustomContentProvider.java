@@ -282,6 +282,61 @@ public class CustomContentProvider extends ContentProvider {
         
             return selection;
         }
+
+        private String[] validateSelectionArgs(String[] selectionArgs) {
+            if (selectionArgs == null) {
+                return null;
+            }
+        
+            String[] sanitizedArgs = new String[selectionArgs.length];
+            for (int i = 0; i < selectionArgs.length; i++) {
+                if (selectionArgs[i] == null) {
+                    throw new IllegalArgumentException("Null value detected in selectionArgs");
+                }
+        
+                // Prevent dangerous SQL characters (e.g., ';', '--', quotes, injections)
+                if (selectionArgs[i].matches(".*['\";].*") || selectionArgs[i].toLowerCase().matches(".*\\b(or|and)\\b.*")) {
+                    throw new IllegalArgumentException("Invalid selectionArgs parameter detected");
+                }
+        
+                // Trim spaces to prevent hidden injections
+                sanitizedArgs[i] = selectionArgs[i].trim();
+            }
+            return sanitizedArgs;
+        }
+
+        private String validateSortOrder(String sortOrder, String[] allowedColumns) {
+            if (sortOrder == null || sortOrder.isEmpty()) {
+                return null;
+            }
+        
+            // Convert allowed columns into a Set for easy lookup
+            Set<String> allowedColumnsSet = new HashSet<>(Arrays.asList(allowedColumns));
+        
+            // Split sortOrder by commas to support multiple columns (e.g., "name ASC, age DESC")
+            String[] parts = sortOrder.split(",");
+            List<String> validatedParts = new ArrayList<>();
+        
+            for (String part : parts) {
+                String[] tokens = part.trim().split("\\s+");
+                if (tokens.length < 1 || tokens.length > 2) {
+                    throw new IllegalArgumentException("Invalid sort order: " + sortOrder);
+                }
+        
+                String columnName = tokens[0].trim();
+                String sortDirection = (tokens.length == 2) ? tokens[1].trim().toUpperCase() : "ASC"; // Default to ASC
+        
+                // Validate column name and sorting direction
+                if (!allowedColumnsSet.contains(columnName) || (!sortDirection.equals("ASC") && !sortDirection.equals("DESC"))) {
+                    throw new IllegalArgumentException("Invalid sort order: " + sortOrder);
+                }
+        
+                validatedParts.add(columnName + " " + sortDirection);
+            }
+        
+            return String.join(", ", validatedParts);
+        }
+        
         
         @Override
         public Cursor query(@NonNull Uri url, String[] projection, String selection, String[] selectionArgs, String sort) {
@@ -290,7 +345,7 @@ public class CustomContentProvider extends ContentProvider {
             switch (getUrlType(url)) {
                 case TRACKPOINTS: {
                     queryBuilder.setTables(TrackPointsColumns.TABLE_NAME);
-                    sortOrder = sort != null ? sort : TrackPointsColumns.DEFAULT_SORT_ORDER;
+                    sortOrder = sort != null ? validateSortOrder(sort, TrackPointsColumns.ALL_COLUMNS) : TrackPointsColumns.DEFAULT_SORT_ORDER;
                     break;
                 }
                 case TRACKPOINTS_BY_ID: {
@@ -315,7 +370,7 @@ public class CustomContentProvider extends ContentProvider {
                     } else {
                         queryBuilder.setTables(TracksColumns.TABLE_NAME);
                     }
-                    sortOrder = sort != null ? sort : TracksColumns.DEFAULT_SORT_ORDER;
+                    sortOrder = sort != null ? validateSortOrder(sort, TrackPointsColumns.ALL_COLUMNS) : TracksColumns.DEFAULT_SORT_ORDER;
                     break;
                 }
                 case TRACKS_BY_ID: {
@@ -334,7 +389,7 @@ public class CustomContentProvider extends ContentProvider {
                 }
                 case MARKERS: {
                     queryBuilder.setTables(MarkerColumns.TABLE_NAME);
-                    sortOrder = sort != null ? sort : MarkerColumns.DEFAULT_SORT_ORDER;
+                    sortOrder = sort != null ? validateSortOrder(sort, MarkerColumns.ALL_COLUMNS) : MarkerColumns.DEFAULT_SORT_ORDER;
                     break;
                 }
                 case MARKERS_BY_ID: {
@@ -357,7 +412,8 @@ public class CustomContentProvider extends ContentProvider {
             }
             String[] safeProjection = validateProjection(projection, queryBuilder.getTables());
             String safeSelection = validateSelection(selection);
-            Cursor cursor = queryBuilder.query(db, safeProjection, safeSelection, selectionArgs, null, null, sortOrder);
+            String[] safeSelectionArgs = validateSelectionArgs(selectionArgs);
+            Cursor cursor = queryBuilder.query(db, safeProjection, safeSelection, safeSelectionArgs, null, null, sortOrder);
             cursor.setNotificationUri(getContext().getContentResolver(), url);
             return cursor;
         }
