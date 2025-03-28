@@ -296,6 +296,7 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
     public int update(@NonNull Uri url, ContentValues values, String where, String[] selectionArgs) {
         // TODO Use SQLiteQueryBuilder
         String table;
+        String whereClause = where;
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 
         switch (getUrlType(url)) {
@@ -324,8 +325,8 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
 
         try {
             db.beginTransaction();
-            count = safeUpdate(db, qb.getTables(),values,where,selectionArgs);
 
+            count = safeUpdate(db, qb.getTables(),values,whereClause,selectionArgs);
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
@@ -335,12 +336,8 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
         return count;
     }
     private int safeUpdate(SQLiteDatabase db, String table, ContentValues values,
-                           String where, String[] selectionArgs) {
-        if (TextUtils.isEmpty(where)) {
-            return db.update(table, values, null, null);
-        } else {
-            return db.update(table, values, "(" + where + ")", selectionArgs);
-        }
+                           String whereClause, String[] selectionArgs) {
+            return db.update(table, values, whereClause, selectionArgs);
     }
 
 
