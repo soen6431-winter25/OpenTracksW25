@@ -237,6 +237,10 @@ public class KmzTrackImporter {
 
         File dir = FileUtils.getPhotoDir(context, trackId);
         File file = new File(dir, fileName);
+        if (!file.toPath().normalize().startsWith(dir.toPath().normalize()))
+        {
+            throw new RuntimeException("Bad zip entry: Path Traversal detected");
+        }
 
         try (FileOutputStream fileOutputStream = new FileOutputStream(file)) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
