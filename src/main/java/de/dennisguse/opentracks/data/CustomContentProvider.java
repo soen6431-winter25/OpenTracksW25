@@ -121,177 +121,232 @@ public class CustomContentProvider extends ContentProvider {
         return onCreate(getContext());
     }
 
-    /**
-     * Helper method to make onCreate is testable.
-     *
-     * @param context context to creates database
-     * @return true means run successfully
-     */
-    @VisibleForTesting
-    boolean onCreate(Context context) {
-        CustomSQLiteOpenHelper databaseHelper = new CustomSQLiteOpenHelper(context);
-        try {
-            db = databaseHelper.getWritableDatabase();
-            // Necessary to enable cascade deletion from Track to TrackPoints and Markers
-            db.setForeignKeyConstraintsEnabled(true);
-        } catch (SQLiteException e) {
-            Log.e(TAG, "Unable to open database for writing.", e);
+        /**
+         * Helper method to make onCreate is testable.
+         *
+         * @param context context to creates database
+         * @return true means run successfully
+         */
+        @VisibleForTesting
+        boolean onCreate(Context context) {
+            CustomSQLiteOpenHelper databaseHelper = new CustomSQLiteOpenHelper(context);
+            try {
+                db = databaseHelper.getWritableDatabase();
+                // Necessary to enable cascade deletion from Track to TrackPoints and Markers
+                db.setForeignKeyConstraintsEnabled(true);
+            } catch (SQLiteException e) {
+                Log.e(TAG, "Unable to open database for writing.", e);
+            }
+            return db != null;
         }
-        return db != null;
-    }
-
-    @Override
-    public int delete(@NonNull Uri url, String where, String[] selectionArgs) {
-        String table = switch (getUrlType(url)) {
-            case TRACKPOINTS -> TrackPointsColumns.TABLE_NAME;
-            case TRACKS -> TracksColumns.TABLE_NAME;
-            case MARKERS -> MarkerColumns.TABLE_NAME;
-            default -> throw new IllegalArgumentException("Unknown URL " + url);
-        };
-
-        Log.w(TAG, "Deleting from table " + table);
-        int totalChangesBefore = getTotalChanges();
-        int deletedRowsFromTable;
-        try {
-            db.beginTransaction();
-            deletedRowsFromTable = db.delete(table, where, selectionArgs);
-            Log.i(TAG, "Deleted " + deletedRowsFromTable + " rows of table " + table);
-            db.setTransactionSuccessful();
-        } finally {
-            db.endTransaction();
+    
+        @Override
+        public int delete(@NonNull Uri url, String where, String[] selectionArgs) {
+            String table = switch (getUrlType(url)) {
+                case TRACKPOINTS -> TrackPointsColumns.TABLE_NAME;
+                case TRACKS -> TracksColumns.TABLE_NAME;
+                case MARKERS -> MarkerColumns.TABLE_NAME;
+                default -> throw new IllegalArgumentException("Unknown URL " + url);
+            };
+    
+            Log.w(TAG, "Deleting from table " + table);
+            int totalChangesBefore = getTotalChanges();
+            int deletedRowsFromTable;
+            try {
+                db.beginTransaction();
+                deletedRowsFromTable = db.delete(table, where, selectionArgs);
+                Log.i(TAG, "Deleted " + deletedRowsFromTable + " rows of table " + table);
+                db.setTransactionSuccessful();
+            } finally {
+                db.endTransaction();
+            }
+            getContext().getContentResolver().notifyChange(url, null, false);
+    
+            int totalChanges = getTotalChanges() - totalChangesBefore;
+            Log.i(TAG, "Deleted " + totalChanges + " total rows from database");
+    
+            PreferencesUtils.addTotalRowsDeleted(totalChanges);
+            int totalRowsDeleted = PreferencesUtils.getTotalRowsDeleted();
+            if (totalRowsDeleted > TOTAL_DELETED_ROWS_VACUUM_THRESHOLD) {
+                Log.i(TAG, "TotalRowsDeleted " + totalRowsDeleted + ", starting to vacuum the database.");
+                db.execSQL("VACUUM");
+                PreferencesUtils.resetTotalRowsDeleted();
+            }
+    
+            return deletedRowsFromTable;
         }
-        getContext().getContentResolver().notifyChange(url, null, false);
-
-        int totalChanges = getTotalChanges() - totalChangesBefore;
-        Log.i(TAG, "Deleted " + totalChanges + " total rows from database");
-
-        PreferencesUtils.addTotalRowsDeleted(totalChanges);
-        int totalRowsDeleted = PreferencesUtils.getTotalRowsDeleted();
-        if (totalRowsDeleted > TOTAL_DELETED_ROWS_VACUUM_THRESHOLD) {
-            Log.i(TAG, "TotalRowsDeleted " + totalRowsDeleted + ", starting to vacuum the database.");
-            db.execSQL("VACUUM");
-            PreferencesUtils.resetTotalRowsDeleted();
+    
+        private int getTotalChanges() {
+            int totalCount;
+            try (Cursor cursor = db.rawQuery("SELECT total_changes()", null)) {
+                cursor.moveToNext();
+                totalCount = cursor.getInt(0);
+            }
+            return totalCount;
         }
-
-        return deletedRowsFromTable;
-    }
-
-    private int getTotalChanges() {
-        int totalCount;
-        try (Cursor cursor = db.rawQuery("SELECT total_changes()", null)) {
-            cursor.moveToNext();
-            totalCount = cursor.getInt(0);
+    
+        @Override
+        public String getType(@NonNull Uri url) {
+            return switch (getUrlType(url)) {
+                case TRACKPOINTS -> TrackPointsColumns.CONTENT_TYPE;
+                case TRACKPOINTS_BY_ID, TRACKPOINTS_BY_TRACKID -> TrackPointsColumns.CONTENT_ITEMTYPE;
+                case TRACKS -> TracksColumns.CONTENT_TYPE;
+                case TRACKS_BY_ID -> TracksColumns.CONTENT_ITEMTYPE;
+                case MARKERS -> MarkerColumns.CONTENT_TYPE;
+                case MARKERS_BY_ID, MARKERS_BY_TRACKID -> MarkerColumns.CONTENT_ITEMTYPE;
+                default -> throw new IllegalArgumentException("Unknown URL " + url);
+            };
         }
-        return totalCount;
-    }
-
-    @Override
-    public String getType(@NonNull Uri url) {
-        return switch (getUrlType(url)) {
-            case TRACKPOINTS -> TrackPointsColumns.CONTENT_TYPE;
-            case TRACKPOINTS_BY_ID, TRACKPOINTS_BY_TRACKID -> TrackPointsColumns.CONTENT_ITEMTYPE;
-            case TRACKS -> TracksColumns.CONTENT_TYPE;
-            case TRACKS_BY_ID -> TracksColumns.CONTENT_ITEMTYPE;
-            case MARKERS -> MarkerColumns.CONTENT_TYPE;
-            case MARKERS_BY_ID, MARKERS_BY_TRACKID -> MarkerColumns.CONTENT_ITEMTYPE;
-            default -> throw new IllegalArgumentException("Unknown URL " + url);
-        };
-    }
-
-    @Override
-    public Uri insert(@NonNull Uri url, ContentValues initialValues) {
-        if (initialValues == null) {
-            initialValues = new ContentValues();
+    
+        @Override
+        public Uri insert(@NonNull Uri url, ContentValues initialValues) {
+            if (initialValues == null) {
+                initialValues = new ContentValues();
+            }
+            Uri result;
+            try {
+                db.beginTransaction();
+                result = insertContentValues(url, getUrlType(url), initialValues);
+                db.setTransactionSuccessful();
+            } finally {
+                db.endTransaction();
+            }
+            getContext().getContentResolver().notifyChange(url, null, false);
+            return result;
         }
-        Uri result;
-        try {
-            db.beginTransaction();
-            result = insertContentValues(url, getUrlType(url), initialValues);
-            db.setTransactionSuccessful();
-        } finally {
-            db.endTransaction();
-        }
-        getContext().getContentResolver().notifyChange(url, null, false);
-        return result;
-    }
-
-    @Override
-    public int bulkInsert(@NonNull Uri url, @NonNull ContentValues[] valuesBulk) {
-        int numInserted;
-        try {
-            // Use a transaction in order to make the insertions run as a single batch
-            db.beginTransaction();
-
-            UrlType urlType = getUrlType(url);
-            for (numInserted = 0; numInserted < valuesBulk.length; numInserted++) {
-                ContentValues contentValues = valuesBulk[numInserted];
-                if (contentValues == null) {
-                    contentValues = new ContentValues();
+    
+        @Override
+        public int bulkInsert(@NonNull Uri url, @NonNull ContentValues[] valuesBulk) {
+            int numInserted;
+            try {
+                // Use a transaction in order to make the insertions run as a single batch
+                db.beginTransaction();
+    
+                UrlType urlType = getUrlType(url);
+                for (numInserted = 0; numInserted < valuesBulk.length; numInserted++) {
+                    ContentValues contentValues = valuesBulk[numInserted];
+                    if (contentValues == null) {
+                        contentValues = new ContentValues();
+                    }
+                    insertContentValues(url, urlType, contentValues);
                 }
-                insertContentValues(url, urlType, contentValues);
+                db.setTransactionSuccessful();
+            } finally {
+                db.endTransaction();
             }
-            db.setTransactionSuccessful();
-        } finally {
-            db.endTransaction();
+            getContext().getContentResolver().notifyChange(url, null, false);
+            return numInserted;
         }
-        getContext().getContentResolver().notifyChange(url, null, false);
-        return numInserted;
-    }
-
-    @Override
-    public Cursor query(@NonNull Uri url, String[] projection, String selection, String[] selectionArgs, String sort) {
-        SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
-        String constant = " IN (";
-        String sortOrder = null;
-        switch (getUrlType(url)) {
-            case TRACKPOINTS -> {
-                queryBuilder.setTables(TrackPointsColumns.TABLE_NAME);
-                sortOrder = sort != null ? sort : TrackPointsColumns.DEFAULT_SORT_ORDER;
+    
+        private String[] validateProjection(String[] projection, String tableName) {
+            if (projection == null) {
+                return null;
             }
-            case TRACKPOINTS_BY_ID -> {
-                queryBuilder.setTables(TrackPointsColumns.TABLE_NAME);
-                queryBuilder.appendWhere(TrackPointsColumns._ID + "=" + ContentUris.parseId(url));
+        
+            // Define allowed columns for each table
+            Set<String> allowedColumns;
+            switch (tableName) {
+                case TrackPointsColumns.TABLE_NAME:
+                    allowedColumns = new HashSet<>(Arrays.asList(TrackPointsColumns.ALL_COLUMNS));
+                    break;
+                case TracksColumns.TABLE_NAME:
+                    allowedColumns = new HashSet<>(Arrays.asList(TracksColumns.ALL_COLUMNS));
+                    break;
+                case MarkerColumns.TABLE_NAME:
+                    allowedColumns = new HashSet<>(Arrays.asList(MarkerColumns.ALL_COLUMNS));
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unknown table: " + tableName);
             }
-            case TRACKPOINTS_BY_TRACKID -> {
-                queryBuilder.setTables(TrackPointsColumns.TABLE_NAME);
-                queryBuilder.appendWhere(TrackPointsColumns.TRACKID + constant + TextUtils.join(SQL_LIST_DELIMITER, ContentProviderUtils.parseTrackIdsFromUri(url)) + ")");
+        
+            // Filter projection: Allow only known columns
+            List<String> filteredProjection = new ArrayList<>();
+            for (String column : projection) {
+                if (allowedColumns.contains(column)) {
+                    filteredProjection.add(column);
+                }
             }
-            case TRACKS -> {
-                if (projection != null && Arrays.asList(projection).contains(TracksColumns.MARKER_COUNT)) {
-                    queryBuilder.setTables(TracksColumns.TABLE_NAME + " LEFT OUTER JOIN (SELECT " + MarkerColumns.TRACKID + " AS markerTrackId, COUNT(*) AS " + TracksColumns.MARKER_COUNT + " FROM " + MarkerColumns.TABLE_NAME + " GROUP BY " + MarkerColumns.TRACKID + ") ON (" + TracksColumns.TABLE_NAME + "." + TracksColumns._ID + "= markerTrackId)");
-                } else {
+        
+            return filteredProjection.isEmpty() ? null : filteredProjection.toArray(new String[0]);
+        }
+        
+        @Override
+        public Cursor query(@NonNull Uri url, String[] projection, String selection, String[] selectionArgs, String sort) {
+            SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
+            String sortOrder = null;
+            switch (getUrlType(url)) {
+                case TRACKPOINTS: {
+                    queryBuilder.setTables(TrackPointsColumns.TABLE_NAME);
+                    sortOrder = sort != null ? sort : TrackPointsColumns.DEFAULT_SORT_ORDER;
+                    break;
+                }
+                case TRACKPOINTS_BY_ID: {
+                    queryBuilder.setTables(TrackPointsColumns.TABLE_NAME);
+                    queryBuilder.appendWhere(TrackPointsColumns._ID + "= ?");
+                    queryBuilder.appendWhereEscapeString(String.valueOf(ContentUris.parseId(url)));
+                    break;
+                }
+                case TRACKPOINTS_BY_TRACKID: {
+                    queryBuilder.setTables(TrackPointsColumns.TABLE_NAME);
+                    String[] trackIds = ContentProviderUtils.parseTrackIdsFromUri(url);
+                    String placeholders = TextUtils.join(",", Collections.nCopies(trackIds.length, "?"));
+                    queryBuilder.appendWhere(TrackPointsColumns.TRACKID + " IN (" + placeholders + ")");
+                    for(String id : trackIds) {
+                        queryBuilder.appendWhereEscapeString(id);
+                    }
+                    break;
+                }
+                case TRACKS: {
+                    if (projection != null && Arrays.asList(projection).contains(TracksColumns.MARKER_COUNT)) {
+                        queryBuilder.setTables(TracksColumns.TABLE_NAME + " LEFT OUTER JOIN (SELECT " + MarkerColumns.TRACKID + " AS markerTrackId, COUNT(*) AS " + TracksColumns.MARKER_COUNT + " FROM " + MarkerColumns.TABLE_NAME + " GROUP BY " + MarkerColumns.TRACKID + ") ON (" + TracksColumns.TABLE_NAME + "." + TracksColumns._ID + "= markerTrackId)");
+                    } else {
+                        queryBuilder.setTables(TracksColumns.TABLE_NAME);
+                    }
+                    sortOrder = sort != null ? sort : TracksColumns.DEFAULT_SORT_ORDER;
+                    break;
+                }
+                case TRACKS_BY_ID: {
                     queryBuilder.setTables(TracksColumns.TABLE_NAME);
+                    String[] trackIds = ContentProviderUtils.parseTrackIdsFromUri(url);
+                    String placeholders = TextUtils.join(",", Collections.nCopies(trackIds.length, "?"));
+                    queryBuilder.appendWhere(TracksColumns._ID + " IN (" + placeholders + ")");
+                    for (String id : trackIds) {
+                        queryBuilder.appendWhereEscapeString(id);
+                    }
+                    break;
                 }
-                sortOrder = sort != null ? sort : TracksColumns.DEFAULT_SORT_ORDER;
+                case TRACKS_SENSOR_STATS: {
+                    long trackId = ContentUris.parseId(url);
+                    return db.rawQuery(SENSOR_STATS_QUERY, new String[]{String.valueOf(trackId), String.valueOf(trackId)});
+                }
+                case MARKERS: {
+                    queryBuilder.setTables(MarkerColumns.TABLE_NAME);
+                    sortOrder = sort != null ? sort : MarkerColumns.DEFAULT_SORT_ORDER;
+                    break;
+                }
+                case MARKERS_BY_ID: {
+                    queryBuilder.setTables(MarkerColumns.TABLE_NAME);
+                    queryBuilder.appendWhere(MarkerColumns._ID + "= ?");
+                    queryBuilder.appendWhereEscapeString(String.valueOf(ContentUris.parseId(url)));
+                    break;
+                }
+                case MARKERS_BY_TRACKID: {
+                    queryBuilder.setTables(MarkerColumns.TABLE_NAME);
+                    trackIds = ContentProviderUtils.parseTrackIdsFromUri(url);
+                    placeholders = TextUtils.join(",", Collections.nCopies(trackIds.length, "?"));
+                    queryBuilder.appendWhere(MarkerColumns.TRACKID + " IN (" + placeholders + ")");
+                    for (String id : trackIds) {
+                        queryBuilder.appendWhereEscapeString(id);
+                    }
+                    break;
+                }
+                default -> throw new IllegalArgumentException("Unknown url " + url);
             }
-            case TRACKS_BY_ID -> {
-                queryBuilder.setTables(TracksColumns.TABLE_NAME);
-                queryBuilder.appendWhere(TracksColumns._ID + constant + TextUtils.join(SQL_LIST_DELIMITER, ContentProviderUtils.parseTrackIdsFromUri(url)) + ")");
-            }
-            case TRACKS_SENSOR_STATS -> {
-                long trackId = ContentUris.parseId(url);
-                return db.rawQuery(SENSOR_STATS_QUERY, new String[]{String.valueOf(trackId), String.valueOf(trackId)});
-            }
-            case MARKERS -> {
-                queryBuilder.setTables(MarkerColumns.TABLE_NAME);
-                sortOrder = sort != null ? sort : MarkerColumns.DEFAULT_SORT_ORDER;
-            }
-            case MARKERS_BY_ID -> {
-                queryBuilder.setTables(MarkerColumns.TABLE_NAME);
-                queryBuilder.appendWhere(MarkerColumns._ID + "=" + ContentUris.parseId(url));
-            }
-            case MARKERS_BY_TRACKID -> {
-                queryBuilder.setTables(MarkerColumns.TABLE_NAME);
-                queryBuilder.appendWhere(MarkerColumns.TRACKID + constant + TextUtils.join(SQL_LIST_DELIMITER, ContentProviderUtils.parseTrackIdsFromUri(url)) + ")");
-            }
-            default -> throw new IllegalArgumentException("Unknown url " + url);
+            String[] safeProjection = validateProjection(projection, queryBuilder.getTables());
+            Cursor cursor = queryBuilder.query(db, safeProjection, selection, selectionArgs, null, null, sortOrder);
+            cursor.setNotificationUri(getContext().getContentResolver(), url);
+            return cursor;
         }
-
-        Cursor cursor = queryBuilder.query(db, projection, selection, selectionArgs, null, null, sortOrder);
-        cursor.setNotificationUri(getContext().getContentResolver(), url);
-        return cursor;
-
-    }
 
     @Override
     public int update(@NonNull Uri url, ContentValues values, String where, String[] selectionArgs) {
