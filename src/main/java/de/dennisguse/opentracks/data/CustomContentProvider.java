@@ -49,77 +49,77 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
  *
  * @author Leif Hendrik Wilden
  */
-    public class CustomContentProvider extends ContentProvider {
-    
-        private static final String TAG = CustomContentProvider.class.getSimpleName();
-    
-        private static final String SQL_LIST_DELIMITER = ",";
-    
-        private static final int TOTAL_DELETED_ROWS_VACUUM_THRESHOLD = 10000;
-    
-        private final UriMatcher uriMatcher;
-    
-        private SQLiteDatabase db;
-    
-        private static final String TIME_SELECT_CLAUSE = ", (SELECT time_value FROM time_select)), t.";
-    
-        private static final String COALESCE_MAX = " * (COALESCE(MAX(t.";
+public class CustomContentProvider extends ContentProvider {
 
-        private static final String COALESCE_MAX_TIME_DIFF = ") - t.";
-    
-        /**
-         * The string representing the query that compute sensor stats from trackpoints table.
-         * It computes the average for heart rate, cadence and power (duration-based average) and the maximum for heart rate, cadence and power.
-         * Finally, it ignores manual pause (SEGMENT_START_MANUAL).
-         */
-        private final String SENSOR_STATS_QUERY =
-                "WITH time_select as " +
+    private static final String TAG = CustomContentProvider.class.getSimpleName();
+
+    private static final String SQL_LIST_DELIMITER = ",";
+
+    private static final int TOTAL_DELETED_ROWS_VACUUM_THRESHOLD = 10000;
+
+    private final UriMatcher uriMatcher;
+
+    private SQLiteDatabase db;
+
+    private static final String TIME_SELECT_CLAUSE = ", (SELECT time_value FROM time_select)), t.";
+
+    private static final String COALESCE_MAX = " * (COALESCE(MAX(t.";
+
+    private static final String COALESCE_MAX_TIME_DIFF = ") - t.";
+
+    /**
+     * The string representing the query that compute sensor stats from trackpoints table.
+     * It computes the average for heart rate, cadence and power (duration-based average) and the maximum for heart rate, cadence and power.
+     * Finally, it ignores manual pause (SEGMENT_START_MANUAL).
+     */
+    private final String SENSOR_STATS_QUERY =
+            "WITH time_select as " +
                     "(SELECT t1." + TrackPointsColumns.TIME + " * (t1." + TrackPointsColumns.TYPE + " NOT IN (" + TrackPoint.Type.SEGMENT_START_MANUAL.type_db + ")) time_value " +
                     "FROM " + TrackPointsColumns.TABLE_NAME + " t1 " +
                     "WHERE t1." + TrackPointsColumns._ID + " > t." + TrackPointsColumns._ID + " AND t1." + TrackPointsColumns.TRACKID + " = ? ORDER BY _id LIMIT 1) " +
-    
-                "SELECT " +
+
+                    "SELECT " +
                     "SUM(t." + TrackPointsColumns.SENSOR_HEARTRATE + COALESCE_MAX + TrackPointsColumns.TIME + TIME_SELECT_CLAUSE + TrackPointsColumns.TIME + COALESCE_MAX_TIME_DIFF + TrackPointsColumns.TIME + ")) " +
                     "/ " +
                     "SUM(COALESCE(MAX(t." + TrackPointsColumns.TIME + TIME_SELECT_CLAUSE + TrackPointsColumns.TIME + COALESCE_MAX_TIME_DIFF + TrackPointsColumns.TIME + ") " + TrackPointsColumns.ALIAS_AVG_HR + ", " +
-    
+
                     "MAX(t." + TrackPointsColumns.SENSOR_HEARTRATE + ") " + TrackPointsColumns.ALIAS_MAX_HR + ", " +
-    
+
                     "SUM(t." + TrackPointsColumns.SENSOR_CADENCE + COALESCE_MAX + TrackPointsColumns.TIME + TIME_SELECT_CLAUSE + TrackPointsColumns.TIME + COALESCE_MAX_TIME_DIFF + TrackPointsColumns.TIME + ")) " +
                     "/ " +
                     "SUM(COALESCE(MAX(t." + TrackPointsColumns.TIME + TIME_SELECT_CLAUSE + TrackPointsColumns.TIME + COALESCE_MAX_TIME_DIFF + TrackPointsColumns.TIME + ") " + TrackPointsColumns.ALIAS_AVG_CADENCE + ", " +
-    
+
                     "MAX(t." + TrackPointsColumns.SENSOR_CADENCE + ") " + TrackPointsColumns.ALIAS_MAX_CADENCE + ", " +
-    
+
                     "SUM(t." + TrackPointsColumns.SENSOR_POWER + COALESCE_MAX + TrackPointsColumns.TIME + TIME_SELECT_CLAUSE + TrackPointsColumns.TIME + COALESCE_MAX_TIME_DIFF + TrackPointsColumns.TIME + ")) " +
                     "/ " +
                     "SUM(COALESCE(MAX(t." + TrackPointsColumns.TIME + TIME_SELECT_CLAUSE + TrackPointsColumns.TIME + COALESCE_MAX_TIME_DIFF + TrackPointsColumns.TIME + ") " + TrackPointsColumns.ALIAS_AVG_POWER + ", " +
-    
+
                     "MAX(t." + TrackPointsColumns.SENSOR_POWER + ") " + TrackPointsColumns.ALIAS_MAX_POWER + " " +
-    
-                "FROM " + TrackPointsColumns.TABLE_NAME + " t " +
-                "WHERE t." + TrackPointsColumns.TRACKID + " = ? " +
-                "AND t." + TrackPointsColumns.TYPE + " NOT IN (" + TrackPoint.Type.SEGMENT_START_MANUAL.type_db + ")";
 
-        public CustomContentProvider() {
-            uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+                    "FROM " + TrackPointsColumns.TABLE_NAME + " t " +
+                    "WHERE t." + TrackPointsColumns.TRACKID + " = ? " +
+                    "AND t." + TrackPointsColumns.TYPE + " NOT IN (" + TrackPoint.Type.SEGMENT_START_MANUAL.type_db + ")";
 
-            // Access the authority via the method
-            uriMatcher.addURI(ContentProviderUtils.getAuthorityPackage(), TrackPointsColumns.CONTENT_URI_BY_ID.getPath(), UrlType.TRACKPOINTS.ordinal());
-            uriMatcher.addURI(ContentProviderUtils.getAuthorityPackage(), TrackPointsColumns.CONTENT_URI_BY_ID.getPath() + "/#", UrlType.TRACKPOINTS_BY_ID.ordinal());
-            uriMatcher.addURI(ContentProviderUtils.getAuthorityPackage(), TrackPointsColumns.CONTENT_URI_BY_TRACKID.getPath() + "/*", UrlType.TRACKPOINTS_BY_TRACKID.ordinal());
-            uriMatcher.addURI(ContentProviderUtils.getAuthorityPackage(), TracksColumns.CONTENT_URI.getPath(), UrlType.TRACKS.ordinal());
-            uriMatcher.addURI(ContentProviderUtils.getAuthorityPackage(), TracksColumns.CONTENT_URI_SENSOR_STATS.getPath() + "/#", UrlType.TRACKS_SENSOR_STATS.ordinal());
-            uriMatcher.addURI(ContentProviderUtils.getAuthorityPackage(), TracksColumns.CONTENT_URI.getPath() + "/*", UrlType.TRACKS_BY_ID.ordinal());
-            uriMatcher.addURI(ContentProviderUtils.getAuthorityPackage(), MarkerColumns.CONTENT_URI.getPath(), UrlType.MARKERS.ordinal());
-            uriMatcher.addURI(ContentProviderUtils.getAuthorityPackage(), MarkerColumns.CONTENT_URI.getPath() + "/#", UrlType.MARKERS_BY_ID.ordinal());
-            uriMatcher.addURI(ContentProviderUtils.getAuthorityPackage(), MarkerColumns.CONTENT_URI_BY_TRACKID.getPath() + "/*", UrlType.MARKERS_BY_TRACKID.ordinal());
-        }
-    
-        @Override
-        public boolean onCreate() {
-            return onCreate(getContext());
-        }
+    public CustomContentProvider() {
+        uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+
+        // Access the authority via the method
+        uriMatcher.addURI(ContentProviderUtils.getAuthorityPackage(), TrackPointsColumns.CONTENT_URI_BY_ID.getPath(), UrlType.TRACKPOINTS.ordinal());
+        uriMatcher.addURI(ContentProviderUtils.getAuthorityPackage(), TrackPointsColumns.CONTENT_URI_BY_ID.getPath() + "/#", UrlType.TRACKPOINTS_BY_ID.ordinal());
+        uriMatcher.addURI(ContentProviderUtils.getAuthorityPackage(), TrackPointsColumns.CONTENT_URI_BY_TRACKID.getPath() + "/*", UrlType.TRACKPOINTS_BY_TRACKID.ordinal());
+        uriMatcher.addURI(ContentProviderUtils.getAuthorityPackage(), TracksColumns.CONTENT_URI.getPath(), UrlType.TRACKS.ordinal());
+        uriMatcher.addURI(ContentProviderUtils.getAuthorityPackage(), TracksColumns.CONTENT_URI_SENSOR_STATS.getPath() + "/#", UrlType.TRACKS_SENSOR_STATS.ordinal());
+        uriMatcher.addURI(ContentProviderUtils.getAuthorityPackage(), TracksColumns.CONTENT_URI.getPath() + "/*", UrlType.TRACKS_BY_ID.ordinal());
+        uriMatcher.addURI(ContentProviderUtils.getAuthorityPackage(), MarkerColumns.CONTENT_URI.getPath(), UrlType.MARKERS.ordinal());
+        uriMatcher.addURI(ContentProviderUtils.getAuthorityPackage(), MarkerColumns.CONTENT_URI.getPath() + "/#", UrlType.MARKERS_BY_ID.ordinal());
+        uriMatcher.addURI(ContentProviderUtils.getAuthorityPackage(), MarkerColumns.CONTENT_URI_BY_TRACKID.getPath() + "/*", UrlType.MARKERS_BY_TRACKID.ordinal());
+    }
+
+    @Override
+    public boolean onCreate() {
+        return onCreate(getContext());
+    }
 
         /**
          * Helper method to make onCreate is testable.
@@ -350,8 +350,8 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
 
     @Override
     public int update(@NonNull Uri url, ContentValues values, String where, String[] selectionArgs) {
-        // TODO Use SQLiteQueryBuilder
         String table;
+        String whereClause = where;
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 
         switch (getUrlType(url)) {
@@ -364,13 +364,13 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
             case TRACKS -> table = TracksColumns.TABLE_NAME;
             case TRACKS_BY_ID -> {
                 table = TracksColumns.TABLE_NAME;
-                qb.appendWhere(TrackPointsColumns._ID + "=?");
+                qb.appendWhere(TracksColumns._ID + "=?");
                 selectionArgs = appendSelectionArg(selectionArgs, String.valueOf(ContentUris.parseId(url)));
             }
             case MARKERS -> table = MarkerColumns.TABLE_NAME;
             case MARKERS_BY_ID -> {
                 table = MarkerColumns.TABLE_NAME;
-                qb.appendWhere(TrackPointsColumns._ID + "=?");
+                qb.appendWhere(MarkerColumns._ID + "=?");
                 selectionArgs = appendSelectionArg(selectionArgs, String.valueOf(ContentUris.parseId(url)));
             }
             default -> throw new IllegalArgumentException("Unknown url " + url);
@@ -380,7 +380,8 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
 
         try {
             db.beginTransaction();
-            count = db.update(qb.getTables(), values, where, selectionArgs);
+
+            count = safeUpdate(db, qb.getTables(),values,whereClause,selectionArgs);
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
@@ -389,6 +390,12 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
         getContext().getContentResolver().notifyChange(url, null, false);
         return count;
     }
+    private int safeUpdate(SQLiteDatabase db, String table, ContentValues values,
+                           String whereClause, String[] selectionArgs) {
+        return db.update(table, values, whereClause, selectionArgs);
+    }
+
+
 
     private String[] appendSelectionArg(String[] selectionArgs, String id) {
         if (selectionArgs == null) {
@@ -399,73 +406,73 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
         newArgs[selectionArgs.length] = id;
         return newArgs;
     }
-    
-        @NonNull
-        private UrlType getUrlType(Uri url) {
-            UrlType[] urlTypes = UrlType.values();
-            int matchIndex = uriMatcher.match(url);
-            if (0 <= matchIndex && matchIndex < urlTypes.length) {
-                return urlTypes[matchIndex];
-            }
-    
-            throw new IllegalArgumentException("Unknown URL " + url);
-        }
-    
-        /**
-         * Inserts a content based on the url type.
-         *
-         * @param url           the content url
-         * @param urlType       the url type
-         * @param contentValues the content values
-         */
-        private Uri insertContentValues(Uri url, UrlType urlType, ContentValues contentValues) {
-            return switch (urlType) {
-                case TRACKPOINTS -> insertTrackPoint(url, contentValues);
-                case TRACKS -> insertTrack(url, contentValues);
-                case MARKERS -> insertMarker(url, contentValues);
-                default -> throw new IllegalArgumentException("Unknown url " + url);
-            };
-        }
-    
-        private Uri insertTrackPoint(Uri url, ContentValues values) {
-            boolean hasTime = values.containsKey(TrackPointsColumns.TIME);
-            if (!hasTime) {
-                throw new IllegalArgumentException("Latitude, longitude, and time values are required.");
-            }
-            long rowId = db.insert(TrackPointsColumns.TABLE_NAME, TrackPointsColumns._ID, values);
-            if (rowId >= 0) {
-                return ContentUris.appendId(TrackPointsColumns.CONTENT_URI_BY_ID.buildUpon(), rowId).build();
-            }
-            throw new SQLiteException("Failed to insert a track point " + url);
 
+    @NonNull
+    private UrlType getUrlType(Uri url) {
+        UrlType[] urlTypes = UrlType.values();
+        int matchIndex = uriMatcher.match(url);
+        if (0 <= matchIndex && matchIndex < urlTypes.length) {
+            return urlTypes[matchIndex];
         }
-    
-        private Uri insertTrack(Uri url, ContentValues contentValues) {
-            long rowId = db.insert(TracksColumns.TABLE_NAME, TracksColumns._ID, contentValues);
-            if (rowId >= 0) {
-                return ContentUris.appendId(TracksColumns.CONTENT_URI.buildUpon(), rowId).build();
-            }
-            throw new SQLException("Failed to insert a track " + url);
-        }
-    
-        private Uri insertMarker(Uri url, ContentValues contentValues) {
-            long rowId = db.insert(MarkerColumns.TABLE_NAME, MarkerColumns._ID, contentValues);
-            if (rowId >= 0) {
-                return ContentUris.appendId(MarkerColumns.CONTENT_URI.buildUpon(), rowId).build();
-            }
-            throw new SQLException("Failed to insert a marker " + url);
-        }
-    
-        @VisibleForTesting
-        enum UrlType {
-            TRACKPOINTS,
-            TRACKPOINTS_BY_ID,
-            TRACKPOINTS_BY_TRACKID,
-            TRACKS,
-            TRACKS_BY_ID,
-            TRACKS_SENSOR_STATS,
-            MARKERS,
-            MARKERS_BY_ID,
-            MARKERS_BY_TRACKID
-        }
+
+        throw new IllegalArgumentException("Unknown URL " + url);
     }
+
+    /**
+     * Inserts a content based on the url type.
+     *
+     * @param url           the content url
+     * @param urlType       the url type
+     * @param contentValues the content values
+     */
+    private Uri insertContentValues(Uri url, UrlType urlType, ContentValues contentValues) {
+        return switch (urlType) {
+            case TRACKPOINTS -> insertTrackPoint(url, contentValues);
+            case TRACKS -> insertTrack(url, contentValues);
+            case MARKERS -> insertMarker(url, contentValues);
+            default -> throw new IllegalArgumentException("Unknown url " + url);
+        };
+    }
+
+    private Uri insertTrackPoint(Uri url, ContentValues values) {
+        boolean hasTime = values.containsKey(TrackPointsColumns.TIME);
+        if (!hasTime) {
+            throw new IllegalArgumentException("Latitude, longitude, and time values are required.");
+        }
+        long rowId = db.insert(TrackPointsColumns.TABLE_NAME, TrackPointsColumns._ID, values);
+        if (rowId >= 0) {
+            return ContentUris.appendId(TrackPointsColumns.CONTENT_URI_BY_ID.buildUpon(), rowId).build();
+        }
+        throw new SQLiteException("Failed to insert a track point " + url);
+
+    }
+
+    private Uri insertTrack(Uri url, ContentValues contentValues) {
+        long rowId = db.insert(TracksColumns.TABLE_NAME, TracksColumns._ID, contentValues);
+        if (rowId >= 0) {
+            return ContentUris.appendId(TracksColumns.CONTENT_URI.buildUpon(), rowId).build();
+        }
+        throw new SQLException("Failed to insert a track " + url);
+    }
+
+    private Uri insertMarker(Uri url, ContentValues contentValues) {
+        long rowId = db.insert(MarkerColumns.TABLE_NAME, MarkerColumns._ID, contentValues);
+        if (rowId >= 0) {
+            return ContentUris.appendId(MarkerColumns.CONTENT_URI.buildUpon(), rowId).build();
+        }
+        throw new SQLException("Failed to insert a marker " + url);
+    }
+
+    @VisibleForTesting
+    enum UrlType {
+        TRACKPOINTS,
+        TRACKPOINTS_BY_ID,
+        TRACKPOINTS_BY_TRACKID,
+        TRACKS,
+        TRACKS_BY_ID,
+        TRACKS_SENSOR_STATS,
+        MARKERS,
+        MARKERS_BY_ID,
+        MARKERS_BY_TRACKID
+    }
+}
