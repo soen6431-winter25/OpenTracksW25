@@ -342,9 +342,28 @@ public class CustomContentProvider extends ContentProvider {
         }
 
         private String[] getSafeSelectionArgs(String[] selectionArgs) {
-            return validateSelectionArgs(selectionArgs);
-        }
+            if (selectionArgs == null) {
+                return null;
+            }
         
+            List<String> sanitizedList = new ArrayList<>();
+            
+            for (String arg : selectionArgs) {
+                if (arg == null) {
+                    throw new IllegalArgumentException("Null value detected in selectionArgs");
+                }
+        
+                String sanitizedArg = arg.trim();
+        
+                if (sanitizedArg.matches("\\d+") || sanitizedArg.matches("[a-zA-Z0-9_\\-@.]+")) { 
+                    sanitizedList.add(sanitizedArg);
+                } else {
+                    throw new IllegalArgumentException("Invalid selectionArgs parameter detected: " + sanitizedArg);
+                }
+            }
+        
+            return sanitizedList.toArray(new String[0]);
+        }
         
         @Override
         public Cursor query(@NonNull Uri url, String[] projection, String selection, String[] selectionArgs, String sort) {
