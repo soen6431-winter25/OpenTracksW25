@@ -183,7 +183,16 @@ public class TrackRecordedActivity extends AbstractTrackDeleteActivity implement
         if (item.getItemId() == R.id.track_detail_markers) {
             Intent intent = IntentUtils.newIntent(this, MarkerListActivity.class)
                     .putExtra(MarkerListActivity.EXTRA_TRACK_ID, trackId);
+
+            if (trackId == null) {
+                Log.e(TAG, "Track ID is null. Cannot proceed with sharing.");
+                return false;
+            }
+            
+            Intent intent = Intent.createChooser(ShareUtils.newShareFileIntent(this, trackId), null);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
+            
             return true;
         }
 
