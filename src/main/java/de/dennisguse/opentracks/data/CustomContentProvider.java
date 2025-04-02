@@ -267,7 +267,18 @@ public int delete(@NonNull Uri url, String where, String[] selectionArgs) {
                 }
                 case TRACKPOINTS_BY_TRACKID -> {
                     queryBuilder.setTables(TrackPointsColumns.TABLE_NAME);
-                    queryBuilder.appendWhere(TrackPointsColumns.TRACKID + " IN (" + TextUtils.join(SQL_LIST_DELIMITER, ContentProviderUtils.parseTrackIdsFromUri(url)) + ")");
+                    String[] trackIds = ContentProviderUtils.parseTrackIdsFromUri(url);
+                    StringBuilder whereClause = new StringBuilder(TrackPointsColumns.TRACKID + " IN (");
+                    for (int i = 0; i < trackIds.length; i++) {
+                        whereClause.append("?");
+                        if (i < trackIds.length - 1) {
+                            whereClause.append(", ");
+                        }
+                    }
+                    whereClause.append(")");
+                    queryBuilder.appendWhere(whereClause.toString());
+                    selectionArgs = trackIds;
+
                 }
                 case TRACKS -> {
                     if (projection != null && Arrays.asList(projection).contains(TracksColumns.MARKER_COUNT)) {
