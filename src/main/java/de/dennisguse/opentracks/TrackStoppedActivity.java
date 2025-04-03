@@ -127,14 +127,20 @@ public class TrackStoppedActivity extends AbstractTrackDeleteActivity implements
     }
 
     private void resumeTrackAndFinish() {
+        if (trackId == null) {
+            Log.e(TAG, "Track ID is null. Cannot proceed with resuming the track.");
+            return;
+        }
+    
         TrackRecordingServiceConnection.executeForeground(this, (service, connection) -> {
             service.resumeTrack(trackId);
-
-            Intent newIntent = IntentUtils.newIntent(TrackStoppedActivity.this, TrackRecordingActivity.class)
+    
+            Intent newIntent = new Intent(TrackStoppedActivity.this, TrackRecordingActivity.class)
                     .putExtra(TrackRecordingActivity.EXTRA_TRACK_ID, trackId);
+            newIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(newIntent);
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-
+    
             finish();
         });
     }
