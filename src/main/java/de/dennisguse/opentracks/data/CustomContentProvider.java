@@ -487,12 +487,25 @@ public class CustomContentProvider extends ContentProvider {
         getContext().getContentResolver().notifyChange(url, null, false);
         return count;
     }
-    private int safeUpdate(SQLiteDatabase db, String table, ContentValues values,
-                           String whereClause, String[] selectionArgs) {
+
+    /**
+     * A safe update method that rejects unsafe whereClause.
+     *
+     * @param db          the database
+     * @param table       the table name
+     * @param values      the content values
+     * @param whereClause the where clause
+     * @param selectionArgs the selection arguments
+     * @return the number of rows affected
+     */
+    private int safeUpdate(SQLiteDatabase db, String table, ContentValues values, String whereClause, String[] selectionArgs) {
+        // Reject unsafe whereClause if it contains suspicious characters (e.g., semicolons, quotes, comments)
+        if (whereClause != null && !whereClause.matches("^[\\w\\s=?.()]+$")) {
+            throw new IllegalArgumentException("Unsafe whereClause detected.");
+        }
+
         return db.update(table, values, whereClause, selectionArgs);
     }
-
-
 
     private String[] appendSelectionArg(String[] selectionArgs, String id) {
         if (selectionArgs == null) {
