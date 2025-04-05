@@ -157,6 +157,9 @@ public class CustomContentProvider extends ContentProvider {
                     throw new IllegalArgumentException("Unsafe whereClause detected.");
                 }
                 db.beginTransaction();
+                if (where != null && !where.matches("^[\\w\\s=?.()]+$")) {
+                    throw new IllegalArgumentException("Unsafe whereClause detected.");
+                }
                 deletedRowsFromTable = db.delete(table, where, selectionArgs);
                 Log.i(TAG, "Deleted " + deletedRowsFromTable + " rows of table " + table);
                 db.setTransactionSuccessful();
