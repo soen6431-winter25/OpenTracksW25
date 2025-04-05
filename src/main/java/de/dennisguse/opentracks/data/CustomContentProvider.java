@@ -153,10 +153,10 @@ public class CustomContentProvider extends ContentProvider {
             int totalChangesBefore = getTotalChanges();
             int deletedRowsFromTable;
             try {
-                db.beginTransaction();
                 if (where != null && !where.matches("^[\\w\\s=?.()]+$")) {
                     throw new IllegalArgumentException("Unsafe whereClause detected.");
                 }
+                db.beginTransaction();
                 deletedRowsFromTable = db.delete(table, where, selectionArgs);
                 Log.i(TAG, "Deleted " + deletedRowsFromTable + " rows of table " + table);
                 db.setTransactionSuccessful();
