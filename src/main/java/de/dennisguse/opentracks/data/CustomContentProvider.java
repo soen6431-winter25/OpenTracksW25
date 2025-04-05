@@ -151,14 +151,13 @@ public class CustomContentProvider extends ContentProvider {
     
             Log.w(TAG, "Deleting from table " + table);
 
-            if (where!= null) {
-                where = where.replaceAll("[^a-zA-Z0-9_ =<>!&|%^-]", "");
-            }
-
             int totalChangesBefore = getTotalChanges();
             int deletedRowsFromTable;
             try {
                 db.beginTransaction();
+                if (where!= null) {
+                    where = where.replaceAll("[^a-zA-Z0-9_ =<>!&|%^-]", "");
+                }
                 deletedRowsFromTable = db.delete(table, where, getSafeSelectionArgs(selectionArgs));
                 Log.i(TAG, "Deleted " + deletedRowsFromTable + " rows of table " + table);
                 db.setTransactionSuccessful();
