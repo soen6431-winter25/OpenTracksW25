@@ -155,10 +155,7 @@ public class CustomContentProvider extends ContentProvider {
             int deletedRowsFromTable;
             try {
                 db.beginTransaction();
-                if (where!= null) {
-                    where = where.replaceAll("[^a-zA-Z0-9_ =<>!&|%^-]", "");
-                }
-                deletedRowsFromTable = db.delete(table, where, getSafeSelectionArgs(selectionArgs));
+                deletedRowsFromTable = db.delete(table, sanitizeWhereClause(where), getSafeSelectionArgs(selectionArgs));
                 Log.i(TAG, "Deleted " + deletedRowsFromTable + " rows of table " + table);
                 db.setTransactionSuccessful();
             } finally {
@@ -179,7 +176,17 @@ public class CustomContentProvider extends ContentProvider {
     
             return deletedRowsFromTable;
         }
-    
+        private String sanitizeWhereClause(String where) {
+            if (where == null) {
+                return null;
+            }
+
+            if (where.matches(".*[^a-zA-Z0-9_ =<>!&|%^-].*")) {
+                throw new IllegalArgumentException("Unsafe characters detected in WHERE clause: " + where);
+            }
+
+            return where;
+        }
         private int getTotalChanges() {
             int totalCount;
             try (Cursor cursor = db.rawQuery("SELECT total_changes()", null)) {
