@@ -281,19 +281,25 @@ public class MarkerEditActivity extends AbstractActivity {
             File photoFile = MarkerUtils.createImageFile(this, getTrackId());
             Uri photoUri = FileProvider.getUriForFile(this, "com.yourapp.fileprovider", photoFile); // Use your app's provider
 
-            // Proceed to capture photo with the camera intent
-            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
+            // Launch camera intent
+            launchCameraIntent(photoUri);
 
-            try {
-                takePictureFromCamera.launch(takePictureIntent);
-            } catch (ActivityNotFoundException e) {
-                Toast.makeText(this, R.string.no_compatible_camera_installed, Toast.LENGTH_LONG).show();
-            }
         } catch (IOException e) {
             Toast.makeText(this, "Error creating image file", Toast.LENGTH_LONG).show();
         }
     }
+
+    private void launchCameraIntent(Uri photoUri) {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
+
+        try {
+            takePictureFromCamera.launch(takePictureIntent);
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(this, R.string.no_compatible_camera_installed, Toast.LENGTH_LONG).show();
+        }
+    }
+
 
     private void createMarkerWithGalleryImage() {
         PickVisualMediaRequest request = new PickVisualMediaRequest.Builder()

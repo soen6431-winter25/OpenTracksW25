@@ -122,9 +122,7 @@ public class MarkerUtils {
         }
 
         // Ensure only alphanumeric characters and avoid path traversal characters
-        String sanitizedTrackId = trackId.toString().replaceAll("[^a-zA-Z0-9]", "_");
-
-        return sanitizedTrackId;
+        return  trackId.toString().replaceAll("[^a-zA-Z0-9]", "_");
     }
 
     public static File createImageFile(Context context, Track.Id trackId) throws IOException {
