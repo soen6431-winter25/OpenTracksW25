@@ -254,4 +254,13 @@ public class KmzTrackImporter {
             }
         }
     }
+    private String sanitizeFilename(String fileName) {
+        fileName = fileName.replace("../", "_")
+                          .replace("./", "_")
+                          .replace("/", "_")
+                          .replace("\\", "_");
+        fileName = fileName.replaceAll("[^a-zA-Z0-9.-]", "_");
+    
+        return fileName;
+    }
 }
