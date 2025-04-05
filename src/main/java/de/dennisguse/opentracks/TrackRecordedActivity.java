@@ -188,8 +188,13 @@ public class TrackRecordedActivity extends AbstractTrackDeleteActivity implement
         }
 
         if (item.getItemId() == R.id.track_detail_edit) {
-            Intent intent = IntentUtils.newIntent(this, TrackEditActivity.class)
+            if (trackId == null) {
+                Log.e(TAG, "Track ID is null. Cannot proceed with resuming the track.");
+                return false;
+            }
+            Intent intent = new Intent(this, TrackEditActivity.class)
                     .putExtra(TrackEditActivity.EXTRA_TRACK_ID, trackId);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
             return true;
         }
