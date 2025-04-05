@@ -150,14 +150,14 @@ public class CustomContentProvider extends ContentProvider {
             };
     
             Log.w(TAG, "Deleting from table " + table);
+
+
+
             int totalChangesBefore = getTotalChanges();
             int deletedRowsFromTable;
             try {
-                if (where != null && where.matches(  "(--|;|/\\*|\\*/|\\b(OR|AND|DROP|DELETE|INSERT|UPDATE|UNION|SELECT|EXEC|ALTER|CREATE)\\b)")) {
-                    throw new IllegalArgumentException("Potentially unsafe WHERE clause detected: " + where);
-                }
                 db.beginTransaction();
-                deletedRowsFromTable = db.delete(table, where, selectionArgs);
+                deletedRowsFromTable = db.delete(table, where, getSafeSelectionArgs(selectionArgs));
                 Log.i(TAG, "Deleted " + deletedRowsFromTable + " rows of table " + table);
                 db.setTransactionSuccessful();
             } finally {
