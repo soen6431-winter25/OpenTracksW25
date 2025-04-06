@@ -177,10 +177,16 @@ public class MarkerListActivity extends AbstractActivity implements DeleteMarker
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (trackId != null && item.getItemId() == R.id.marker_list_insert_marker) {
-            Intent intent = IntentUtils.newIntent(this, MarkerEditActivity.class)
-                    .putExtra(MarkerEditActivity.EXTRA_TRACK_ID, trackId);
-            startActivity(intent);
-            return true;
+            if (trackId.equals(recordingStatus.trackId())) {
+                Intent intent = new Intent(this, MarkerEditActivity.class);
+                intent.putExtra(MarkerEditActivity.EXTRA_TRACK_ID, trackId);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+                return true;
+            } else {
+                android.util.Log.w("MarkerListActivity", "Potential intent hijacking attempt - trackId doesn't match recording");
+                return true;
+            }
         }
         return super.onOptionsItemSelected(item);
     }
