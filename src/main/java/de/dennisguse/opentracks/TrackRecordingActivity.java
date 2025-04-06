@@ -277,10 +277,9 @@ public class TrackRecordingActivity extends AbstractActivity implements ChooseAc
             if (trackPoint == null) {
                 return true;
             }
-            Intent intent = IntentUtils
-                    .newIntent(this, MarkerEditActivity.class)
-                    .putExtra(MarkerEditActivity.EXTRA_TRACK_ID, trackId)
-                    .putExtra(MarkerEditActivity.EXTRA_LOCATION, trackPoint.getLocation());
+            Intent intent = new Intent(this, MarkerEditActivity.class);
+            intent.putExtra(MarkerEditActivity.EXTRA_TRACK_ID, trackId);
+            intent.putExtra(MarkerEditActivity.EXTRA_LOCATION, trackPoint.getLocation());
             startActivity(intent);
             return true;
         }
