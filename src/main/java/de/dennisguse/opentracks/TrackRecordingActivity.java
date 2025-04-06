@@ -140,8 +140,11 @@ public class TrackRecordingActivity extends AbstractActivity implements ChooseAc
         viewBinding.trackRecordingFabAction.setOnLongClickListener((view) -> {
             ActivityUtils.vibrate(this, Duration.ofSeconds(1));
             trackRecordingServiceConnection.stopRecording(TrackRecordingActivity.this);
-            Intent newIntent = IntentUtils.newIntent(TrackRecordingActivity.this, TrackStoppedActivity.class)
-                    .putExtra(TrackStoppedActivity.EXTRA_TRACK_ID, trackId);
+
+            Intent newIntent = new Intent(TrackRecordingActivity.this, TrackStoppedActivity.class);
+            newIntent.putExtra(TrackStoppedActivity.EXTRA_TRACK_ID, trackId);
+            newIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
             startActivity(newIntent);
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             finish();
