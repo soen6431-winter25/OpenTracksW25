@@ -4,12 +4,16 @@ import java.util.Arrays;
 import java.util.Objects;
 
 public record SelectionData(
-    String selection,
-    String[] selectionArgs
+        String selection,
+        String[] selectionArgs
 ) {
-
     public SelectionData() {
         this(null, null);
+    }
+
+    @Override
+    public String[] selectionArgs() {
+        return selectionArgs == null ? null : selectionArgs.clone();
     }
 
     @Override
