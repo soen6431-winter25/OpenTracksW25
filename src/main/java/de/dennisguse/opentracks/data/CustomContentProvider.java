@@ -409,8 +409,7 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
             }
             return input;
         }
-             
-    
+                 
         @NonNull
         private UrlType getUrlType(Uri url) {
             UrlType[] urlTypes = UrlType.values();
