@@ -156,6 +156,12 @@ public class ExportActivity extends AppCompatActivity implements ExportService.E
         setSupportActionBar(viewBinding.bottomAppBarLayout.bottomAppBar);
 
         directoryUri = getIntent().getParcelableExtra(EXTRA_DIRECTORY_URI_KEY);
+        // validity check
+        if (directoryUri == null || !"content".equals(directoryUri.getScheme())) {
+            Toast.makeText(this, "Invalid directory URI", Toast.LENGTH_SHORT).show();
+            finish(); // or return to prevent further execution
+            return;
+        }
         trackFileFormat = (TrackFileFormat) getIntent().getSerializableExtra(EXTRA_TRACKFILEFORMAT_KEY);
         boolean allInOneFile = getIntent().getBooleanExtra(EXTRA_ONE_FILE_KEY, false);
 
