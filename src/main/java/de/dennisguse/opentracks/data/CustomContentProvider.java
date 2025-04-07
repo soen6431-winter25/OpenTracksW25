@@ -248,6 +248,7 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
         public Cursor query(@NonNull Uri url, String[] projection, String selection, String[] selectionArgs, String sort) {
             SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
             String sortOrder = null;
+        
             switch (getUrlType(url)) {
                 case TRACKPOINTS -> {
                     queryBuilder.setTables(TrackPointsColumns.TABLE_NAME);
@@ -255,7 +256,8 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
                 }
                 case TRACKPOINTS_BY_ID -> {
                     queryBuilder.setTables(TrackPointsColumns.TABLE_NAME);
-                    queryBuilder.appendWhere(TrackPointsColumns._ID + "=" + ContentUris.parseId(url));
+                    queryBuilder.appendWhere(TrackPointsColumns._ID + "=?");
+                    selectionArgs = mergeArgs(new String[]{String.valueOf(ContentUris.parseId(url))}, selectionArgs);
                 }
                 case TRACKPOINTS_BY_TRACKID -> {
                     queryBuilder.setTables(TrackPointsColumns.TABLE_NAME);
@@ -278,14 +280,8 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
                 }
                 case TRACKS_BY_ID -> {
                     queryBuilder.setTables(TracksColumns.TABLE_NAME);
-                    String[] trackIds = ContentProviderUtils.parseTrackIdsFromUri(url);
-                    StringBuilder inClause = new StringBuilder();
-                    for (int i = 0; i < trackIds.length; i++) {
-                        if (i > 0) inClause.append(", ");
-                        inClause.append("?");
-                    }
-                    queryBuilder.appendWhere(TracksColumns._ID + " IN (" + inClause + ")");
-                    selectionArgs = selectionArgs != null ? mergeArgs(trackIds, selectionArgs) : trackIds;
+                    queryBuilder.appendWhere(TracksColumns._ID + "=?");
+                    selectionArgs = mergeArgs(new String[]{String.valueOf(ContentUris.parseId(url))}, selectionArgs);
                 }
                 case TRACKS_SENSOR_STATS -> {
                     long trackId = ContentUris.parseId(url);
@@ -297,7 +293,8 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
                 }
                 case MARKERS_BY_ID -> {
                     queryBuilder.setTables(MarkerColumns.TABLE_NAME);
-                    queryBuilder.appendWhere(MarkerColumns._ID + "=" + ContentUris.parseId(url));
+                    queryBuilder.appendWhere(MarkerColumns._ID + "=?");
+                    selectionArgs = mergeArgs(new String[]{String.valueOf(ContentUris.parseId(url))}, selectionArgs);
                 }
                 case MARKERS_BY_TRACKID -> {
                     queryBuilder.setTables(MarkerColumns.TABLE_NAME);
@@ -312,51 +309,36 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
                 }
                 default -> throw new IllegalArgumentException("Unknown url " + url);
             }
-
+        
             Cursor cursor = queryBuilder.query(db, projection, selection, selectionArgs, null, null, sortOrder);
             cursor.setNotificationUri(getContext().getContentResolver(), url);
             return cursor;
-        }
+        }        
         
         @Override
         public int update(@NonNull Uri url, ContentValues values, String where, String[] selectionArgs) {
             String table;
             String whereClause = null;
             String[] safeArgs = null;
-        
+
             switch (getUrlType(url)) {
                 case TRACKPOINTS_BY_ID -> {
                     table = TrackPointsColumns.TABLE_NAME;
-                    whereClause = TrackPointsColumns._ID + "=?";
                     String id = String.valueOf(ContentUris.parseId(url));
-                    if (!TextUtils.isEmpty(where)) {
-                        whereClause += AND_CLAUSE_PREFIX + where + ")";
-                        safeArgs = mergeArgs(new String[]{id}, selectionArgs);
-                    } else {
-                        safeArgs = new String[]{id};
-                    }
+                    whereClause = TrackPointsColumns._ID + "=?";
+                    safeArgs = !TextUtils.isEmpty(where) ? mergeArgs(new String[]{id}, new String[]{escapeWhereClause(where)}) : new String[]{id};
                 }
                 case TRACKS_BY_ID -> {
                     table = TracksColumns.TABLE_NAME;
-                    whereClause = TracksColumns._ID + "=?";
                     String id = String.valueOf(ContentUris.parseId(url));
-                    if (!TextUtils.isEmpty(where)) {
-                        whereClause += AND_CLAUSE_PREFIX + where + ")";
-                        safeArgs = mergeArgs(new String[]{id}, selectionArgs);
-                    } else {
-                        safeArgs = new String[]{id};
-                    }
+                    whereClause = TracksColumns._ID + "=?";
+                    safeArgs = !TextUtils.isEmpty(where) ? mergeArgs(new String[]{id}, new String[]{escapeWhereClause(where)}) : new String[]{id};
                 }
                 case MARKERS_BY_ID -> {
                     table = MarkerColumns.TABLE_NAME;
-                    whereClause = MarkerColumns._ID + "=?";
                     String id = String.valueOf(ContentUris.parseId(url));
-                    if (!TextUtils.isEmpty(where)) {
-                        whereClause += AND_CLAUSE_PREFIX + where + ")";
-                        safeArgs = mergeArgs(new String[]{id}, selectionArgs);
-                    } else {
-                        safeArgs = new String[]{id};
-                    }
+                    whereClause = MarkerColumns._ID + "=?";
+                    safeArgs = !TextUtils.isEmpty(where) ? mergeArgs(new String[]{id}, new String[]{escapeWhereClause(where)}) : new String[]{id};
                 }
                 case TRACKPOINTS, TRACKS, MARKERS -> {
                     table = switch (getUrlType(url)) {
@@ -365,7 +347,7 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
                         case MARKERS -> MarkerColumns.TABLE_NAME;
                         default -> throw new IllegalStateException();
                     };
-        
+
                     if (!TextUtils.isEmpty(where)) {
                         whereClause = escapeWhereClause(where);
                     }
@@ -373,7 +355,7 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
                 }
                 default -> throw new IllegalArgumentException("Unknown url " + url);
             }
-        
+
             int count;
             try {
                 db.beginTransaction();
@@ -382,7 +364,7 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
             } finally {
                 db.endTransaction();
             }
-        
+
             getContext().getContentResolver().notifyChange(url, null, false);
             return count;
         }
