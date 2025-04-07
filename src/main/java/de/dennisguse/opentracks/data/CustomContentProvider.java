@@ -403,12 +403,15 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
          */
         private String escapeWhereClause(String input) {
             if (input == null) return null;
-            // Allow only safe SQL components: alphanumeric, =, <, >, !, (), spaces
-            if (!input.matches("[a-zA-Z0-9_ =<>!()]+")) {
+        
+            // Allow common SQL syntax and prevent dangerous patterns
+            String lower = input.toLowerCase();
+            if (lower.contains(";") || lower.contains("--") || lower.contains("'") || lower.contains("\"") || lower.contains("\\")) {
                 throw new IllegalArgumentException("Unsafe characters detected in WHERE clause.");
             }
+        
             return input;
-        }
+        }        
                  
         @NonNull
         private UrlType getUrlType(Uri url) {
