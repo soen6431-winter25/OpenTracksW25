@@ -17,7 +17,6 @@
 
 package de.dennisguse.opentracks.data;
 
-import de.dennisguse.opentracks.data.ContentProviderUtils;
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -31,8 +30,6 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
-import java.util.List;
-import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
@@ -40,7 +37,6 @@ import androidx.annotation.VisibleForTesting;
 import java.util.Arrays;
 
 import de.dennisguse.opentracks.data.models.TrackPoint;
-import de.dennisguse.opentracks.data.models.TrackPoint.Type;
 import de.dennisguse.opentracks.data.tables.MarkerColumns;
 import de.dennisguse.opentracks.data.tables.TrackPointsColumns;
 import de.dennisguse.opentracks.data.tables.TracksColumns;
@@ -53,25 +49,12 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
  *
  * @author Leif Hendrik Wilden
  */
-    enum UrlType {
-        TRACKPOINTS,
-        TRACKPOINTS_BY_ID, 
-        TRACKPOINTS_BY_TRACKID,
-        TRACKS,
-        TRACKS_BY_ID,
-        TRACKS_SENSOR_STATS,
-        MARKERS,
-        MARKERS_BY_ID,
-        MARKERS_BY_TRACKID
-    }
 
     public class CustomContentProvider extends ContentProvider {
     
         private static final String TAG = CustomContentProvider.class.getSimpleName();
     
         private static final String SQL_LIST_DELIMITER = ",";
-
-        private static final String AND_CLAUSE_PREFIX = " AND (";
     
         private static final int TOTAL_DELETED_ROWS_VACUUM_THRESHOLD = 10000;
     
@@ -90,34 +73,34 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
          * It computes the average for heart rate, cadence and power (duration-based average) and the maximum for heart rate, cadence and power.
          * Finally, it ignores manual pause (SEGMENT_START_MANUAL).
          */
-        private static final String SENSOR_STATS_QUERY =
-                "WITH time_select AS " +
-                "(SELECT t1." + TrackPointsColumns.TIME + " * (t1." + TrackPointsColumns.TYPE + " NOT IN (?)) AS time_value " +
-                "FROM " + TrackPointsColumns.TABLE_NAME + " t1 " +
-                "WHERE t1." + TrackPointsColumns._ID + " > t." + TrackPointsColumns._ID + " AND t1." + TrackPointsColumns.TRACKID + " = ? ORDER BY _id LIMIT 1) " +
+        private final String SENSOR_STATS_QUERY =
+                "WITH time_select as " +
+                    "(SELECT t1." + TrackPointsColumns.TIME + " * (t1." + TrackPointsColumns.TYPE + " NOT IN (" + TrackPoint.Type.SEGMENT_START_MANUAL.type_db + ")) time_value " +
+                    "FROM " + TrackPointsColumns.TABLE_NAME + " t1 " +
+                    "WHERE t1." + TrackPointsColumns._ID + " > t." + TrackPointsColumns._ID + " AND t1." + TrackPointsColumns.TRACKID + " = ? ORDER BY _id LIMIT 1) " +
     
                 "SELECT " +
-                "SUM(t." + TrackPointsColumns.SENSOR_HEARTRATE + COALESCE_MAX + TrackPointsColumns.TIME + TIME_SELECT_CLAUSE + TrackPointsColumns.TIME + COALESCE_MAX_TIME_DIFF + TrackPointsColumns.TIME + ")) " +
-                "/ " +
-                "SUM(COALESCE(MAX(t." + TrackPointsColumns.TIME + TIME_SELECT_CLAUSE + TrackPointsColumns.TIME + COALESCE_MAX_TIME_DIFF + TrackPointsColumns.TIME + ") " + TrackPointsColumns.ALIAS_AVG_HR + ", " +
+                    "SUM(t." + TrackPointsColumns.SENSOR_HEARTRATE + COALESCE_MAX + TrackPointsColumns.TIME + TIME_SELECT_CLAUSE + TrackPointsColumns.TIME + COALESCE_MAX_TIME_DIFF + TrackPointsColumns.TIME + ")) " +
+                    "/ " +
+                    "SUM(COALESCE(MAX(t." + TrackPointsColumns.TIME + TIME_SELECT_CLAUSE + TrackPointsColumns.TIME + COALESCE_MAX_TIME_DIFF + TrackPointsColumns.TIME + ") " + TrackPointsColumns.ALIAS_AVG_HR + ", " +
     
-                "MAX(t." + TrackPointsColumns.SENSOR_HEARTRATE + ") " + TrackPointsColumns.ALIAS_MAX_HR + ", " +
+                    "MAX(t." + TrackPointsColumns.SENSOR_HEARTRATE + ") " + TrackPointsColumns.ALIAS_MAX_HR + ", " +
     
-                "SUM(t." + TrackPointsColumns.SENSOR_CADENCE + COALESCE_MAX + TrackPointsColumns.TIME + TIME_SELECT_CLAUSE + TrackPointsColumns.TIME + COALESCE_MAX_TIME_DIFF + TrackPointsColumns.TIME + ")) " +
-                "/ " +
-                "SUM(COALESCE(MAX(t." + TrackPointsColumns.TIME + TIME_SELECT_CLAUSE + TrackPointsColumns.TIME + COALESCE_MAX_TIME_DIFF + TrackPointsColumns.TIME + ") " + TrackPointsColumns.ALIAS_AVG_CADENCE + ", " +
+                    "SUM(t." + TrackPointsColumns.SENSOR_CADENCE + COALESCE_MAX + TrackPointsColumns.TIME + TIME_SELECT_CLAUSE + TrackPointsColumns.TIME + COALESCE_MAX_TIME_DIFF + TrackPointsColumns.TIME + ")) " +
+                    "/ " +
+                    "SUM(COALESCE(MAX(t." + TrackPointsColumns.TIME + TIME_SELECT_CLAUSE + TrackPointsColumns.TIME + COALESCE_MAX_TIME_DIFF + TrackPointsColumns.TIME + ") " + TrackPointsColumns.ALIAS_AVG_CADENCE + ", " +
     
-                "MAX(t." + TrackPointsColumns.SENSOR_CADENCE + ") " + TrackPointsColumns.ALIAS_MAX_CADENCE + ", " +
+                    "MAX(t." + TrackPointsColumns.SENSOR_CADENCE + ") " + TrackPointsColumns.ALIAS_MAX_CADENCE + ", " +
     
-                "SUM(t." + TrackPointsColumns.SENSOR_POWER + COALESCE_MAX + TrackPointsColumns.TIME + TIME_SELECT_CLAUSE + TrackPointsColumns.TIME + COALESCE_MAX_TIME_DIFF + TrackPointsColumns.TIME + ")) " +
-                "/ " +
-                "SUM(COALESCE(MAX(t." + TrackPointsColumns.TIME + TIME_SELECT_CLAUSE + TrackPointsColumns.TIME + COALESCE_MAX_TIME_DIFF + TrackPointsColumns.TIME + ") " + TrackPointsColumns.ALIAS_AVG_POWER + ", " +
+                    "SUM(t." + TrackPointsColumns.SENSOR_POWER + COALESCE_MAX + TrackPointsColumns.TIME + TIME_SELECT_CLAUSE + TrackPointsColumns.TIME + COALESCE_MAX_TIME_DIFF + TrackPointsColumns.TIME + ")) " +
+                    "/ " +
+                    "SUM(COALESCE(MAX(t." + TrackPointsColumns.TIME + TIME_SELECT_CLAUSE + TrackPointsColumns.TIME + COALESCE_MAX_TIME_DIFF + TrackPointsColumns.TIME + ") " + TrackPointsColumns.ALIAS_AVG_POWER + ", " +
     
-                "MAX(t." + TrackPointsColumns.SENSOR_POWER + ") " + TrackPointsColumns.ALIAS_MAX_POWER + " " +
+                    "MAX(t." + TrackPointsColumns.SENSOR_POWER + ") " + TrackPointsColumns.ALIAS_MAX_POWER + " " +
     
                 "FROM " + TrackPointsColumns.TABLE_NAME + " t " +
                 "WHERE t." + TrackPointsColumns.TRACKID + " = ? " +
-                "AND t." + TrackPointsColumns.TYPE + " NOT IN (?)";
+                "AND t." + TrackPointsColumns.TYPE + " NOT IN (" + TrackPoint.Type.SEGMENT_START_MANUAL.type_db + ")";
 
         public CustomContentProvider() {
             uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -269,8 +252,6 @@ public int delete(@NonNull Uri url, String where, String[] selectionArgs) {
             getContext().getContentResolver().notifyChange(url, null, false);
             return numInserted;
         }
-
-        // [REMAINDER OF THE FILE OMITTED FOR BREVITY] (keep your original code structure)
         
         @Override
         public Cursor query(@NonNull Uri url, String[] projection, String selection, String[] selectionArgs, String sort) {
@@ -288,13 +269,6 @@ public int delete(@NonNull Uri url, String where, String[] selectionArgs) {
                 case TRACKPOINTS_BY_TRACKID -> {
                     queryBuilder.setTables(TrackPointsColumns.TABLE_NAME);
                     String[] trackIds = ContentProviderUtils.parseTrackIdsFromUri(url);
-                    StringBuilder inClause = new StringBuilder();
-                    for (int i = 0; i < trackIds.length; i++) {
-                        if (i > 0) inClause.append(", ");
-                        inClause.append("?");
-                    }
-                    queryBuilder.appendWhere(TrackPointsColumns.TRACKID + " IN (" + inClause + ")");
-                    selectionArgs = selectionArgs != null ? mergeArgs(trackIds, selectionArgs) : trackIds;
                     StringBuilder whereClause = new StringBuilder(TrackPointsColumns.TRACKID + " IN (");
                     for (int i = 0; i < trackIds.length; i++) {
                         whereClause.append("?");
@@ -317,24 +291,11 @@ public int delete(@NonNull Uri url, String where, String[] selectionArgs) {
                 }
                 case TRACKS_BY_ID -> {
                     queryBuilder.setTables(TracksColumns.TABLE_NAME);
-                    String[] trackIds = ContentProviderUtils.parseTrackIdsFromUri(url);
-                    StringBuilder inClause = new StringBuilder();
-                    for (int i = 0; i < trackIds.length; i++) {
-                        if (i > 0) inClause.append(", ");
-                        inClause.append("?");
-                    }
-                    queryBuilder.appendWhere(TracksColumns._ID + " IN (" + inClause + ")");
-                    selectionArgs = selectionArgs != null ? mergeArgs(trackIds, selectionArgs) : trackIds;
+                    queryBuilder.appendWhere(TracksColumns._ID + " IN (" + TextUtils.join(SQL_LIST_DELIMITER, ContentProviderUtils.parseTrackIdsFromUri(url)) + ")");
                 }
                 case TRACKS_SENSOR_STATS -> {
                     long trackId = ContentUris.parseId(url);
-                    return db.rawQuery(SENSOR_STATS_QUERY, 
-                        new String[]{
-                            String.valueOf(TrackPoint.Type.SEGMENT_START_MANUAL.type_db),
-                            String.valueOf(trackId),
-                            String.valueOf(trackId),
-                            String.valueOf(TrackPoint.Type.SEGMENT_START_MANUAL.type_db)
-                        });
+                    return db.rawQuery(SENSOR_STATS_QUERY, new String[]{String.valueOf(trackId), String.valueOf(trackId)});
                 }
                 case MARKERS -> {
                     queryBuilder.setTables(MarkerColumns.TABLE_NAME);
@@ -346,21 +307,7 @@ public int delete(@NonNull Uri url, String where, String[] selectionArgs) {
                 }
                 case MARKERS_BY_TRACKID -> {
                     queryBuilder.setTables(MarkerColumns.TABLE_NAME);
-                    String[] trackIds = ContentProviderUtils.parseTrackIdsFromUri(url);
-                    // Validate all track IDs are numeric
-                    for (String trackId : trackIds) {
-                        if (!trackId.matches("^\\d+$")) {
-                            throw new IllegalArgumentException("Invalid track ID format");
-                        }
-                    }
-                    
-                    StringBuilder inClause = new StringBuilder();
-                    for (int i = 0; i < trackIds.length; i++) {
-                        if (i > 0) inClause.append(", ");
-                        inClause.append("?");
-                    }
-                    queryBuilder.appendWhere(MarkerColumns.TRACKID + " IN (" + inClause + ")");
-                    selectionArgs = selectionArgs != null ? mergeArgs(trackIds, selectionArgs) : trackIds;
+                    queryBuilder.appendWhere(MarkerColumns.TRACKID + " IN (" + TextUtils.join(SQL_LIST_DELIMITER, ContentProviderUtils.parseTrackIdsFromUri(url)) + ")");
                 }
                 default -> throw new IllegalArgumentException("Unknown url " + url);
             }
@@ -372,106 +319,60 @@ public int delete(@NonNull Uri url, String where, String[] selectionArgs) {
         
         @Override
         public int update(@NonNull Uri url, ContentValues values, String where, String[] selectionArgs) {
+            // TODO Use SQLiteQueryBuilder
             String table;
-            String whereClause = null;
-            String[] safeArgs = null;
-        
+            String whereClause;
+          
             switch (getUrlType(url)) {
+                case TRACKPOINTS -> {
+                    table = TrackPointsColumns.TABLE_NAME;
+                    whereClause = where;
+                }
                 case TRACKPOINTS_BY_ID -> {
                     table = TrackPointsColumns.TABLE_NAME;
-                    whereClause = TrackPointsColumns._ID + "=?";
-                    String id = String.valueOf(ContentUris.parseId(url));
+                    whereClause = TrackPointsColumns._ID + "=" + ContentUris.parseId(url);
                     if (!TextUtils.isEmpty(where)) {
-                        whereClause += AND_CLAUSE_PREFIX + where + ")";
-                        safeArgs = mergeArgs(new String[]{id}, selectionArgs);
-                    } else {
-                        safeArgs = new String[]{id};
+                        whereClause += " AND (" + where + ")";
                     }
+                }
+                case TRACKS -> {
+                    table = TracksColumns.TABLE_NAME;
+                    whereClause = where;
                 }
                 case TRACKS_BY_ID -> {
                     table = TracksColumns.TABLE_NAME;
-                    whereClause = TracksColumns._ID + "=?";
-                    String id = String.valueOf(ContentUris.parseId(url));
+                    whereClause = TracksColumns._ID + "=" + ContentUris.parseId(url);
                     if (!TextUtils.isEmpty(where)) {
-                        whereClause += AND_CLAUSE_PREFIX + where + ")";
-                        safeArgs = mergeArgs(new String[]{id}, selectionArgs);
-                    } else {
-                        safeArgs = new String[]{id};
+                        whereClause += " AND (" + where + ")";
                     }
+                }
+                case MARKERS -> {
+                    table = MarkerColumns.TABLE_NAME;
+                    whereClause = where;
                 }
                 case MARKERS_BY_ID -> {
                     table = MarkerColumns.TABLE_NAME;
-                    whereClause = MarkerColumns._ID + "=?";
-                    String id = String.valueOf(ContentUris.parseId(url));
+                    whereClause = MarkerColumns._ID + "=" + ContentUris.parseId(url);
                     if (!TextUtils.isEmpty(where)) {
-                        whereClause += AND_CLAUSE_PREFIX + where + ")";
-                        safeArgs = mergeArgs(new String[]{id}, selectionArgs);
-                    } else {
-                        safeArgs = new String[]{id};
+                        whereClause += " AND (" + where + ")";
                     }
-                }
-                case TRACKPOINTS, TRACKS, MARKERS -> {
-                    table = switch (getUrlType(url)) {
-                        case TRACKPOINTS -> TrackPointsColumns.TABLE_NAME;
-                        case TRACKS -> TracksColumns.TABLE_NAME;
-                        case MARKERS -> MarkerColumns.TABLE_NAME;
-                        default -> throw new IllegalStateException();
-                    };
-        
-                    if (!TextUtils.isEmpty(where)) {
-                        whereClause = escapeWhereClause(where);
-                    }
-                    safeArgs = selectionArgs;
                 }
                 default -> throw new IllegalArgumentException("Unknown url " + url);
             }
-        
+          
             int count;
+          
             try {
                 db.beginTransaction();
-                count = db.update(table, values, whereClause, safeArgs);
+                count = db.update(table, values, whereClause, selectionArgs);
                 db.setTransactionSuccessful();
             } finally {
                 db.endTransaction();
             }
-        
+
             getContext().getContentResolver().notifyChange(url, null, false);
             return count;
-        }
 
-                /**
-         * Merges two arrays of SQL selection arguments.
-         */
-        private String[] mergeArgs(String[] first, String[] second) {
-            if (second == null || second.length == 0) return first;
-            String[] result = new String[first.length + second.length];
-            System.arraycopy(first, 0, result, 0, first.length);
-            System.arraycopy(second, 0, result, first.length, second.length);
-            return result;
-        }
-
-        /**
-         * Escapes dangerous characters in WHERE clauses to prevent SQL injection.
-         */
-        private String escapeWhereClause(String input) {
-            if (input == null) return null;
-        
-            // Validate input against strict allowlist
-            if (!input.matches("^[a-zA-Z0-9_=<> \\(\\)\\+\\-\\*\\/\\.,:]+$")) {
-                throw new IllegalArgumentException("Invalid characters detected in WHERE clause.");
-            }
-            
-            // Additional checks for dangerous patterns
-            String lower = input.toLowerCase();
-            if (lower.contains(";") || lower.contains("--") || lower.contains("/*") || 
-                lower.contains("*/") || lower.contains("xp_") || lower.contains("exec") ||
-                lower.contains("union") || lower.contains("select") || lower.contains("insert") ||
-                lower.contains("update") || lower.contains("delete") || lower.contains("drop") ||
-                lower.contains("alter") || lower.contains("create") || lower.contains("truncate")) {
-                throw new IllegalArgumentException("Potentially dangerous SQL pattern detected.");
-            }
-        
-            return input;
         }
                  
         @NonNull
@@ -528,6 +429,19 @@ public int delete(@NonNull Uri url, String where, String[] selectionArgs) {
                 return ContentUris.appendId(MarkerColumns.CONTENT_URI.buildUpon(), rowId).build();
             }
             throw new SQLException("Failed to insert a marker " + url);
+        }
+
+        @VisibleForTesting
+        enum UrlType {
+            TRACKPOINTS,
+            TRACKPOINTS_BY_ID,
+            TRACKPOINTS_BY_TRACKID,
+            TRACKS,
+            TRACKS_BY_ID,
+            TRACKS_SENSOR_STATS,
+            MARKERS,
+            MARKERS_BY_ID,
+            MARKERS_BY_TRACKID
         }
     
     }
