@@ -274,27 +274,27 @@ public class MarkerEditActivity extends AbstractActivity {
     }
 
     private void createMarkerWithPicture() {
-        
-        Track.Id trackId = getTrackId();
-        if (trackId == null) {
+        Track.Id resolvedTrackId = getTrackId();
+        if (resolvedTrackId == null) {
             Toast.makeText(this, "Invalid track ID", Toast.LENGTH_LONG).show();
             return;
         }
-
-        Pair<Intent, Uri> intentAndPhotoUri = MarkerUtils.createTakePictureIntent(this, getTrackId());
+    
+        Pair<Intent, Uri> intentAndPhotoUri = MarkerUtils.createTakePictureIntent(this, resolvedTrackId);
         cameraPhotoUri = intentAndPhotoUri.second;
-
+    
         if (cameraPhotoUri == null || !isSafeUri(cameraPhotoUri)) {
             Toast.makeText(this, "Invalid photo location", Toast.LENGTH_LONG).show();
             return;
         }
-
+    
         try {
             takePictureFromCamera.launch(intentAndPhotoUri.first);
         } catch (ActivityNotFoundException e) {
             Toast.makeText(this, R.string.no_compatible_camera_installed, Toast.LENGTH_LONG).show();
         }
     }
+        
     private boolean isSafeUri(Uri uri) {
         if (uri == null) return false;
     

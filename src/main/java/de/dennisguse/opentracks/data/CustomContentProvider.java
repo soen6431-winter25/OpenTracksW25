@@ -90,7 +90,7 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
          * It computes the average for heart rate, cadence and power (duration-based average) and the maximum for heart rate, cadence and power.
          * Finally, it ignores manual pause (SEGMENT_START_MANUAL).
          */
-        private final String SENSOR_STATS_QUERY =
+        private static final String SENSOR_STATS_QUERY =
                 "WITH time_select AS " +
                 "(SELECT t1." + TrackPointsColumns.TIME + " * (t1." + TrackPointsColumns.TYPE + " NOT IN (?)) AS time_value " +
                 "FROM " + TrackPointsColumns.TABLE_NAME + " t1 " +
