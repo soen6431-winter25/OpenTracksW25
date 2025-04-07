@@ -22,6 +22,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.content.ComponentName;
+
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -151,8 +153,15 @@ public class TrackRecordedActivity extends AbstractTrackDeleteActivity implement
     public void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
-        handleIntent(intent);
-    }
+    
+        if (intent != null && intent.resolveActivity(getPackageManager()) != null &&
+            getPackageName().equals(intent.resolveActivity(getPackageManager()).getPackageName())) {
+            handleIntent(intent);
+        } else {
+            Log.e(TAG, "Received untrusted intent.");
+            finish();
+        }
+    }    
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -249,13 +258,30 @@ public class TrackRecordedActivity extends AbstractTrackDeleteActivity implement
     }
 
     private void handleIntent(Intent intent) {
-        trackId = intent.getParcelableExtra(EXTRA_TRACK_ID);
-        if (trackId == null) {
-            Log.e(TAG, TrackRecordedActivity.class.getSimpleName() + " needs EXTRA_TRACK_ID.");
+        if (intent == null) {
+            Log.e(TAG, "Received null intent.");
             finish();
+            return;
         }
+    
+        Track.Id maybeTrackId = intent.getParcelableExtra(EXTRA_TRACK_ID);
+        if (maybeTrackId == null) {
+            Log.e(TAG, "Missing EXTRA_TRACK_ID in Intent.");
+            finish();
+            return;
+        }
+    
+        // Validate that the intent came from within this app
+        ComponentName resolvedComponent = intent.resolveActivity(getPackageManager());
+        if (resolvedComponent == null || !getPackageName().equals(resolvedComponent.getPackageName())) {
+            Log.e(TAG, "Untrusted source: " + resolvedComponent);
+            finish();
+            return;
+        }
+    
+        trackId = maybeTrackId;
     }
-
+    
     private class CustomFragmentPagerAdapter extends FragmentStateAdapter {
 
         public CustomFragmentPagerAdapter(@NonNull FragmentActivity fa) {

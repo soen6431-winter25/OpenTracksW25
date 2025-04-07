@@ -353,7 +353,9 @@ limitations under the License.
         <activity android:name=".ui.markers.MarkerListActivity" />
 
         <activity android:name=".TrackListActivity" />
-        <activity android:name=".TrackRecordedActivity" />
+        <activity android:name=".TrackRecordedActivity"
+                  android:exported="false" />
+
         <activity android:name=".TrackStoppedActivity" />
 
         <activity android:name=".TrackRecordingActivity" />
