@@ -241,8 +241,7 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
             getContext().getContentResolver().notifyChange(url, null, false);
             return numInserted;
         }
-    
-        ...
+        
         // [REMAINDER OF THE FILE OMITTED FOR BREVITY] (keep your original code structure)
         
         @Override
