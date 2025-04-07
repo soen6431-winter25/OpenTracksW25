@@ -297,78 +297,59 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
         @Override
         public int update(@NonNull Uri url, ContentValues values, String where, String[] selectionArgs) {
             String table;
-            StringBuilder whereClauseBuilder = new StringBuilder();
-            List<String> selectionArgsList = new ArrayList<>();
+            String whereClause;
+            String[] safeArgs = selectionArgs;
         
             switch (getUrlType(url)) {
-                case TRACKPOINTS -> {
-                    table = TrackPointsColumns.TABLE_NAME;
-                    if (!TextUtils.isEmpty(where)) {
-                        whereClauseBuilder.append(where);
-                        if (selectionArgs != null) {
-                            selectionArgsList.addAll(Arrays.asList(selectionArgs));
-                        }
-                    }
-                }
                 case TRACKPOINTS_BY_ID -> {
                     table = TrackPointsColumns.TABLE_NAME;
-                    whereClauseBuilder.append(TrackPointsColumns._ID).append("=?");
-                    selectionArgsList.add(String.valueOf(ContentUris.parseId(url)));
+                    whereClause = TrackPointsColumns._ID + "=?";
+                    String id = String.valueOf(ContentUris.parseId(url));
                     if (!TextUtils.isEmpty(where)) {
-                        whereClauseBuilder.append(" AND (").append(where).append(")");
-                        if (selectionArgs != null) {
-                            selectionArgsList.addAll(Arrays.asList(selectionArgs));
-                        }
-                    }
-                }
-                case TRACKS -> {
-                    table = TracksColumns.TABLE_NAME;
-                    if (!TextUtils.isEmpty(where)) {
-                        whereClauseBuilder.append(where);
-                        if (selectionArgs != null) {
-                            selectionArgsList.addAll(Arrays.asList(selectionArgs));
-                        }
+                        whereClause += " AND (" + where + ")";
+                        safeArgs = mergeArgs(new String[]{id}, selectionArgs);
+                    } else {
+                        safeArgs = new String[]{id};
                     }
                 }
                 case TRACKS_BY_ID -> {
                     table = TracksColumns.TABLE_NAME;
-                    whereClauseBuilder.append(TracksColumns._ID).append("=?");
-                    selectionArgsList.add(String.valueOf(ContentUris.parseId(url)));
+                    whereClause = TracksColumns._ID + "=?";
+                    String id = String.valueOf(ContentUris.parseId(url));
                     if (!TextUtils.isEmpty(where)) {
-                        whereClauseBuilder.append(" AND (").append(where).append(")");
-                        if (selectionArgs != null) {
-                            selectionArgsList.addAll(Arrays.asList(selectionArgs));
-                        }
-                    }
-                }
-                case MARKERS -> {
-                    table = MarkerColumns.TABLE_NAME;
-                    if (!TextUtils.isEmpty(where)) {
-                        whereClauseBuilder.append(where);
-                        if (selectionArgs != null) {
-                            selectionArgsList.addAll(Arrays.asList(selectionArgs));
-                        }
+                        whereClause += " AND (" + where + ")";
+                        safeArgs = mergeArgs(new String[]{id}, selectionArgs);
+                    } else {
+                        safeArgs = new String[]{id};
                     }
                 }
                 case MARKERS_BY_ID -> {
                     table = MarkerColumns.TABLE_NAME;
-                    whereClauseBuilder.append(MarkerColumns._ID).append("=?");
-                    selectionArgsList.add(String.valueOf(ContentUris.parseId(url)));
+                    whereClause = MarkerColumns._ID + "=?";
+                    String id = String.valueOf(ContentUris.parseId(url));
                     if (!TextUtils.isEmpty(where)) {
-                        whereClauseBuilder.append(" AND (").append(where).append(")");
-                        if (selectionArgs != null) {
-                            selectionArgsList.addAll(Arrays.asList(selectionArgs));
-                        }
+                        whereClause += " AND (" + where + ")";
+                        safeArgs = mergeArgs(new String[]{id}, selectionArgs);
+                    } else {
+                        safeArgs = new String[]{id};
                     }
+                }
+                case TRACKPOINTS, TRACKS, MARKERS -> {
+                    table = switch (getUrlType(url)) {
+                        case TRACKPOINTS -> TrackPointsColumns.TABLE_NAME;
+                        case TRACKS -> TracksColumns.TABLE_NAME;
+                        case MARKERS -> MarkerColumns.TABLE_NAME;
+                        default -> throw new IllegalStateException();
+                    };
+                    whereClause = where;
                 }
                 default -> throw new IllegalArgumentException("Unknown url " + url);
             }
         
             int count;
-        
             try {
                 db.beginTransaction();
-                count = db.update(table, values, whereClauseBuilder.toString(), selectionArgsList.toArray(new String[0]));
+                count = db.update(table, values, whereClause, safeArgs);
                 db.setTransactionSuccessful();
             } finally {
                 db.endTransaction();
@@ -376,7 +357,17 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
         
             getContext().getContentResolver().notifyChange(url, null, false);
             return count;
-        }        
+        }
+        
+        private String[] mergeArgs(String[] first, String[] second) {
+            if (second == null || second.length == 0) {
+                return first;
+            }
+            String[] result = new String[first.length + second.length];
+            System.arraycopy(first, 0, result, 0, first.length);
+            System.arraycopy(second, 0, result, first.length, second.length);
+            return result;
+        }       
     
         @NonNull
         private UrlType getUrlType(Uri url) {
