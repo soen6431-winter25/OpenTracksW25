@@ -189,11 +189,13 @@ public class CustomContentProvider extends ContentProvider {
             return null;
         }
         // Allow only specific characters (whitelist)
-        if (!where.matches("[a-zA-Z0-9_ =<>!&|%^-]*")) {
+        if (!where.matches("[a-zA-Z0-9_ =<>!&|%^?]*")) {
             throw new IllegalArgumentException("Unsafe characters detected in WHERE clause: " + where);
         }
         return where;
     }
+
+
 
     private int getTotalChanges() {
         int totalCount;
