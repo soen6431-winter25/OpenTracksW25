@@ -45,6 +45,7 @@ import androidx.lifecycle.ViewModelProvider;
 import java.io.FileDescriptor;
 import java.io.IOException;
 import java.time.Instant;
+import java.io.File;
 
 import de.dennisguse.opentracks.AbstractActivity;
 import de.dennisguse.opentracks.R;
@@ -276,6 +277,20 @@ public class MarkerEditActivity extends AbstractActivity {
     }
 
     private void createMarkerWithPicture() {
+        Track.Id resolvedTrackId = getTrackId();
+        if (resolvedTrackId == null) {
+            Toast.makeText(this, "Invalid track ID", Toast.LENGTH_LONG).show();
+            return;
+        }
+    
+        Pair<Intent, Uri> intentAndPhotoUri = MarkerUtils.createTakePictureIntent(this, resolvedTrackId);
+        cameraPhotoUri = intentAndPhotoUri.second;
+    
+        if (cameraPhotoUri == null || !isSafeUri(cameraPhotoUri)) {
+            Toast.makeText(this, "Invalid photo location", Toast.LENGTH_LONG).show();
+            return;
+        }
+    
         try {
             // Use FileProvider to generate a safe URI for camera photo storage
             File photoFile = MarkerUtils.createImageFile(this, getTrackId());
@@ -300,6 +315,38 @@ public class MarkerEditActivity extends AbstractActivity {
         }
     }
 
+    private boolean isSafeUri(Uri uri) {
+        if (uri == null) return false;
+
+        // Allow only file or content scheme
+        String scheme = uri.getScheme();
+        if (!"file".equals(scheme) && !"content".equals(scheme)) {
+            return false;
+        }
+
+        // For file:// URIs - verify canonical path is within marker_photos dir
+        if ("file".equals(scheme)) {
+            try {
+                File targetFile = new File(uri.getPath());
+                File baseDir = new File(getExternalFilesDir(null), "marker_photos");
+
+                String canonicalBase = baseDir.getCanonicalPath() + File.separator;
+                String canonicalTarget = targetFile.getCanonicalPath();
+
+                // Fix based on Snyk Zip Slip example
+                return canonicalTarget.startsWith(canonicalBase);
+
+            } catch (IOException e) {
+                Log.e(TAG, "Path validation failed: " + e.getMessage());
+                return false;
+            }
+        }
+
+        // For content:// URIs, do basic allowance; could extend with authority check
+        return true;
+    }
+
+    
 
     private void createMarkerWithGalleryImage() {
         PickVisualMediaRequest request = new PickVisualMediaRequest.Builder()

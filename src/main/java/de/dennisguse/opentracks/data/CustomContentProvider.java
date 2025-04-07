@@ -49,6 +49,7 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
  *
  * @author Leif Hendrik Wilden
  */
+
     public class CustomContentProvider extends ContentProvider {
     
         private static final String TAG = CustomContentProvider.class.getSimpleName();
@@ -251,7 +252,7 @@ public int delete(@NonNull Uri url, String where, String[] selectionArgs) {
             getContext().getContentResolver().notifyChange(url, null, false);
             return numInserted;
         }
-    
+        
         @Override
         public Cursor query(@NonNull Uri url, String[] projection, String selection, String[] selectionArgs, String sort) {
             SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
@@ -314,9 +315,8 @@ public int delete(@NonNull Uri url, String where, String[] selectionArgs) {
             Cursor cursor = queryBuilder.query(db, projection, selection, selectionArgs, null, null, sortOrder);
             cursor.setNotificationUri(getContext().getContentResolver(), url);
             return cursor;
-
         }
-    
+        
         @Override
         public int update(@NonNull Uri url, ContentValues values, String where, String[] selectionArgs) {
             // TODO Use SQLiteQueryBuilder
@@ -374,7 +374,7 @@ public int delete(@NonNull Uri url, String where, String[] selectionArgs) {
             return count;
 
         }
-    
+                 
         @NonNull
         private UrlType getUrlType(Uri url) {
             UrlType[] urlTypes = UrlType.values();
@@ -430,7 +430,7 @@ public int delete(@NonNull Uri url, String where, String[] selectionArgs) {
             }
             throw new SQLException("Failed to insert a marker " + url);
         }
-    
+
         @VisibleForTesting
         enum UrlType {
             TRACKPOINTS,
@@ -443,4 +443,5 @@ public int delete(@NonNull Uri url, String where, String[] selectionArgs) {
             MARKERS_BY_ID,
             MARKERS_BY_TRACKID
         }
+    
     }
