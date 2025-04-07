@@ -5,11 +5,19 @@ import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 
+// Custom exception class
+class IdToStringNotSupportedException extends RuntimeException {
+    public IdToStringNotSupportedException(String message) {
+        super(message);
+    }
+}
+
 public record Id(long id) implements Parcelable {
+
     @NonNull
     @Override
     public String toString() {
-        throw new RuntimeException("Not supported");
+        throw new IdToStringNotSupportedException("The toString() method is not supported for Id.");
     }
 
     @Override

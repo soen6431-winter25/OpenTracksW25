@@ -251,12 +251,18 @@ public final class Marker {
     // part of the project. For example: CustomContentProviderUtils.java,
     // ShowMarkerActivity.java, etc.
 
+    static class IdToStringNotSupportedException extends RuntimeException {
+        public IdToStringNotSupportedException(String message) {
+            super(message);
+        }
+    }
+
     public record Id(long id) implements Parcelable {
 
         @NonNull
         @Override
         public String toString() {
-            throw new RuntimeException("Not supported");
+            throw new IdToStringNotSupportedException("The toString() method is not supported for Id.");
         }
 
         @Override
