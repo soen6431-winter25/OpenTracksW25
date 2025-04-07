@@ -64,6 +64,25 @@ public interface TrackPointsColumns extends BaseColumns {
     String ALIAS_AVG_POWER = "avg_power";
     String ALIAS_MAX_POWER = "max_power";
 
+    String[] ALL_COLUMNS = {
+        _ID,
+        TRACKID,
+        TYPE,
+        LONGITUDE,
+        LATITUDE,
+        TIME,
+        ALTITUDE,
+        HORIZONTAL_ACCURACY,
+        VERTICAL_ACCURACY,
+        SPEED,
+        BEARING,
+        SENSOR_HEARTRATE,
+        SENSOR_CADENCE,
+        SENSOR_DISTANCE,
+        SENSOR_POWER,
+        ALTITUDE_GAIN,
+        ALTITUDE_LOSS
+    };
 
     String INTEGER = "INTEGER, ";
     String FLOAT = "FLOAT, ";
