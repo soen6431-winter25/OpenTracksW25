@@ -294,28 +294,38 @@ public class MarkerEditActivity extends AbstractActivity {
             Toast.makeText(this, R.string.no_compatible_camera_installed, Toast.LENGTH_LONG).show();
         }
     }
-        
+
     private boolean isSafeUri(Uri uri) {
         if (uri == null) return false;
-    
-        // Verify the URI scheme is file or content
-        if (!"file".equals(uri.getScheme()) && !"content".equals(uri.getScheme())) {
+
+        // Allow only file or content scheme
+        String scheme = uri.getScheme();
+        if (!"file".equals(scheme) && !"content".equals(scheme)) {
             return false;
         }
-    
-        // For file URIs, verify the path is within our expected directory
-        if ("file".equals(uri.getScheme())) {
+
+        // For file:// URIs - verify canonical path is within marker_photos dir
+        if ("file".equals(scheme)) {
             try {
-                File file = new File(uri.getPath());
-                File expectedDir = new File(getExternalFilesDir(null), "marker_photos");
-                return file.getCanonicalPath().startsWith(expectedDir.getCanonicalPath());
+                File targetFile = new File(uri.getPath());
+                File baseDir = new File(getExternalFilesDir(null), "marker_photos");
+
+                String canonicalBase = baseDir.getCanonicalPath() + File.separator;
+                String canonicalTarget = targetFile.getCanonicalPath();
+
+                // Fix based on Snyk Zip Slip example
+                return canonicalTarget.startsWith(canonicalBase);
+
             } catch (IOException e) {
+                Log.e(TAG, "Path validation failed: " + e.getMessage());
                 return false;
             }
         }
-    
+
+        // For content:// URIs, do basic allowance; could extend with authority check
         return true;
     }
+
     
     private void createMarkerWithGalleryImage() {
         PickVisualMediaRequest request = new PickVisualMediaRequest.Builder()
