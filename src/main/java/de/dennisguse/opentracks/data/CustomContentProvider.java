@@ -35,6 +35,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 
 import java.util.Arrays;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Collections;
 
 import de.dennisguse.opentracks.data.models.TrackPoint;
 import de.dennisguse.opentracks.data.tables.MarkerColumns;
@@ -427,15 +432,15 @@ public class CustomContentProvider extends ContentProvider {
                 }
                 case MARKERS_BY_TRACKID: {
                     queryBuilder.setTables(MarkerColumns.TABLE_NAME);
-                    trackIds = ContentProviderUtils.parseTrackIdsFromUri(url);
-                    placeholders = TextUtils.join(",", Collections.nCopies(trackIds.length, "?"));
+                    String[] trackIds = ContentProviderUtils.parseTrackIdsFromUri(url);
+                    String placeholders = TextUtils.join(",", Collections.nCopies(trackIds.length, "?"));
                     queryBuilder.appendWhere(MarkerColumns.TRACKID + " IN (" + placeholders + ")");
                     for (String id : trackIds) {
                         queryBuilder.appendWhereEscapeString(id);
                     }
                     break;
                 }
-                default -> throw new IllegalArgumentException("Unknown url " + url);
+                default: throw new IllegalArgumentException("Unknown url " + url);
             }
             String[] safeProjection = validateProjection(projection, queryBuilder.getTables());
             String safeSelection = validateSelection(selection);

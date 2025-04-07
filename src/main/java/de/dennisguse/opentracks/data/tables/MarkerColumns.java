@@ -50,6 +50,22 @@ public interface MarkerColumns extends BaseColumns {
 
     String PHOTOURL = "photoUrl"; // url for the photo
 
+    String[] ALL_COLUMNS = {
+        _ID,
+        NAME,
+        DESCRIPTION,
+        CATEGORY,
+        ICON,
+        TRACKID,
+        LONGITUDE,
+        LATITUDE,
+        TIME,
+        ALTITUDE,
+        ACCURACY,
+        BEARING,
+        PHOTOURL
+    };
+
     String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " ("
             + _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
             + NAME + " TEXT, "

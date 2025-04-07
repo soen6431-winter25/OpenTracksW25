@@ -62,6 +62,31 @@ public interface TracksColumns extends BaseColumns {
     String ALTITUDE_GAIN = "elevationgain"; // altitude gain //TODO RENAME column
     String ALTITUDE_LOSS = "elevationloss"; // altitude loss //TODO RENAME column
 
+    String[] ALL_COLUMNS = {
+        _ID,
+        UUID,
+        NAME,
+        DESCRIPTION,
+        ACTIVITY_TYPE,
+        ACTIVITY_TYPE_LOCALIZED,
+        ICON,
+        STARTTIME,
+        STARTTIME_OFFSET,
+        STOPTIME,
+        MARKER_COUNT,
+        NUMPOINTS,
+        TOTALDISTANCE,
+        TOTALTIME,
+        MOVINGTIME,
+        AVGSPEED,
+        AVGMOVINGSPEED,
+        MAXSPEED,
+        MIN_ALTITUDE,
+        MAX_ALTITUDE,
+        ALTITUDE_GAIN,
+        ALTITUDE_LOSS
+    };
+
     String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " ("
             + _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
             + NAME + " TEXT, "
