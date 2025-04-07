@@ -53,7 +53,7 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
  *
  * @author Leif Hendrik Wilden
  */
-    public enum UrlType {
+    enum UrlType {
         TRACKPOINTS,
         TRACKPOINTS_BY_ID, 
         TRACKPOINTS_BY_TRACKID,
