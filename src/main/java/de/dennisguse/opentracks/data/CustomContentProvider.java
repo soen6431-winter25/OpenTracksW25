@@ -17,6 +17,7 @@
 
 package de.dennisguse.opentracks.data;
 
+import de.dennisguse.opentracks.data.ContentProviderUtils;
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -39,6 +40,7 @@ import androidx.annotation.VisibleForTesting;
 import java.util.Arrays;
 
 import de.dennisguse.opentracks.data.models.TrackPoint;
+import de.dennisguse.opentracks.data.models.TrackPoint.Type;
 import de.dennisguse.opentracks.data.tables.MarkerColumns;
 import de.dennisguse.opentracks.data.tables.TrackPointsColumns;
 import de.dennisguse.opentracks.data.tables.TracksColumns;
@@ -51,6 +53,18 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
  *
  * @author Leif Hendrik Wilden
  */
+    public enum UrlType {
+        TRACKPOINTS,
+        TRACKPOINTS_BY_ID, 
+        TRACKPOINTS_BY_TRACKID,
+        TRACKS,
+        TRACKS_BY_ID,
+        TRACKS_SENSOR_STATS,
+        MARKERS,
+        MARKERS_BY_ID,
+        MARKERS_BY_TRACKID
+    }
+
     public class CustomContentProvider extends ContentProvider {
     
         private static final String TAG = CustomContentProvider.class.getSimpleName();
@@ -77,33 +91,33 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
          * Finally, it ignores manual pause (SEGMENT_START_MANUAL).
          */
         private final String SENSOR_STATS_QUERY =
-                "WITH time_select as " +
-                    "(SELECT t1." + TrackPointsColumns.TIME + " * (t1." + TrackPointsColumns.TYPE + " NOT IN (" + TrackPoint.Type.SEGMENT_START_MANUAL.type_db + ")) time_value " +
-                    "FROM " + TrackPointsColumns.TABLE_NAME + " t1 " +
-                    "WHERE t1." + TrackPointsColumns._ID + " > t." + TrackPointsColumns._ID + " AND t1." + TrackPointsColumns.TRACKID + " = ? ORDER BY _id LIMIT 1) " +
+                "WITH time_select AS " +
+                "(SELECT t1." + TrackPointsColumns.TIME + " * (t1." + TrackPointsColumns.TYPE + " NOT IN (?)) AS time_value " +
+                "FROM " + TrackPointsColumns.TABLE_NAME + " t1 " +
+                "WHERE t1." + TrackPointsColumns._ID + " > t." + TrackPointsColumns._ID + " AND t1." + TrackPointsColumns.TRACKID + " = ? ORDER BY _id LIMIT 1) " +
     
                 "SELECT " +
-                    "SUM(t." + TrackPointsColumns.SENSOR_HEARTRATE + COALESCE_MAX + TrackPointsColumns.TIME + TIME_SELECT_CLAUSE + TrackPointsColumns.TIME + COALESCE_MAX_TIME_DIFF + TrackPointsColumns.TIME + ")) " +
-                    "/ " +
-                    "SUM(COALESCE(MAX(t." + TrackPointsColumns.TIME + TIME_SELECT_CLAUSE + TrackPointsColumns.TIME + COALESCE_MAX_TIME_DIFF + TrackPointsColumns.TIME + ") " + TrackPointsColumns.ALIAS_AVG_HR + ", " +
+                "SUM(t." + TrackPointsColumns.SENSOR_HEARTRATE + COALESCE_MAX + TrackPointsColumns.TIME + TIME_SELECT_CLAUSE + TrackPointsColumns.TIME + COALESCE_MAX_TIME_DIFF + TrackPointsColumns.TIME + ")) " +
+                "/ " +
+                "SUM(COALESCE(MAX(t." + TrackPointsColumns.TIME + TIME_SELECT_CLAUSE + TrackPointsColumns.TIME + COALESCE_MAX_TIME_DIFF + TrackPointsColumns.TIME + ") " + TrackPointsColumns.ALIAS_AVG_HR + ", " +
     
-                    "MAX(t." + TrackPointsColumns.SENSOR_HEARTRATE + ") " + TrackPointsColumns.ALIAS_MAX_HR + ", " +
+                "MAX(t." + TrackPointsColumns.SENSOR_HEARTRATE + ") " + TrackPointsColumns.ALIAS_MAX_HR + ", " +
     
-                    "SUM(t." + TrackPointsColumns.SENSOR_CADENCE + COALESCE_MAX + TrackPointsColumns.TIME + TIME_SELECT_CLAUSE + TrackPointsColumns.TIME + COALESCE_MAX_TIME_DIFF + TrackPointsColumns.TIME + ")) " +
-                    "/ " +
-                    "SUM(COALESCE(MAX(t." + TrackPointsColumns.TIME + TIME_SELECT_CLAUSE + TrackPointsColumns.TIME + COALESCE_MAX_TIME_DIFF + TrackPointsColumns.TIME + ") " + TrackPointsColumns.ALIAS_AVG_CADENCE + ", " +
+                "SUM(t." + TrackPointsColumns.SENSOR_CADENCE + COALESCE_MAX + TrackPointsColumns.TIME + TIME_SELECT_CLAUSE + TrackPointsColumns.TIME + COALESCE_MAX_TIME_DIFF + TrackPointsColumns.TIME + ")) " +
+                "/ " +
+                "SUM(COALESCE(MAX(t." + TrackPointsColumns.TIME + TIME_SELECT_CLAUSE + TrackPointsColumns.TIME + COALESCE_MAX_TIME_DIFF + TrackPointsColumns.TIME + ") " + TrackPointsColumns.ALIAS_AVG_CADENCE + ", " +
     
-                    "MAX(t." + TrackPointsColumns.SENSOR_CADENCE + ") " + TrackPointsColumns.ALIAS_MAX_CADENCE + ", " +
+                "MAX(t." + TrackPointsColumns.SENSOR_CADENCE + ") " + TrackPointsColumns.ALIAS_MAX_CADENCE + ", " +
     
-                    "SUM(t." + TrackPointsColumns.SENSOR_POWER + COALESCE_MAX + TrackPointsColumns.TIME + TIME_SELECT_CLAUSE + TrackPointsColumns.TIME + COALESCE_MAX_TIME_DIFF + TrackPointsColumns.TIME + ")) " +
-                    "/ " +
-                    "SUM(COALESCE(MAX(t." + TrackPointsColumns.TIME + TIME_SELECT_CLAUSE + TrackPointsColumns.TIME + COALESCE_MAX_TIME_DIFF + TrackPointsColumns.TIME + ") " + TrackPointsColumns.ALIAS_AVG_POWER + ", " +
+                "SUM(t." + TrackPointsColumns.SENSOR_POWER + COALESCE_MAX + TrackPointsColumns.TIME + TIME_SELECT_CLAUSE + TrackPointsColumns.TIME + COALESCE_MAX_TIME_DIFF + TrackPointsColumns.TIME + ")) " +
+                "/ " +
+                "SUM(COALESCE(MAX(t." + TrackPointsColumns.TIME + TIME_SELECT_CLAUSE + TrackPointsColumns.TIME + COALESCE_MAX_TIME_DIFF + TrackPointsColumns.TIME + ") " + TrackPointsColumns.ALIAS_AVG_POWER + ", " +
     
-                    "MAX(t." + TrackPointsColumns.SENSOR_POWER + ") " + TrackPointsColumns.ALIAS_MAX_POWER + " " +
+                "MAX(t." + TrackPointsColumns.SENSOR_POWER + ") " + TrackPointsColumns.ALIAS_MAX_POWER + " " +
     
                 "FROM " + TrackPointsColumns.TABLE_NAME + " t " +
                 "WHERE t." + TrackPointsColumns.TRACKID + " = ? " +
-                "AND t." + TrackPointsColumns.TYPE + " NOT IN (" + TrackPoint.Type.SEGMENT_START_MANUAL.type_db + ")";
+                "AND t." + TrackPointsColumns.TYPE + " NOT IN (?)";
 
         public CustomContentProvider() {
             uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -285,7 +299,13 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
                 }
                 case TRACKS_SENSOR_STATS -> {
                     long trackId = ContentUris.parseId(url);
-                    return db.rawQuery(SENSOR_STATS_QUERY, new String[]{String.valueOf(trackId), String.valueOf(trackId)});
+                    return db.rawQuery(SENSOR_STATS_QUERY, 
+                        new String[]{
+                            String.valueOf(TrackPoint.Type.SEGMENT_START_MANUAL.type_db),
+                            String.valueOf(trackId),
+                            String.valueOf(trackId),
+                            String.valueOf(TrackPoint.Type.SEGMENT_START_MANUAL.type_db)
+                        });
                 }
                 case MARKERS -> {
                     queryBuilder.setTables(MarkerColumns.TABLE_NAME);
@@ -299,6 +319,13 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
                 case MARKERS_BY_TRACKID -> {
                     queryBuilder.setTables(MarkerColumns.TABLE_NAME);
                     String[] trackIds = ContentProviderUtils.parseTrackIdsFromUri(url);
+                    // Validate all track IDs are numeric
+                    for (String trackId : trackIds) {
+                        if (!trackId.matches("^\\d+$")) {
+                            throw new IllegalArgumentException("Invalid track ID format");
+                        }
+                    }
+                    
                     StringBuilder inClause = new StringBuilder();
                     for (int i = 0; i < trackIds.length; i++) {
                         if (i > 0) inClause.append(", ");
@@ -386,14 +413,23 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
         private String escapeWhereClause(String input) {
             if (input == null) return null;
         
-            // Allow common SQL syntax and prevent dangerous patterns
+            // Validate input against strict allowlist
+            if (!input.matches("^[a-zA-Z0-9_=<> \\(\\)\\+\\-\\*\\/\\.,:]+$")) {
+                throw new IllegalArgumentException("Invalid characters detected in WHERE clause.");
+            }
+            
+            // Additional checks for dangerous patterns
             String lower = input.toLowerCase();
-            if (lower.contains(";") || lower.contains("--") || lower.contains("'") || lower.contains("\"") || lower.contains("\\")) {
-                throw new IllegalArgumentException("Unsafe characters detected in WHERE clause.");
+            if (lower.contains(";") || lower.contains("--") || lower.contains("/*") || 
+                lower.contains("*/") || lower.contains("xp_") || lower.contains("exec") ||
+                lower.contains("union") || lower.contains("select") || lower.contains("insert") ||
+                lower.contains("update") || lower.contains("delete") || lower.contains("drop") ||
+                lower.contains("alter") || lower.contains("create") || lower.contains("truncate")) {
+                throw new IllegalArgumentException("Potentially dangerous SQL pattern detected.");
             }
         
             return input;
-        }        
+        }
                  
         @NonNull
         private UrlType getUrlType(Uri url) {
@@ -451,16 +487,4 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
             throw new SQLException("Failed to insert a marker " + url);
         }
     
-        @VisibleForTesting
-        enum UrlType {
-            TRACKPOINTS,
-            TRACKPOINTS_BY_ID,
-            TRACKPOINTS_BY_TRACKID,
-            TRACKS,
-            TRACKS_BY_ID,
-            TRACKS_SENSOR_STATS,
-            MARKERS,
-            MARKERS_BY_ID,
-            MARKERS_BY_TRACKID
-        }
     }
