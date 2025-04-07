@@ -40,6 +40,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import de.dennisguse.opentracks.data.models.TrackPoint;
 import de.dennisguse.opentracks.data.tables.MarkerColumns;
@@ -126,133 +128,134 @@ public class CustomContentProvider extends ContentProvider {
         return onCreate(getContext());
     }
 
-        /**
-         * Helper method to make onCreate is testable.
-         *
-         * @param context context to creates database
-         * @return true means run successfully
-         */
-        @VisibleForTesting
-        boolean onCreate(Context context) {
-            CustomSQLiteOpenHelper databaseHelper = new CustomSQLiteOpenHelper(context);
-            try {
-                db = databaseHelper.getWritableDatabase();
-                // Necessary to enable cascade deletion from Track to TrackPoints and Markers
-                db.setForeignKeyConstraintsEnabled(true);
-            } catch (SQLiteException e) {
-                Log.e(TAG, "Unable to open database for writing.", e);
-            }
-            return db != null;
+    /**
+     * Helper method to make onCreate is testable.
+     *
+     * @param context context to creates database
+     * @return true means run successfully
+     */
+    @VisibleForTesting
+    boolean onCreate(Context context) {
+        CustomSQLiteOpenHelper databaseHelper = new CustomSQLiteOpenHelper(context);
+        try {
+            db = databaseHelper.getWritableDatabase();
+            // Necessary to enable cascade deletion from Track to TrackPoints and Markers
+            db.setForeignKeyConstraintsEnabled(true);
+        } catch (SQLiteException e) {
+            Log.e(TAG, "Unable to open database for writing.", e);
+        }
+        return db != null;
+    }
+
+    @Override
+    public int delete(@NonNull Uri url, String where, String[] selectionArgs) {
+        String table = switch (getUrlType(url)) {
+            case TRACKPOINTS -> TrackPointsColumns.TABLE_NAME;
+            case TRACKS -> TracksColumns.TABLE_NAME;
+            case MARKERS -> MarkerColumns.TABLE_NAME;
+            default -> throw new IllegalArgumentException("Unknown URL " + url);
+        };
+
+        Log.w(TAG, "Deleting from table " + table);
+
+        int totalChangesBefore = getTotalChanges();
+        int deletedRowsFromTable;
+        try {
+            db.beginTransaction();
+            deletedRowsFromTable = db.delete(table, sanitizeWhereClause(where), getSafeSelectionArgs(selectionArgs));
+            Log.i(TAG, "Deleted " + deletedRowsFromTable + " rows of table " + table);
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+        getContext().getContentResolver().notifyChange(url, null, false);
+
+        int totalChanges = getTotalChanges() - totalChangesBefore;
+        Log.i(TAG, "Deleted " + totalChanges + " total rows from database");
+
+        PreferencesUtils.addTotalRowsDeleted(totalChanges);
+        int totalRowsDeleted = PreferencesUtils.getTotalRowsDeleted();
+        if (totalRowsDeleted > TOTAL_DELETED_ROWS_VACUUM_THRESHOLD) {
+            Log.i(TAG, "TotalRowsDeleted " + totalRowsDeleted + ", starting to vacuum the database.");
+            db.execSQL("VACUUM");
+            PreferencesUtils.resetTotalRowsDeleted();
         }
 
-        @Override
-        public int delete(@NonNull Uri url, String where, String[] selectionArgs) {
-            String table = switch (getUrlType(url)) {
-                case TRACKPOINTS -> TrackPointsColumns.TABLE_NAME;
-                case TRACKS -> TracksColumns.TABLE_NAME;
-                case MARKERS -> MarkerColumns.TABLE_NAME;
-                default -> throw new IllegalArgumentException("Unknown URL " + url);
-            };
+        return deletedRowsFromTable;
+    }
 
-            Log.w(TAG, "Deleting from table " + table);
-
-            int totalChangesBefore = getTotalChanges();
-            int deletedRowsFromTable;
-            try {
-                db.beginTransaction();
-                deletedRowsFromTable = db.delete(table, sanitizeWhereClause(where), getSafeSelectionArgs(selectionArgs));
-                Log.i(TAG, "Deleted " + deletedRowsFromTable + " rows of table " + table);
-                db.setTransactionSuccessful();
-            } finally {
-                db.endTransaction();
-            }
-            getContext().getContentResolver().notifyChange(url, null, false);
-
-            int totalChanges = getTotalChanges() - totalChangesBefore;
-            Log.i(TAG, "Deleted " + totalChanges + " total rows from database");
-
-            PreferencesUtils.addTotalRowsDeleted(totalChanges);
-            int totalRowsDeleted = PreferencesUtils.getTotalRowsDeleted();
-            if (totalRowsDeleted > TOTAL_DELETED_ROWS_VACUUM_THRESHOLD) {
-                Log.i(TAG, "TotalRowsDeleted " + totalRowsDeleted + ", starting to vacuum the database.");
-                db.execSQL("VACUUM");
-                PreferencesUtils.resetTotalRowsDeleted();
-            }
-
-            return deletedRowsFromTable;
+    private String sanitizeWhereClause(String where) {
+        if (where == null) {
+            return null;
         }
-        private String sanitizeWhereClause(String where) {
-            if (where == null) {
-                return null;
-            }
-
-            if (where.matches(".*[^a-zA-Z0-9_ =<>!&|%^-].*")) {
-                throw new IllegalArgumentException("Unsafe characters detected in WHERE clause: " + where);
-            }
-
-            return where;
+        // Allow only specific characters (whitelist)
+        if (!where.matches("[a-zA-Z0-9_ =<>!&|%^-]*")) {
+            throw new IllegalArgumentException("Unsafe characters detected in WHERE clause: " + where);
         }
-        private int getTotalChanges() {
-            int totalCount;
-            try (Cursor cursor = db.rawQuery("SELECT total_changes()", null)) {
-                cursor.moveToNext();
-                totalCount = cursor.getInt(0);
-            }
-            return totalCount;
+        return where;
+    }
+
+    private int getTotalChanges() {
+        int totalCount;
+        try (Cursor cursor = db.rawQuery("SELECT total_changes()", null)) {
+            cursor.moveToNext();
+            totalCount = cursor.getInt(0);
         }
+        return totalCount;
+    }
 
-        @Override
-        public String getType(@NonNull Uri url) {
-            return switch (getUrlType(url)) {
-                case TRACKPOINTS -> TrackPointsColumns.CONTENT_TYPE;
-                case TRACKPOINTS_BY_ID, TRACKPOINTS_BY_TRACKID -> TrackPointsColumns.CONTENT_ITEMTYPE;
-                case TRACKS -> TracksColumns.CONTENT_TYPE;
-                case TRACKS_BY_ID -> TracksColumns.CONTENT_ITEMTYPE;
-                case MARKERS -> MarkerColumns.CONTENT_TYPE;
-                case MARKERS_BY_ID, MARKERS_BY_TRACKID -> MarkerColumns.CONTENT_ITEMTYPE;
-                default -> throw new IllegalArgumentException("Unknown URL " + url);
-            };
+    @Override
+    public String getType(@NonNull Uri url) {
+        return switch (getUrlType(url)) {
+            case TRACKPOINTS -> TrackPointsColumns.CONTENT_TYPE;
+            case TRACKPOINTS_BY_ID, TRACKPOINTS_BY_TRACKID -> TrackPointsColumns.CONTENT_ITEMTYPE;
+            case TRACKS -> TracksColumns.CONTENT_TYPE;
+            case TRACKS_BY_ID -> TracksColumns.CONTENT_ITEMTYPE;
+            case MARKERS -> MarkerColumns.CONTENT_TYPE;
+            case MARKERS_BY_ID, MARKERS_BY_TRACKID -> MarkerColumns.CONTENT_ITEMTYPE;
+            default -> throw new IllegalArgumentException("Unknown URL " + url);
+        };
+    }
+
+    @Override
+    public Uri insert(@NonNull Uri url, ContentValues initialValues) {
+        if (initialValues == null) {
+            initialValues = new ContentValues();
         }
-
-        @Override
-        public Uri insert(@NonNull Uri url, ContentValues initialValues) {
-            if (initialValues == null) {
-                initialValues = new ContentValues();
-            }
-            Uri result;
-            try {
-                db.beginTransaction();
-                result = insertContentValues(url, getUrlType(url), initialValues);
-                db.setTransactionSuccessful();
-            } finally {
-                db.endTransaction();
-            }
-            getContext().getContentResolver().notifyChange(url, null, false);
-            return result;
+        Uri result;
+        try {
+            db.beginTransaction();
+            result = insertContentValues(url, getUrlType(url), initialValues);
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
         }
+        getContext().getContentResolver().notifyChange(url, null, false);
+        return result;
+    }
 
-        @Override
-        public int bulkInsert(@NonNull Uri url, @NonNull ContentValues[] valuesBulk) {
-            int numInserted;
-            try {
-                // Use a transaction in order to make the insertions run as a single batch
-                db.beginTransaction();
+    @Override
+    public int bulkInsert(@NonNull Uri url, @NonNull ContentValues[] valuesBulk) {
+        int numInserted;
+        try {
+            // Use a transaction in order to make the insertions run as a single batch
+            db.beginTransaction();
 
-                UrlType urlType = getUrlType(url);
-                for (numInserted = 0; numInserted < valuesBulk.length; numInserted++) {
-                    ContentValues contentValues = valuesBulk[numInserted];
-                    if (contentValues == null) {
-                        contentValues = new ContentValues();
-                    }
-                    insertContentValues(url, urlType, contentValues);
+            UrlType urlType = getUrlType(url);
+            for (numInserted = 0; numInserted < valuesBulk.length; numInserted++) {
+                ContentValues contentValues = valuesBulk[numInserted];
+                if (contentValues == null) {
+                    contentValues = new ContentValues();
                 }
-                db.setTransactionSuccessful();
-            } finally {
-                db.endTransaction();
+                insertContentValues(url, urlType, contentValues);
             }
-            getContext().getContentResolver().notifyChange(url, null, false);
-            return numInserted;
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
         }
+        getContext().getContentResolver().notifyChange(url, null, false);
+        return numInserted;
+    }
 
     private String[] validateProjection(String[] projection, String tableName) {
         if (projection == null) {
@@ -292,44 +295,51 @@ public class CustomContentProvider extends ContentProvider {
         return filteredProjection.isEmpty() ? null : filteredProjection.toArray(new String[0]);
     }
 
-        private String validateSelection(String selection) {
-            if (selection == null) {
-                return null;
-            }
-
-            // Prevent dangerous characters like ; -- ' " or OR/AND without parameters
-            if (selection.matches(".*['\";].*") || selection.toLowerCase().matches(".*\\b(or|and)\\b.*")) {
-                throw new IllegalArgumentException("Invalid selection parameter detected");
-            }
-
-            return selection;
+    private String validateSelection(String selection) {
+        if (selection == null) {
+            return null;
         }
 
-        private String[] validateSelectionArgs(String[] selectionArgs) {
-            if (selectionArgs == null) {
-                return null;
-            }
-
-            String[] sanitizedArgs = new String[selectionArgs.length];
-            for (int i = 0; i < selectionArgs.length; i++) {
-                if (selectionArgs[i] == null) {
-                    throw new IllegalArgumentException("Null value detected in selectionArgs");
-                }
-
-                String arg = selectionArgs[i].trim();
-
-                if (arg.matches("\\d+")) {
-                    sanitizedArgs[i] = arg;
-                }
-                else if (arg.matches("[a-zA-Z0-9_\\-@.]+")) {
-                    sanitizedArgs[i] = arg;
-                }
-                else {
-                    throw new IllegalArgumentException("Invalid selectionArgs parameter detected: " + arg);
-                }
-            }
-            return sanitizedArgs;
+        // Allow safe characters and SQL keywords used in subqueries
+        if (!selection.matches("[a-zA-Z0-9_\\s=<>!&|%\\^\\-\\?(),.*]+")) {
+            throw new IllegalArgumentException("Unsafe characters detected in selection parameter: " + selection);
         }
+
+        // Prevent clearly dangerous patterns like UNION, DROP, etc. (case-insensitive)
+        Pattern blacklist = Pattern.compile("\\b(union|drop|insert|delete|update)\\b", Pattern.CASE_INSENSITIVE);
+        Matcher matcher = blacklist.matcher(selection);
+        if (matcher.find()) {
+            throw new IllegalArgumentException("Potentially dangerous SQL keyword detected: " + selection);
+        }
+
+        return selection;
+    }
+
+
+
+    private String[] validateSelectionArgs(String[] selectionArgs) {
+        if (selectionArgs == null) {
+            return null;
+        }
+
+        String[] sanitizedArgs = new String[selectionArgs.length];
+        for (int i = 0; i < selectionArgs.length; i++) {
+            if (selectionArgs[i] == null) {
+                throw new IllegalArgumentException("Null value detected in selectionArgs");
+            }
+
+            String arg = selectionArgs[i].trim();
+
+            if (arg.matches("\\d+")) {
+                sanitizedArgs[i] = arg;
+            } else if (arg.matches("[a-zA-Z0-9_\\-@.]+")) {
+                sanitizedArgs[i] = arg;
+            } else {
+                throw new IllegalArgumentException("Invalid selectionArgs parameter detected: " + arg);
+            }
+        }
+        return sanitizedArgs;
+    }
 
     private String validateSortOrder(String sortOrder, String[] allowedColumns) {
         if (sortOrder == null || sortOrder.isEmpty()) {
@@ -339,6 +349,14 @@ public class CustomContentProvider extends ContentProvider {
         // Convert allowed columns into a Set for easy lookup
         Set<String> allowedColumnsSet = new HashSet<>(Arrays.asList(allowedColumns));
         allowedColumnsSet.add("starttime"); // Add starttime as a valid column
+
+        // Extract LIMIT clause if it exists
+        String limitClause = "";
+        if (sortOrder.toUpperCase().contains("LIMIT")) {
+            int limitIndex = sortOrder.toUpperCase().indexOf("LIMIT");
+            limitClause = sortOrder.substring(limitIndex).trim();
+            sortOrder = sortOrder.substring(0, limitIndex).trim();
+        }
 
         // Split sortOrder by commas to support multiple columns (e.g., "name ASC, age DESC")
         String[] parts = sortOrder.split(",");
@@ -361,112 +379,114 @@ public class CustomContentProvider extends ContentProvider {
             validatedParts.add(columnName + " " + sortDirection);
         }
 
-        return String.join(", ", validatedParts);
+        // Join validated parts and append LIMIT clause if it exists
+        return String.join(", ", validatedParts) + (limitClause.isEmpty() ? "" : " " + limitClause);
     }
 
-        private String[] getSafeSelectionArgs(String[] selectionArgs) {
-            if (selectionArgs == null) {
-                return null;
+    private String[] getSafeSelectionArgs(String[] selectionArgs) {
+        if (selectionArgs == null) {
+            return null;
+        }
+
+        List<String> sanitizedList = new ArrayList<>();
+
+        for (String arg : selectionArgs) {
+            if (arg == null) {
+                throw new IllegalArgumentException("Null value detected in selectionArgs");
             }
 
-            List<String> sanitizedList = new ArrayList<>();
+            String sanitizedArg = arg.trim();
 
-            for (String arg : selectionArgs) {
-                if (arg == null) {
-                    throw new IllegalArgumentException("Null value detected in selectionArgs");
+            if (sanitizedArg.matches("\\d+") || sanitizedArg.matches("[a-zA-Z0-9_\\-@.]+")) {
+                sanitizedList.add(sanitizedArg);
+            } else {
+                throw new IllegalArgumentException("Invalid selectionArgs parameter detected: " + sanitizedArg);
+            }
+        }
+
+        return sanitizedList.toArray(new String[0]);
+    }
+
+    @Override
+    public Cursor query(@NonNull Uri url, String[] projection, String selection, String[] selectionArgs, String sort) {
+        SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
+        String sortOrder = null;
+        switch (getUrlType(url)) {
+            case TRACKPOINTS: {
+                queryBuilder.setTables(TrackPointsColumns.TABLE_NAME);
+                sortOrder = sort != null ? validateSortOrder(sort, TrackPointsColumns.ALL_COLUMNS) : TrackPointsColumns.DEFAULT_SORT_ORDER;
+                break;
+            }
+            case TRACKPOINTS_BY_ID: {
+                queryBuilder.setTables(TrackPointsColumns.TABLE_NAME);
+                queryBuilder.appendWhere(TrackPointsColumns._ID + "= ?");
+                queryBuilder.appendWhereEscapeString(String.valueOf(ContentUris.parseId(url)));
+                break;
+            }
+            case TRACKPOINTS_BY_TRACKID: {
+                queryBuilder.setTables(TrackPointsColumns.TABLE_NAME);
+                String[] trackIds = ContentProviderUtils.parseTrackIdsFromUri(url);
+                String placeholders = TextUtils.join(",", Collections.nCopies(trackIds.length, "?"));
+                queryBuilder.appendWhere(TrackPointsColumns.TRACKID + " IN (" + placeholders + ")");
+                for (String id : trackIds) {
+                    queryBuilder.appendWhereEscapeString(id);
                 }
-
-                String sanitizedArg = arg.trim();
-
-                if (sanitizedArg.matches("\\d+") || sanitizedArg.matches("[a-zA-Z0-9_\\-@.]+")) {
-                    sanitizedList.add(sanitizedArg);
+                break;
+            }
+            case TRACKS: {
+                if (projection != null && Arrays.asList(projection).contains(TracksColumns.MARKER_COUNT)) {
+                    queryBuilder.setTables(TracksColumns.TABLE_NAME + " LEFT OUTER JOIN (SELECT " + MarkerColumns.TRACKID + " AS markerTrackId, COUNT(*) AS " + TracksColumns.MARKER_COUNT + " FROM " + MarkerColumns.TABLE_NAME + " GROUP BY " + MarkerColumns.TRACKID + ") ON (" + TracksColumns.TABLE_NAME + "." + TracksColumns._ID + "= markerTrackId)");
                 } else {
-                    throw new IllegalArgumentException("Invalid selectionArgs parameter detected: " + sanitizedArg);
-                }
-            }
-
-            return sanitizedList.toArray(new String[0]);
-        }
-
-        @Override
-        public Cursor query(@NonNull Uri url, String[] projection, String selection, String[] selectionArgs, String sort) {
-            SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
-            String sortOrder = null;
-            switch (getUrlType(url)) {
-                case TRACKPOINTS: {
-                    queryBuilder.setTables(TrackPointsColumns.TABLE_NAME);
-                    sortOrder = sort != null ? validateSortOrder(sort, TrackPointsColumns.ALL_COLUMNS) : TrackPointsColumns.DEFAULT_SORT_ORDER;
-                    break;
-                }
-                case TRACKPOINTS_BY_ID: {
-                    queryBuilder.setTables(TrackPointsColumns.TABLE_NAME);
-                    queryBuilder.appendWhere(TrackPointsColumns._ID + "= ?");
-                    queryBuilder.appendWhereEscapeString(String.valueOf(ContentUris.parseId(url)));
-                    break;
-                }
-                case TRACKPOINTS_BY_TRACKID: {
-                    queryBuilder.setTables(TrackPointsColumns.TABLE_NAME);
-                    String[] trackIds = ContentProviderUtils.parseTrackIdsFromUri(url);
-                    String placeholders = TextUtils.join(",", Collections.nCopies(trackIds.length, "?"));
-                    queryBuilder.appendWhere(TrackPointsColumns.TRACKID + " IN (" + placeholders + ")");
-                    for(String id : trackIds) {
-                        queryBuilder.appendWhereEscapeString(id);
-                    }
-                    break;
-                }
-                case TRACKS: {
-                    if (projection != null && Arrays.asList(projection).contains(TracksColumns.MARKER_COUNT)) {
-                        queryBuilder.setTables(TracksColumns.TABLE_NAME + " LEFT OUTER JOIN (SELECT " + MarkerColumns.TRACKID + " AS markerTrackId, COUNT(*) AS " + TracksColumns.MARKER_COUNT + " FROM " + MarkerColumns.TABLE_NAME + " GROUP BY " + MarkerColumns.TRACKID + ") ON (" + TracksColumns.TABLE_NAME + "." + TracksColumns._ID + "= markerTrackId)");
-                    } else {
-                        queryBuilder.setTables(TracksColumns.TABLE_NAME);
-                    }
-                    sortOrder = sort != null ? validateSortOrder(sort, TrackPointsColumns.ALL_COLUMNS) : TracksColumns.DEFAULT_SORT_ORDER;
-                    break;
-                }
-                case TRACKS_BY_ID: {
                     queryBuilder.setTables(TracksColumns.TABLE_NAME);
-                    String[] trackIds = ContentProviderUtils.parseTrackIdsFromUri(url);
-                    String placeholders = TextUtils.join(",", Collections.nCopies(trackIds.length, "?"));
-                    queryBuilder.appendWhere(TracksColumns._ID + " IN (" + placeholders + ")");
-                    for (String id : trackIds) {
-                        queryBuilder.appendWhereEscapeString(id);
-                    }
-                    break;
                 }
-                case TRACKS_SENSOR_STATS: {
-                    long trackId = ContentUris.parseId(url);
-                    return db.rawQuery(SENSOR_STATS_QUERY, new String[]{String.valueOf(trackId), String.valueOf(trackId)});
-                }
-                case MARKERS: {
-                    queryBuilder.setTables(MarkerColumns.TABLE_NAME);
-                    sortOrder = sort != null ? validateSortOrder(sort, MarkerColumns.ALL_COLUMNS) : MarkerColumns.DEFAULT_SORT_ORDER;
-                    break;
-                }
-                case MARKERS_BY_ID: {
-                    queryBuilder.setTables(MarkerColumns.TABLE_NAME);
-                    queryBuilder.appendWhere(MarkerColumns._ID + "= ?");
-                    queryBuilder.appendWhereEscapeString(String.valueOf(ContentUris.parseId(url)));
-                    break;
-                }
-                case MARKERS_BY_TRACKID: {
-                    queryBuilder.setTables(MarkerColumns.TABLE_NAME);
-                    String[] trackIds = ContentProviderUtils.parseTrackIdsFromUri(url);
-                    String placeholders = TextUtils.join(",", Collections.nCopies(trackIds.length, "?"));
-                    queryBuilder.appendWhere(MarkerColumns.TRACKID + " IN (" + placeholders + ")");
-                    for (String id : trackIds) {
-                        queryBuilder.appendWhereEscapeString(id);
-                    }
-                    break;
-                }
-                default: throw new IllegalArgumentException("Unknown url " + url);
+                sortOrder = sort != null ? validateSortOrder(sort, TrackPointsColumns.ALL_COLUMNS) : TracksColumns.DEFAULT_SORT_ORDER;
+                break;
             }
-            String[] safeProjection = validateProjection(projection, queryBuilder.getTables());
-            String safeSelection = validateSelection(selection);
-            String[] safeSelectionArgs = getSafeSelectionArgs(selectionArgs);
-            Cursor cursor = queryBuilder.query(db, safeProjection, safeSelection, safeSelectionArgs, null, null, sortOrder);
-            cursor.setNotificationUri(getContext().getContentResolver(), url);
-            return cursor;
+            case TRACKS_BY_ID: {
+                queryBuilder.setTables(TracksColumns.TABLE_NAME);
+                String[] trackIds = ContentProviderUtils.parseTrackIdsFromUri(url);
+                String placeholders = TextUtils.join(",", Collections.nCopies(trackIds.length, "?"));
+                queryBuilder.appendWhere(TracksColumns._ID + " IN (" + placeholders + ")");
+                for (String id : trackIds) {
+                    queryBuilder.appendWhereEscapeString(id);
+                }
+                break;
+            }
+            case TRACKS_SENSOR_STATS: {
+                long trackId = ContentUris.parseId(url);
+                return db.rawQuery(SENSOR_STATS_QUERY, new String[]{String.valueOf(trackId), String.valueOf(trackId)});
+            }
+            case MARKERS: {
+                queryBuilder.setTables(MarkerColumns.TABLE_NAME);
+                sortOrder = sort != null ? validateSortOrder(sort, MarkerColumns.ALL_COLUMNS) : MarkerColumns.DEFAULT_SORT_ORDER;
+                break;
+            }
+            case MARKERS_BY_ID: {
+                queryBuilder.setTables(MarkerColumns.TABLE_NAME);
+                queryBuilder.appendWhere(MarkerColumns._ID + "= ?");
+                queryBuilder.appendWhereEscapeString(String.valueOf(ContentUris.parseId(url)));
+                break;
+            }
+            case MARKERS_BY_TRACKID: {
+                queryBuilder.setTables(MarkerColumns.TABLE_NAME);
+                String[] trackIds = ContentProviderUtils.parseTrackIdsFromUri(url);
+                String placeholders = TextUtils.join(",", Collections.nCopies(trackIds.length, "?"));
+                queryBuilder.appendWhere(MarkerColumns.TRACKID + " IN (" + placeholders + ")");
+                for (String id : trackIds) {
+                    queryBuilder.appendWhereEscapeString(id);
+                }
+                break;
+            }
+            default:
+                throw new IllegalArgumentException("Unknown url " + url);
         }
+        String[] safeProjection = validateProjection(projection, queryBuilder.getTables());
+        String safeSelection = validateSelection(selection);
+        String[] safeSelectionArgs = getSafeSelectionArgs(selectionArgs);
+        Cursor cursor = queryBuilder.query(db, safeProjection, safeSelection, safeSelectionArgs, null, null, sortOrder);
+        cursor.setNotificationUri(getContext().getContentResolver(), url);
+        return cursor;
+    }
 
     @Override
     public int update(@NonNull Uri url, ContentValues values, String where, String[] selectionArgs) {
@@ -501,7 +521,7 @@ public class CustomContentProvider extends ContentProvider {
         try {
             db.beginTransaction();
 
-            count = safeUpdate(db, qb.getTables(),values,whereClause,selectionArgs);
+            count = safeUpdate(db, qb.getTables(), values, whereClause, selectionArgs);
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
@@ -514,10 +534,10 @@ public class CustomContentProvider extends ContentProvider {
     /**
      * A safe update method that rejects unsafe whereClause.
      *
-     * @param db          the database
-     * @param table       the table name
-     * @param values      the content values
-     * @param whereClause the where clause
+     * @param db            the database
+     * @param table         the table name
+     * @param values        the content values
+     * @param whereClause   the where clause
      * @param selectionArgs the selection arguments
      * @return the number of rows affected
      */
