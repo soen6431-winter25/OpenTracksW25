@@ -144,7 +144,7 @@ public class CustomContentProvider extends ContentProvider {
             }
             return db != null;
         }
-    
+
         @Override
         public int delete(@NonNull Uri url, String where, String[] selectionArgs) {
             String table = switch (getUrlType(url)) {
@@ -153,7 +153,7 @@ public class CustomContentProvider extends ContentProvider {
                 case MARKERS -> MarkerColumns.TABLE_NAME;
                 default -> throw new IllegalArgumentException("Unknown URL " + url);
             };
-    
+
             Log.w(TAG, "Deleting from table " + table);
 
             int totalChangesBefore = getTotalChanges();
@@ -167,10 +167,10 @@ public class CustomContentProvider extends ContentProvider {
                 db.endTransaction();
             }
             getContext().getContentResolver().notifyChange(url, null, false);
-    
+
             int totalChanges = getTotalChanges() - totalChangesBefore;
             Log.i(TAG, "Deleted " + totalChanges + " total rows from database");
-    
+
             PreferencesUtils.addTotalRowsDeleted(totalChanges);
             int totalRowsDeleted = PreferencesUtils.getTotalRowsDeleted();
             if (totalRowsDeleted > TOTAL_DELETED_ROWS_VACUUM_THRESHOLD) {
@@ -178,7 +178,7 @@ public class CustomContentProvider extends ContentProvider {
                 db.execSQL("VACUUM");
                 PreferencesUtils.resetTotalRowsDeleted();
             }
-    
+
             return deletedRowsFromTable;
         }
         private String sanitizeWhereClause(String where) {
@@ -200,7 +200,7 @@ public class CustomContentProvider extends ContentProvider {
             }
             return totalCount;
         }
-    
+
         @Override
         public String getType(@NonNull Uri url) {
             return switch (getUrlType(url)) {
@@ -213,7 +213,7 @@ public class CustomContentProvider extends ContentProvider {
                 default -> throw new IllegalArgumentException("Unknown URL " + url);
             };
         }
-    
+
         @Override
         public Uri insert(@NonNull Uri url, ContentValues initialValues) {
             if (initialValues == null) {
@@ -230,14 +230,14 @@ public class CustomContentProvider extends ContentProvider {
             getContext().getContentResolver().notifyChange(url, null, false);
             return result;
         }
-    
+
         @Override
         public int bulkInsert(@NonNull Uri url, @NonNull ContentValues[] valuesBulk) {
             int numInserted;
             try {
                 // Use a transaction in order to make the insertions run as a single batch
                 db.beginTransaction();
-    
+
                 UrlType urlType = getUrlType(url);
                 for (numInserted = 0; numInserted < valuesBulk.length; numInserted++) {
                     ContentValues contentValues = valuesBulk[numInserted];
@@ -253,49 +253,55 @@ public class CustomContentProvider extends ContentProvider {
             getContext().getContentResolver().notifyChange(url, null, false);
             return numInserted;
         }
-    
-        private String[] validateProjection(String[] projection, String tableName) {
-            if (projection == null) {
-                return null;
-            }
-        
-            // Define allowed columns for each table
-            Set<String> allowedColumns;
-            switch (tableName) {
-                case TrackPointsColumns.TABLE_NAME:
-                    allowedColumns = new HashSet<>(Arrays.asList(TrackPointsColumns.ALL_COLUMNS));
-                    break;
-                case TracksColumns.TABLE_NAME:
-                    allowedColumns = new HashSet<>(Arrays.asList(TracksColumns.ALL_COLUMNS));
-                    break;
-                case MarkerColumns.TABLE_NAME:
-                    allowedColumns = new HashSet<>(Arrays.asList(MarkerColumns.ALL_COLUMNS));
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unknown table: " + tableName);
-            }
-        
-            // Filter projection: Allow only known columns
-            List<String> filteredProjection = new ArrayList<>();
-            for (String column : projection) {
-                if (allowedColumns.contains(column)) {
+
+    private String[] validateProjection(String[] projection, String tableName) {
+        if (projection == null) {
+            return null;
+        }
+
+        // Define allowed columns for each table
+        Set<String> allowedColumns;
+        switch (tableName.split(" ")[0]) { // Split on space to handle joined tables
+            case TrackPointsColumns.TABLE_NAME:
+                allowedColumns = new HashSet<>(Arrays.asList(TrackPointsColumns.ALL_COLUMNS));
+                break;
+            case TracksColumns.TABLE_NAME:
+                allowedColumns = new HashSet<>(Arrays.asList(TracksColumns.ALL_COLUMNS));
+                break;
+            case MarkerColumns.TABLE_NAME:
+                allowedColumns = new HashSet<>(Arrays.asList(MarkerColumns.ALL_COLUMNS));
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown table: " + tableName);
+        }
+
+        // Filter projection: Allow only known columns
+        List<String> filteredProjection = new ArrayList<>();
+        for (String column : projection) {
+            if (allowedColumns.contains(column)) {
+                filteredProjection.add(column);
+            } else {
+                // If the column is not directly in the allowed columns, check if it's part of a join
+                String[] parts = column.split("\\.");
+                if (parts.length == 2 && allowedColumns.contains(parts[1])) {
                     filteredProjection.add(column);
                 }
             }
-        
-            return filteredProjection.isEmpty() ? null : filteredProjection.toArray(new String[0]);
         }
+
+        return filteredProjection.isEmpty() ? null : filteredProjection.toArray(new String[0]);
+    }
 
         private String validateSelection(String selection) {
             if (selection == null) {
                 return null;
             }
-        
+
             // Prevent dangerous characters like ; -- ' " or OR/AND without parameters
             if (selection.matches(".*['\";].*") || selection.toLowerCase().matches(".*\\b(or|and)\\b.*")) {
                 throw new IllegalArgumentException("Invalid selection parameter detected");
             }
-        
+
             return selection;
         }
 
@@ -303,21 +309,21 @@ public class CustomContentProvider extends ContentProvider {
             if (selectionArgs == null) {
                 return null;
             }
-        
+
             String[] sanitizedArgs = new String[selectionArgs.length];
             for (int i = 0; i < selectionArgs.length; i++) {
                 if (selectionArgs[i] == null) {
                     throw new IllegalArgumentException("Null value detected in selectionArgs");
                 }
-        
+
                 String arg = selectionArgs[i].trim();
 
-                if (arg.matches("\\d+")) { 
+                if (arg.matches("\\d+")) {
                     sanitizedArgs[i] = arg;
-                } 
-                else if (arg.matches("[a-zA-Z0-9_\\-@.]+")) { 
+                }
+                else if (arg.matches("[a-zA-Z0-9_\\-@.]+")) {
                     sanitizedArgs[i] = arg;
-                } 
+                }
                 else {
                     throw new IllegalArgumentException("Invalid selectionArgs parameter detected: " + arg);
                 }
@@ -325,62 +331,63 @@ public class CustomContentProvider extends ContentProvider {
             return sanitizedArgs;
         }
 
-        private String validateSortOrder(String sortOrder, String[] allowedColumns) {
-            if (sortOrder == null || sortOrder.isEmpty()) {
-                return null;
-            }
-        
-            // Convert allowed columns into a Set for easy lookup
-            Set<String> allowedColumnsSet = new HashSet<>(Arrays.asList(allowedColumns));
-        
-            // Split sortOrder by commas to support multiple columns (e.g., "name ASC, age DESC")
-            String[] parts = sortOrder.split(",");
-            List<String> validatedParts = new ArrayList<>();
-        
-            for (String part : parts) {
-                String[] tokens = part.trim().split("\\s+");
-                if (tokens.length < 1 || tokens.length > 2) {
-                    throw new IllegalArgumentException("Invalid sort order: " + sortOrder);
-                }
-        
-                String columnName = tokens[0].trim();
-                String sortDirection = (tokens.length == 2) ? tokens[1].trim().toUpperCase() : "ASC"; // Default to ASC
-        
-                // Validate column name and sorting direction
-                if (!allowedColumnsSet.contains(columnName) || (!sortDirection.equals("ASC") && !sortDirection.equals("DESC"))) {
-                    throw new IllegalArgumentException("Invalid sort order: " + sortOrder);
-                }
-        
-                validatedParts.add(columnName + " " + sortDirection);
-            }
-        
-            return String.join(", ", validatedParts);
+    private String validateSortOrder(String sortOrder, String[] allowedColumns) {
+        if (sortOrder == null || sortOrder.isEmpty()) {
+            return null;
         }
+
+        // Convert allowed columns into a Set for easy lookup
+        Set<String> allowedColumnsSet = new HashSet<>(Arrays.asList(allowedColumns));
+        allowedColumnsSet.add("starttime"); // Add starttime as a valid column
+
+        // Split sortOrder by commas to support multiple columns (e.g., "name ASC, age DESC")
+        String[] parts = sortOrder.split(",");
+        List<String> validatedParts = new ArrayList<>();
+
+        for (String part : parts) {
+            String[] tokens = part.trim().split("\\s+");
+            if (tokens.length < 1 || tokens.length > 2) {
+                throw new IllegalArgumentException("Invalid sort order: " + sortOrder);
+            }
+
+            String columnName = tokens[0].trim();
+            String sortDirection = (tokens.length == 2) ? tokens[1].trim().toUpperCase() : "ASC"; // Default to ASC
+
+            // Validate column name and sorting direction
+            if (!allowedColumnsSet.contains(columnName) || (!sortDirection.equals("ASC") && !sortDirection.equals("DESC"))) {
+                throw new IllegalArgumentException("Invalid sort order: " + sortOrder);
+            }
+
+            validatedParts.add(columnName + " " + sortDirection);
+        }
+
+        return String.join(", ", validatedParts);
+    }
 
         private String[] getSafeSelectionArgs(String[] selectionArgs) {
             if (selectionArgs == null) {
                 return null;
             }
-        
+
             List<String> sanitizedList = new ArrayList<>();
-            
+
             for (String arg : selectionArgs) {
                 if (arg == null) {
                     throw new IllegalArgumentException("Null value detected in selectionArgs");
                 }
-        
+
                 String sanitizedArg = arg.trim();
-        
-                if (sanitizedArg.matches("\\d+") || sanitizedArg.matches("[a-zA-Z0-9_\\-@.]+")) { 
+
+                if (sanitizedArg.matches("\\d+") || sanitizedArg.matches("[a-zA-Z0-9_\\-@.]+")) {
                     sanitizedList.add(sanitizedArg);
                 } else {
                     throw new IllegalArgumentException("Invalid selectionArgs parameter detected: " + sanitizedArg);
                 }
             }
-        
+
             return sanitizedList.toArray(new String[0]);
         }
-        
+
         @Override
         public Cursor query(@NonNull Uri url, String[] projection, String selection, String[] selectionArgs, String sort) {
             SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
