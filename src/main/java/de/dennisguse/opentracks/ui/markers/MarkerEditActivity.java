@@ -32,7 +32,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
-
+import android.provider.MediaStore;
+import androidx.core.content.FileProvider;
+import java.io.File;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -51,6 +53,7 @@ import de.dennisguse.opentracks.data.models.Marker;
 import de.dennisguse.opentracks.data.models.Track;
 import de.dennisguse.opentracks.data.models.TrackPoint;
 import de.dennisguse.opentracks.databinding.MarkerEditBinding;
+import de.dennisguse.opentracks.ui.markers.MarkerUtils;
 
 /**
  * An activity to add/edit a marker.
@@ -289,7 +292,24 @@ public class MarkerEditActivity extends AbstractActivity {
         }
     
         try {
-            takePictureFromCamera.launch(intentAndPhotoUri.first);
+            // Use FileProvider to generate a safe URI for camera photo storage
+            File photoFile = MarkerUtils.createImageFile(this, getTrackId());
+            Uri photoUri = FileProvider.getUriForFile(this, "com.yourapp.fileprovider", photoFile); // Use your app's provider
+
+            // Launch camera intent
+            launchCameraIntent(photoUri);
+
+        } catch (IOException e) {
+            Toast.makeText(this, "Error creating image file", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void launchCameraIntent(Uri photoUri) {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
+
+        try {
+            takePictureFromCamera.launch(takePictureIntent);
         } catch (ActivityNotFoundException e) {
             Toast.makeText(this, R.string.no_compatible_camera_installed, Toast.LENGTH_LONG).show();
         }
@@ -327,6 +347,7 @@ public class MarkerEditActivity extends AbstractActivity {
     }
 
     
+
     private void createMarkerWithGalleryImage() {
         PickVisualMediaRequest request = new PickVisualMediaRequest.Builder()
                 .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)

@@ -285,9 +285,28 @@ public class TrackRecordingManager implements SharedPreferences.OnSharedPreferen
             idleDuration = PreferencesUtils.getIdleDurationTimeout();
         }
     }
+    private TrackPoint copyTrackPoint(TrackPoint source) {
+        if (source == null) return null;
+        TrackPoint copy = new TrackPoint(source.getType(), source.getTime());
+        copy.setId(source.getId());
+        copy.setLatitude(source.getLatitude());
+        copy.setLongitude(source.getLongitude());
+        copy.setHorizontalAccuracy(source.getHorizontalAccuracy());
+        copy.setVerticalAccuracy(source.getVerticalAccuracy());
+        copy.setAltitude(source.getAltitude());
+        copy.setSpeed(source.getSpeed());
+        copy.setBearing(source.getBearing());
+        copy.setSensorDistance(source.getSensorDistance());
+        copy.setHeartRate(source.getHeartRate());
+        copy.setCadence(source.getCadence());
+        copy.setPower(source.getPower());
+        copy.setAltitudeGain(source.hasAltitudeGain() ? source.getAltitudeGain() : null);
+        copy.setAltitudeLoss(source.hasAltitudeLoss() ? source.getAltitudeLoss() : null);
 
+        return copy;
+    }
     public TrackPoint getLastStoredTrackPointWithLocation() {
-        return lastStoredTrackPointWithLocation;
+        return copyTrackPoint(lastStoredTrackPointWithLocation);
     }
 
     public interface IdleObserver {
