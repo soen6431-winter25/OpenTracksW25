@@ -294,61 +294,87 @@ import de.dennisguse.opentracks.settings.PreferencesUtils;
     
         @Override
         public int update(@NonNull Uri url, ContentValues values, String where, String[] selectionArgs) {
-            // TODO Use SQLiteQueryBuilder
             String table;
-            String whereClause;
-          
+            StringBuilder whereClauseBuilder = new StringBuilder();
+            List<String> selectionArgsList = new ArrayList<>();
+        
             switch (getUrlType(url)) {
                 case TRACKPOINTS -> {
                     table = TrackPointsColumns.TABLE_NAME;
-                    whereClause = where;
+                    if (!TextUtils.isEmpty(where)) {
+                        whereClauseBuilder.append(where);
+                        if (selectionArgs != null) {
+                            selectionArgsList.addAll(Arrays.asList(selectionArgs));
+                        }
+                    }
                 }
                 case TRACKPOINTS_BY_ID -> {
                     table = TrackPointsColumns.TABLE_NAME;
-                    whereClause = TrackPointsColumns._ID + "=" + ContentUris.parseId(url);
+                    whereClauseBuilder.append(TrackPointsColumns._ID).append("=?");
+                    selectionArgsList.add(String.valueOf(ContentUris.parseId(url)));
                     if (!TextUtils.isEmpty(where)) {
-                        whereClause += " AND (" + where + ")";
+                        whereClauseBuilder.append(" AND (").append(where).append(")");
+                        if (selectionArgs != null) {
+                            selectionArgsList.addAll(Arrays.asList(selectionArgs));
+                        }
                     }
                 }
                 case TRACKS -> {
                     table = TracksColumns.TABLE_NAME;
-                    whereClause = where;
+                    if (!TextUtils.isEmpty(where)) {
+                        whereClauseBuilder.append(where);
+                        if (selectionArgs != null) {
+                            selectionArgsList.addAll(Arrays.asList(selectionArgs));
+                        }
+                    }
                 }
                 case TRACKS_BY_ID -> {
                     table = TracksColumns.TABLE_NAME;
-                    whereClause = TracksColumns._ID + "=" + ContentUris.parseId(url);
+                    whereClauseBuilder.append(TracksColumns._ID).append("=?");
+                    selectionArgsList.add(String.valueOf(ContentUris.parseId(url)));
                     if (!TextUtils.isEmpty(where)) {
-                        whereClause += " AND (" + where + ")";
+                        whereClauseBuilder.append(" AND (").append(where).append(")");
+                        if (selectionArgs != null) {
+                            selectionArgsList.addAll(Arrays.asList(selectionArgs));
+                        }
                     }
                 }
                 case MARKERS -> {
                     table = MarkerColumns.TABLE_NAME;
-                    whereClause = where;
+                    if (!TextUtils.isEmpty(where)) {
+                        whereClauseBuilder.append(where);
+                        if (selectionArgs != null) {
+                            selectionArgsList.addAll(Arrays.asList(selectionArgs));
+                        }
+                    }
                 }
                 case MARKERS_BY_ID -> {
                     table = MarkerColumns.TABLE_NAME;
-                    whereClause = MarkerColumns._ID + "=" + ContentUris.parseId(url);
+                    whereClauseBuilder.append(MarkerColumns._ID).append("=?");
+                    selectionArgsList.add(String.valueOf(ContentUris.parseId(url)));
                     if (!TextUtils.isEmpty(where)) {
-                        whereClause += " AND (" + where + ")";
+                        whereClauseBuilder.append(" AND (").append(where).append(")");
+                        if (selectionArgs != null) {
+                            selectionArgsList.addAll(Arrays.asList(selectionArgs));
+                        }
                     }
                 }
                 default -> throw new IllegalArgumentException("Unknown url " + url);
             }
-          
+        
             int count;
-          
+        
             try {
                 db.beginTransaction();
-                count = db.update(table, values, whereClause, selectionArgs);
+                count = db.update(table, values, whereClauseBuilder.toString(), selectionArgsList.toArray(new String[0]));
                 db.setTransactionSuccessful();
             } finally {
                 db.endTransaction();
             }
-
+        
             getContext().getContentResolver().notifyChange(url, null, false);
             return count;
-
-        }
+        }        
     
         @NonNull
         private UrlType getUrlType(Uri url) {
