@@ -32,7 +32,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
-
+import android.provider.MediaStore;
+import androidx.core.content.FileProvider;
+import java.io.File;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -43,6 +45,7 @@ import androidx.lifecycle.ViewModelProvider;
 import java.io.FileDescriptor;
 import java.io.IOException;
 import java.time.Instant;
+import java.io.File;
 
 import de.dennisguse.opentracks.AbstractActivity;
 import de.dennisguse.opentracks.R;
@@ -50,6 +53,7 @@ import de.dennisguse.opentracks.data.models.Marker;
 import de.dennisguse.opentracks.data.models.Track;
 import de.dennisguse.opentracks.data.models.TrackPoint;
 import de.dennisguse.opentracks.databinding.MarkerEditBinding;
+import de.dennisguse.opentracks.ui.markers.MarkerUtils;
 
 /**
  * An activity to add/edit a marker.
@@ -273,15 +277,76 @@ public class MarkerEditActivity extends AbstractActivity {
     }
 
     private void createMarkerWithPicture() {
-        Pair<Intent, Uri> intentAndPhotoUri = MarkerUtils.createTakePictureIntent(this, getTrackId());
+        Track.Id resolvedTrackId = getTrackId();
+        if (resolvedTrackId == null) {
+            Toast.makeText(this, "Invalid track ID", Toast.LENGTH_LONG).show();
+            return;
+        }
+    
+        Pair<Intent, Uri> intentAndPhotoUri = MarkerUtils.createTakePictureIntent(this, resolvedTrackId);
         cameraPhotoUri = intentAndPhotoUri.second;
+    
+        if (cameraPhotoUri == null || !isSafeUri(cameraPhotoUri)) {
+            Toast.makeText(this, "Invalid photo location", Toast.LENGTH_LONG).show();
+            return;
+        }
+    
+        try {
+            // Use FileProvider to generate a safe URI for camera photo storage
+            File photoFile = MarkerUtils.createImageFile(this, getTrackId());
+            Uri photoUri = FileProvider.getUriForFile(this, "com.yourapp.fileprovider", photoFile); // Use your app's provider
+
+            // Launch camera intent
+            launchCameraIntent(photoUri);
+
+        } catch (IOException e) {
+            Toast.makeText(this, "Error creating image file", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void launchCameraIntent(Uri photoUri) {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
 
         try {
-            takePictureFromCamera.launch(intentAndPhotoUri.first);
+            takePictureFromCamera.launch(takePictureIntent);
         } catch (ActivityNotFoundException e) {
             Toast.makeText(this, R.string.no_compatible_camera_installed, Toast.LENGTH_LONG).show();
         }
     }
+
+    private boolean isSafeUri(Uri uri) {
+        if (uri == null) return false;
+
+        // Allow only file or content scheme
+        String scheme = uri.getScheme();
+        if (!"file".equals(scheme) && !"content".equals(scheme)) {
+            return false;
+        }
+
+        // For file:// URIs - verify canonical path is within marker_photos dir
+        if ("file".equals(scheme)) {
+            try {
+                File targetFile = new File(uri.getPath());
+                File baseDir = new File(getExternalFilesDir(null), "marker_photos");
+
+                String canonicalBase = baseDir.getCanonicalPath() + File.separator;
+                String canonicalTarget = targetFile.getCanonicalPath();
+
+                // Fix based on Snyk Zip Slip example
+                return canonicalTarget.startsWith(canonicalBase);
+
+            } catch (IOException e) {
+                Log.e(TAG, "Path validation failed: " + e.getMessage());
+                return false;
+            }
+        }
+
+        // For content:// URIs, do basic allowance; could extend with authority check
+        return true;
+    }
+
+    
 
     private void createMarkerWithGalleryImage() {
         PickVisualMediaRequest request = new PickVisualMediaRequest.Builder()

@@ -7,6 +7,8 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.util.Pair;
+import android.os.Environment;
+import java.io.IOException;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -112,5 +114,36 @@ public class MarkerUtils {
 
         File dir = FileUtils.getPhotoDir(context, trackId);
         return new File(dir, filename);
+    }
+
+    public static String sanitizeTrackId(Track.Id trackId) {
+        if (trackId == null) {
+            return "unknown"; // Use a default value for null
+        }
+
+        // Ensure only alphanumeric characters and avoid path traversal characters
+        return  trackId.toString().replaceAll("[^a-zA-Z0-9]", "_");
+    }
+
+    public static File createImageFile(Context context, Track.Id trackId) throws IOException {
+        // Sanitize the trackId to avoid path traversal
+        String sanitizedTrackId = sanitizeTrackId(trackId);
+
+        // Define the directory where the image will be saved (app-specific directory)
+        File storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        if (storageDir == null) {
+            throw new IOException("Storage directory not available");
+        }
+
+        // Create a unique file name for the photo using the sanitized trackId
+        String photoFileName = "photo_" + sanitizedTrackId + ".jpg";
+        File imageFile = new File(storageDir, photoFileName);
+
+        // Make sure the parent directory exists
+        if (!imageFile.getParentFile().exists()) {
+            imageFile.getParentFile().mkdirs(); // Create directories if needed
+        }
+
+        return imageFile;
     }
 }
