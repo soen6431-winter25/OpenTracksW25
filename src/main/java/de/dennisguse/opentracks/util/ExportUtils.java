@@ -85,13 +85,7 @@ public class ExportUtils {
     public static List<String> getAllFiles(Context context, Uri directoryUri) {
         List<String> fileNames = new ArrayList<>();
         final ContentResolver resolver = context.getContentResolver();
-        String docId = DocumentsContract.getDocumentId(directoryUri);
-
-        // Reject null, empty, or weird characters
-        if (docId == null || docId.trim().isEmpty() || docId.contains(";") || docId.contains("--")) {
-            throw new IllegalArgumentException("Invalid document ID");
-        }
-        final Uri childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(directoryUri, docId);
+        final Uri childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(directoryUri, DocumentsContract.getDocumentId(directoryUri));
 
         try (Cursor c = resolver.query(childrenUri, new String[]{DocumentsContract.Document.COLUMN_DISPLAY_NAME}, null, null, null)) {
             while (c.moveToNext()) {

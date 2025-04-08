@@ -20,8 +20,8 @@ public class PermissionRequester {
 
     private final List<String> permissions;
 
-   public PermissionRequester(List<String> permissions) {
-        this.permissions = Collections.unmodifiableList(new ArrayList<>(permissions));
+    public PermissionRequester(List<String> permissions) {
+        this.permissions = permissions;
     }
 
     public boolean hasPermission(Context context) {

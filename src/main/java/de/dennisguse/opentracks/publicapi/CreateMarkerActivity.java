@@ -30,10 +30,10 @@ public class CreateMarkerActivity extends AppCompatActivity {
         }
 
         TrackRecordingServiceConnection.execute(this, (service, self) -> {
-            Intent intent = new Intent(this, MarkerEditActivity.class);
-            intent.putExtra(MarkerEditActivity.EXTRA_TRACK_ID, trackId);
-            intent.putExtra(MarkerEditActivity.EXTRA_LOCATION, location);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            Intent intent = IntentUtils
+                    .newIntent(this, MarkerEditActivity.class)
+                    .putExtra(MarkerEditActivity.EXTRA_TRACK_ID, trackId)
+                    .putExtra(MarkerEditActivity.EXTRA_LOCATION, location);
             startActivity(intent);
             finish();
         });

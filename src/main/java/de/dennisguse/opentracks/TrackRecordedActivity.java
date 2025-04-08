@@ -22,8 +22,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.content.ComponentName;
-
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -153,15 +151,8 @@ public class TrackRecordedActivity extends AbstractTrackDeleteActivity implement
     public void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
-    
-        if (intent != null && intent.resolveActivity(getPackageManager()) != null &&
-            getPackageName().equals(intent.resolveActivity(getPackageManager()).getPackageName())) {
-            handleIntent(intent);
-        } else {
-            Log.e(TAG, "Received untrusted intent.");
-            finish();
-        }
-    }    
+        handleIntent(intent);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -192,13 +183,9 @@ public class TrackRecordedActivity extends AbstractTrackDeleteActivity implement
         if (item.getItemId() == R.id.track_detail_markers) {
             Intent intent = IntentUtils.newIntent(this, MarkerListActivity.class)
                     .putExtra(MarkerListActivity.EXTRA_TRACK_ID, trackId);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            if (intent.resolveActivity(getPackageManager()) != null) {
-                startActivity(intent);
-            }
+            startActivity(intent);
             return true;
         }
-
 
         if (item.getItemId() == R.id.track_detail_edit) {
             if (trackId == null) {
@@ -263,30 +250,13 @@ public class TrackRecordedActivity extends AbstractTrackDeleteActivity implement
     }
 
     private void handleIntent(Intent intent) {
-        if (intent == null) {
-            Log.e(TAG, "Received null intent.");
+        trackId = intent.getParcelableExtra(EXTRA_TRACK_ID);
+        if (trackId == null) {
+            Log.e(TAG, TrackRecordedActivity.class.getSimpleName() + " needs EXTRA_TRACK_ID.");
             finish();
-            return;
         }
-    
-        Track.Id maybeTrackId = intent.getParcelableExtra(EXTRA_TRACK_ID);
-        if (maybeTrackId == null) {
-            Log.e(TAG, "Missing EXTRA_TRACK_ID in Intent.");
-            finish();
-            return;
-        }
-    
-        // Validate that the intent came from within this app
-        ComponentName resolvedComponent = intent.resolveActivity(getPackageManager());
-        if (resolvedComponent == null || !getPackageName().equals(resolvedComponent.getPackageName())) {
-            Log.e(TAG, "Untrusted source: " + resolvedComponent);
-            finish();
-            return;
-        }
-    
-        trackId = maybeTrackId;
     }
-    
+
     private class CustomFragmentPagerAdapter extends FragmentStateAdapter {
 
         public CustomFragmentPagerAdapter(@NonNull FragmentActivity fa) {
