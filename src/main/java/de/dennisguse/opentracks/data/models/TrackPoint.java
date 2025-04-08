@@ -15,8 +15,6 @@
  */
 package de.dennisguse.opentracks.data.models;
 
-import de.dennisguse.opentracks.data.Id;
-
 import android.location.Location;
 import android.os.Parcel;
 import android.os.Parcelable;
